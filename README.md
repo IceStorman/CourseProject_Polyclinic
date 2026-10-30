@@ -10,6 +10,16 @@ Microsoft SQL Server (SSIS, SSAS, SSRS)
 лікарства, призначення та протипоказання. Обсяг даних — понад 50 000 пацієнтів і
 500 000 історій хвороб за 10 років (2016–2025).
 
+## Стан виконання
+
+| Етап | Зміст | Стан |
+|---|---|---|
+| 1. Проектування БД | ER-моделі, нормалізація, SQL-скрипти, тести обмежень | ✅ |
+| 2. Генерація даних | 3,57 млн записів (538 тис. історій хвороб), валідація | ✅ |
+| 3. ETL (SSIS) | Сховище PolyclinicDW (4 факти, 9 вимірів), 7 пакетів SSIS, SCD2, інкрементальне завантаження | ✅ |
+| 4. OLAP-куб (SSAS) | Куб «Поліклініка»: 9 вимірів, 5 груп мір, 24 MDX-обчислення, 4 KPI, партиції, агрегації, перспективи | ✅ |
+| 5. Звіти (SSRS) | 8 звітів: таблиця, матриця, діаграми, дашборд, drill-down; 5 типів параметрів | ✅ |
+
 ## Структура репозиторію
 ```
 ├── README.md
@@ -17,7 +27,8 @@ Microsoft SQL Server (SSIS, SSAS, SSRS)
 │   ├── 01_Проектування_БД.md      — аналіз предметної області, ER-діаграми, нормалізація
 │   ├── 02_Генерація_даних.md      — генератор, моделі реалістичності, валідація, статистика
 │   ├── 03_ETL_SSIS.md             — сховище даних, пакети SSIS, трансформації, контроль якості
-│   └── 04_OLAP_SSAS.md            — OLAP-куб: виміри, міри, MDX, KPI, оптимізація, тестування
+│   ├── 04_OLAP_SSAS.md            — OLAP-куб: виміри, міри, MDX, KPI, оптимізація, тестування
+│   └── 05_Звіти_SSRS.md           — звіти SSRS: типи, параметри, інтерактивність, тестування
 ├── Database/
 │   ├── CREATE_DATABASE.sql        — створення БД PolyclinicDB
 │   ├── CREATE_TABLES.sql          — 16 таблиць
@@ -42,18 +53,23 @@ Microsoft SQL Server (SSIS, SSAS, SSRS)
 │   ├── LabFiles/                  — Inbox → Archive / Rejected (CSV лабораторії)
 │   ├── Builder/                   — генератор пакетів SSIS (C#, об'єктна модель SSIS)
 │   └── run_etl.ps1                — повний запуск ETL
-└── SSAS_Projects/
-    ├── PolyclinicOLAP.sln         — рішення Visual Studio
-    ├── PolyclinicOLAP/            — проєкт SSAS Multidimensional (.dsv, .dim, .cube, .partitions)
-    ├── Builder/                   — створення та обробка куба (C#, AMO), MDX-скрипт, KPI
-    └── Tests/                     — MDX-запити, порівняння продуктивності OLTP / DW / OLAP
+├── SSAS_Projects/
+│   ├── PolyclinicOLAP.sln         — рішення Visual Studio
+│   ├── PolyclinicOLAP/            — проєкт SSAS Multidimensional (.dsv, .dim, .cube, .partitions)
+│   ├── Builder/                   — створення та обробка куба (C#, AMO), MDX-скрипт, KPI
+│   └── Tests/                     — MDX-запити, порівняння продуктивності OLTP / DW / OLAP
+└── SSRS_Projects/
+    ├── PolyclinicReports.sln      — рішення Visual Studio
+    ├── PolyclinicReports/         — 8 звітів .rdl, спільні джерела даних .rds
+    ├── Builder/                   — генерація, перевірка, розгортання і тестування звітів
+    └── Exports/                   — звіти у PDF / Excel / Word і знімки сторінок
 ```
 
 ## Вимоги
 - Microsoft SQL Server 2022 (Developer), SQL Server Management Studio
-- Visual Studio 2026 (або 2022) з розширенням SQL Server Integration Services Projects
+- Visual Studio 2026 (або 2022) з розширеннями SSIS / SSAS / SSRS (етапи 3–5)
 - Integration Services 2022 (компонент SQL Server — для запуску пакетів поза Visual Studio)
-- SQL Server Analysis Services 2022 у режимі Multidimensional; розширення Analysis Services Projects для Visual Studio
+- SQL Server Analysis Services 2022 у режимі Multidimensional, SQL Server 2022 Reporting Services
 
 ## Розгортання бази даних
 ```powershell
@@ -115,6 +131,24 @@ powershell -ExecutionPolicy Bypass -File SSAS_Projects\Tests\test_performance.ps
 | MDX | YTD, PY, YoY, MoM, ковзні середні, Топ-10, RANK, бізнес-показники; 4 KPI |
 | Оптимізація | MOLAP/HOLAP, партиції за роками, агрегації ~30%, 3 перспективи |
 | Швидкодія | статистика захворювань: OLTP 6,4 с → куб 36 мс |
+
+## Звіти
+```powershell
+python SSRS_Projects\Builder\reports.py                                                   # генерація .rdl
+powershell -ExecutionPolicy Bypass -File SSRS_Projects\Builder\deploy_reports.ps1 -Render  # публікація + PDF
+powershell -ExecutionPolicy Bypass -File SSRS_Projects\Builder\test_reports.ps1            # параметри та експорт
+```
+Портал: `http://localhost/Reports` → папка «Поліклініка».
+
+| Звіт | Тип | Джерело |
+|---|---|---|
+| 01 Список лікарів та їх пацієнтів | Таблиця з групуванням і підсумками | Сховище |
+| 02 Історія хвороби пацієнта | Деталізація + вкладений звіт призначень | OLTP |
+| 03 Завантаженість лікарів по місяцях | Матриця, теплова карта | OLAP-куб |
+| 04 Аналіз ефективності лікування | 4 діаграми (Column, Line, Pie, Bar) | OLAP-куб |
+| 05 Статистика захворювань | Drill-down + drillthrough | OLAP-куб |
+| 06 Дашборд | KPI, датчики, спарклайни | OLAP-куб |
+| 07 Пацієнти з діагнозом | Ціль drillthrough | Сховище |
 
 ## Модель даних (коротко)
 - **Довідники:** Regions, Cities, Specialties, Departments, DiseaseCategories, Diseases,
