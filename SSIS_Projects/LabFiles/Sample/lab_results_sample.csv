@@ -1,0 +1,2 @@
+LabOrderNo;PatientRef;PatientName;TestName;Result;Unit;SampleDate;Laboratory
+LAB-2501-0000001;P-000123;Шевченко О.;Glucose;5,4;ммоль/л;15.01.2025;Лабораторія «Діалаб»

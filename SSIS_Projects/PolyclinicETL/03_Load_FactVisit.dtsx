@@ -1,0 +1,3110 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="10/30/2026 8:26:43 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="ASUS"
+  DTS:CreatorName="PolyclinicETL builder"
+  DTS:Description="Інкрементальне завантаження fact.FactVisit (VisitID &gt; watermark): пошук ключів вимірів, невідомі ключі → -1 і журнал etl.RejectedRows"
+  DTS:DTSID="{0E5C5F71-C43F-4C2B-9E82-4D858A16BD6F}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.1000.6"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="03_Load_FactVisit"
+  DTS:ProtectionLevel="0"
+  DTS:VersionGUID="{A157A218-5E5A-4342-BB51-04F39A801E25}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[DW_PolyclinicDW]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{BCFD2742-6366-4988-8A48-A61320D4333A}"
+      DTS:ObjectName="DW_PolyclinicDW">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">"Data Source=" + @[User::ServerName] + ";Initial Catalog=PolyclinicDW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;"</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=.;Initial Catalog=PolyclinicDW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{A554249A-F154-4571-B77F-589B8700F288}"
+      DTS:ObjectName="OLTP_PolyclinicDB">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">"Data Source=" + @[User::ServerName] + ";Initial Catalog=PolyclinicDB;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;"</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=.;Initial Catalog=PolyclinicDB;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{957B6E73-B06E-4C7F-99C9-38AE59C9EAEE}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="LastVisitID">
+      <DTS:VariableValue
+        DTS:DataType="8">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{869D28EF-582A-43DE-AAEA-31CA49C42427}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="LogID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{BBCDB866-B5A0-4A2C-A208-8359DB294697}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsInserted">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{3BFB4E96-5FD5-4FD6-AF7B-E3A735FABAB0}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsRead">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{5B03BA6F-708C-498A-B62F-6C1E6E5F5AAB}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsRejected">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{14233AAC-A2F7-4E9B-A1FC-DA03E1C24FCB}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsUpdated">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{53D095CA-EADA-4340-BDAE-78059EF0ADFE}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RunID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{9C10BD0B-D91B-4D8E-95ED-5FFCBF4208E9}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="ServerName">
+      <DTS:VariableValue
+        DTS:DataType="8">.</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{3FCD22C6-7BAB-4056-B2B9-98075941E09C}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="&quot;SELECT v.VisitID, v.RecordID, CAST(v.VisitDateTime AS date) AS VisitDate, DATEPART(HOUR, v.VisitDateTime) AS VisitHourRaw, r.PatientID, v.DoctorID, dg.DiseaseID, v.VisitType, v.Status AS VisitStatus, v.DurationMin, CAST(v.Cost AS decimal(12,2)) AS Cost, DATEDIFF(YEAR, p.BirthDate, CAST(v.VisitDateTime AS date)) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, p.BirthDate, CAST(v.VisitDateTime AS date)), p.BirthDate) &gt; CAST(v.VisitDateTime AS date) THEN 1 ELSE 0 END AS AgeAtEvent, ISNULL(pr.Cnt, 0) AS PrescriptionCount, CAST(ISNULL(pr.Total, 0) AS decimal(12,2)) AS MedicationCost FROM dbo.Visits v JOIN dbo.MedicalRecords r ON r.RecordID = v.RecordID JOIN dbo.Patients p ON p.PatientID = r.PatientID JOIN dbo.Diagnoses dg ON dg.RecordID = r.RecordID AND dg.DiagnosisType = N'Основний' OUTER APPLY (SELECT COUNT(*) AS Cnt, SUM(x.TotalCost) AS Total FROM dbo.Prescriptions x WHERE x.VisitID = v.VisitID) pr WHERE v.VisitID &gt; &quot; + @[User::LastVisitID]"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="SqlVisits">
+      <DTS:VariableValue
+        DTS:DataType="8">SELECT v.VisitID, v.RecordID, CAST(v.VisitDateTime AS date) AS VisitDate, DATEPART(HOUR, v.VisitDateTime) AS VisitHourRaw, r.PatientID, v.DoctorID, dg.DiseaseID, v.VisitType, v.Status AS VisitStatus, v.DurationMin, CAST(v.Cost AS decimal(12,2)) AS Cost, DATEDIFF(YEAR, p.BirthDate, CAST(v.VisitDateTime AS date)) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, p.BirthDate, CAST(v.VisitDateTime AS date)), p.BirthDate) &gt; CAST(v.VisitDateTime AS date) THEN 1 ELSE 0 END AS AgeAtEvent, ISNULL(pr.Cnt, 0) AS PrescriptionCount, CAST(ISNULL(pr.Total, 0) AS decimal(12,2)) AS MedicationCost FROM dbo.Visits v JOIN dbo.MedicalRecords r ON r.RecordID = v.RecordID JOIN dbo.Patients p ON p.PatientID = r.PatientID JOIN dbo.Diagnoses dg ON dg.RecordID = r.RecordID AND dg.DiagnosisType = N'Основний' OUTER APPLY (SELECT COUNT(*) AS Cnt, SUM(x.TotalCost) AS Total FROM dbo.Prescriptions x WHERE x.VisitID = v.VisitID) pr WHERE v.VisitID &gt; 0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\DFT FactVisit"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Візити з OLTP → fact.FactVisit"
+      DTS:DTSID="{BAD9B408-2061-4752-81A0-26C5A0DEB50A}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="DFT FactVisit"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          defaultBufferMaxRows="50000"
+          defaultBufferSize="52428800"
+          version="1">
+          <components>
+            <component
+              refId="Package\DFT FactVisit\CSPL Контроль ключів"
+              componentClassID="Microsoft.ConditionalSplit"
+              contactInfo="Conditional Split;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Рядки з невідомими членами вимірів окремо журналюються"
+              name="CSPL Контроль ключів"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\CSPL Контроль ключів.Inputs[Conditional Split Input]"
+                  description="Input to the Conditional Split Transformation"
+                  name="Conditional Split Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\CSPL Контроль ключів.Inputs[Conditional Split Input].Columns[PatientKey]"
+                      cachedDataType="i4"
+                      cachedName="PatientKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\CSPL Контроль ключів.Inputs[Conditional Split Input].Columns[DoctorKey]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\CSPL Контроль ключів.Inputs[Conditional Split Input].Columns[DiseaseKey]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\CSPL Контроль ключів.Inputs[Conditional Split Input].Columns[VisitTypeKey]"
+                      cachedDataType="i4"
+                      cachedName="VisitTypeKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[VisitTypeKey]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\CSPL Контроль ключів.Outputs[Невідомі ключі]"
+                  description="Невідомі ключі"
+                  errorOrTruncationOperation="Computation"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Невідомі ключі"
+                  synchronousInputId="Package\DFT FactVisit\CSPL Контроль ключів.Inputs[Conditional Split Input]"
+                  truncationRowDisposition="FailComponent">
+                  <properties>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the expression. This expression version uses lineage identifiers instead of column names."
+                      name="Expression">#{Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]} == -1 || #{Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]} == -1 || #{Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]} == -1 || #{Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[VisitTypeKey]} == -1</property>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the friendly version of the expression. This expression version uses column names."
+                      expressionType="Notify"
+                      name="FriendlyExpression">PatientKey == -1 || DoctorKey == -1 || DiseaseKey == -1 || VisitTypeKey == -1</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the position of the condition in the list of conditions that the transformation evaluates. The evaluation order is from the lowest to the highest value."
+                      name="EvaluationOrder">0</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\CSPL Контроль ключів.Outputs[Коректні]"
+                  description="Default Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  name="Коректні"
+                  synchronousInputId="Package\DFT FactVisit\CSPL Контроль ключів.Inputs[Conditional Split Input]">
+                  <properties>
+                    <property
+                      dataType="System.Boolean"
+                      name="IsDefaultOut">true</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\CSPL Контроль ключів.Outputs[Conditional Split Error Output]"
+                  description="Error Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Conditional Split Error Output"
+                  synchronousInputId="Package\DFT FactVisit\CSPL Контроль ключів.Inputs[Conditional Split Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\CSPL Контроль ключів.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\CSPL Контроль ключів.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\CSPL Контроль ключів.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\CSPL Контроль ключів.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\DER Ключі дати та ознаки"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Ключ дати, година, вікова група, ознаки відбувся/неявка"
+              name="DER Ключі дати та ознаки"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Inputs[Derived Column Input].Columns[VisitDate]"
+                      cachedDataType="dbDate"
+                      cachedName="VisitDate"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitDate]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Inputs[Derived Column Input].Columns[VisitHourRaw]"
+                      cachedDataType="i4"
+                      cachedName="VisitHourRaw"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitHourRaw]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Inputs[Derived Column Input].Columns[VisitStatus]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="VisitStatus"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitStatus]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Inputs[Derived Column Input].Columns[AgeAtEvent]"
+                      cachedDataType="i4"
+                      cachedName="AgeAtEvent"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[AgeAtEvent]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\DFT FactVisit\DER Ключі дати та ознаки.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[DateKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[DateKey]"
+                      name="DateKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">YEAR([VisitDate]) * 10000 + MONTH([VisitDate]) * 100 + DAY([VisitDate])</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">YEAR([VisitDate]) * 10000 + MONTH([VisitDate]) * 100 + DAY([VisitDate])</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[VisitHour]"
+                      dataType="ui1"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[VisitHour]"
+                      name="VisitHour"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">(DT_UI1)[VisitHourRaw]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">(DT_UI1)[VisitHourRaw]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[AgeGroupKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[AgeGroupKey]"
+                      name="AgeGroupKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">[AgeAtEvent] &lt; 18 ? 1 : [AgeAtEvent] &lt; 35 ? 2 : [AgeAtEvent] &lt; 50 ? 3 : [AgeAtEvent] &lt; 65 ? 4 : 5</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">[AgeAtEvent] &lt; 18 ? 1 : [AgeAtEvent] &lt; 35 ? 2 : [AgeAtEvent] &lt; 50 ? 3 : [AgeAtEvent] &lt; 65 ? 4 : 5</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[IsCompleted]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[IsCompleted]"
+                      name="IsCompleted"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">[VisitStatus] == "Відбувся" ? 1 : 0</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">[VisitStatus] == "Відбувся" ? 1 : 0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[IsNoShow]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[IsNoShow]"
+                      name="IsNoShow"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">[VisitStatus] == "Неявка" ? 1 : 0</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">[VisitStatus] == "Неявка" ? 1 : 0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[ETLRunID]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[ETLRunID]"
+                      name="ETLRunID"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">@[User::RunID]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">@[User::RunID]</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\DFT FactVisit\DER Ключі дати та ознаки.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\DER Невідомі члени"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Ненайдений ключ → -1 (невідомий член виміру)"
+              name="DER Невідомі члени"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\DER Невідомі члени.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Inputs[Derived Column Input].Columns[PatientKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="PatientKeyLkp"
+                      lineageId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Match Output].Columns[PatientKeyLkp]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Inputs[Derived Column Input].Columns[DoctorKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKeyLkp"
+                      lineageId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Match Output].Columns[DoctorKeyLkp]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Inputs[Derived Column Input].Columns[DiseaseKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKeyLkp"
+                      lineageId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Match Output].Columns[DiseaseKeyLkp]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Inputs[Derived Column Input].Columns[VisitTypeKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="VisitTypeKeyLkp"
+                      lineageId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Match Output].Columns[VisitTypeKeyLkp]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\DFT FactVisit\DER Невідомі члени.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]"
+                      name="PatientKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([PatientKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([PatientKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]"
+                      name="DoctorKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([DoctorKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([DoctorKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]"
+                      name="DiseaseKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([DiseaseKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([DiseaseKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[VisitTypeKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[VisitTypeKey]"
+                      name="VisitTypeKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([VisitTypeKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([VisitTypeKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\DFT FactVisit\DER Невідомі члени.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\DER Опис відхилення"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Причина і дані рядка для etl.RejectedRows"
+              name="DER Опис відхилення"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input].Columns[VisitID]"
+                      cachedDataType="i8"
+                      cachedName="VisitID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitID]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input].Columns[RecordID]"
+                      cachedDataType="i4"
+                      cachedName="RecordID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[RecordID]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input].Columns[PatientID]"
+                      cachedDataType="i4"
+                      cachedName="PatientID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[PatientID]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input].Columns[DoctorID]"
+                      cachedDataType="i4"
+                      cachedName="DoctorID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DoctorID]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input].Columns[DiseaseID]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DiseaseID]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input].Columns[PatientKey]"
+                      cachedDataType="i4"
+                      cachedName="PatientKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input].Columns[DoctorKey]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input].Columns[DiseaseKey]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input].Columns[VisitTypeKey]"
+                      cachedDataType="i4"
+                      cachedName="VisitTypeKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[VisitTypeKey]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[PackageName]"
+                      dataType="wstr"
+                      errorRowDisposition="FailComponent"
+                      length="100"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[PackageName]"
+                      name="PackageName"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">@[System::PackageName]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">@[System::PackageName]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[RunID]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[RunID]"
+                      name="RunID"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">@[User::RunID]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">@[User::RunID]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[SourceKey]"
+                      dataType="wstr"
+                      errorRowDisposition="FailComponent"
+                      length="100"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[SourceKey]"
+                      name="SourceKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">"VisitID=" + (DT_WSTR,20)[VisitID]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">"VisitID=" + (DT_WSTR,20)[VisitID]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[RejectReason]"
+                      dataType="wstr"
+                      errorRowDisposition="FailComponent"
+                      length="200"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[RejectReason]"
+                      name="RejectReason"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">"Невідомий член виміру:" + ([PatientKey] == -1 ? " пацієнт" : "") + ([DoctorKey] == -1 ? " лікар" : "") + ([DiseaseKey] == -1 ? " хвороба" : "") + ([VisitTypeKey] == -1 ? " тип візиту" : "") + " (завантажено з ключем -1)"</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">"Невідомий член виміру:" + ([PatientKey] == -1 ? " пацієнт" : "") + ([DoctorKey] == -1 ? " лікар" : "") + ([DiseaseKey] == -1 ? " хвороба" : "") + ([VisitTypeKey] == -1 ? " тип візиту" : "") + " (завантажено з ключем -1)"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[RowData]"
+                      dataType="wstr"
+                      errorRowDisposition="FailComponent"
+                      length="1000"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[RowData]"
+                      name="RowData"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">"RecordID=" + (DT_WSTR,12)[RecordID] + "; PatientID=" + (DT_WSTR,12)[PatientID] + "; DoctorID=" + (DT_WSTR,12)[DoctorID] + "; DiseaseID=" + (DT_WSTR,12)[DiseaseID]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">"RecordID=" + (DT_WSTR,12)[RecordID] + "; PatientID=" + (DT_WSTR,12)[PatientID] + "; DoctorID=" + (DT_WSTR,12)[DoctorID] + "; DiseaseID=" + (DT_WSTR,12)[DiseaseID]</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\LKP DimDisease"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ хвороби (основний діагноз)"
+              name="LKP DimDisease"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT DiseaseKey AS DiseaseKeyLkp, DiseaseID FROM dim.DimDisease</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="DiseaseKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="DiseaseID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactVisit\LKP DimDisease.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\LKP DimDisease.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\LKP DimDisease.Inputs[Lookup Input].Columns[DiseaseID]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DiseaseID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">DiseaseID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimDisease.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Match Output].Columns[DiseaseKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Match Output].Columns[DiseaseKeyLkp]"
+                      name="DiseaseKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">DiseaseKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimDisease.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimDisease.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\LKP DimDoctor"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ поточної версії лікаря (SCD2)"
+              name="LKP DimDoctor"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT DoctorKey AS DoctorKeyLkp, DoctorID FROM dim.DimDoctor WHERE IsCurrent = 1</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="DoctorKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="DoctorID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactVisit\LKP DimDoctor.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\LKP DimDoctor.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\LKP DimDoctor.Inputs[Lookup Input].Columns[DoctorID]"
+                      cachedDataType="i4"
+                      cachedName="DoctorID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DoctorID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">DoctorID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimDoctor.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Match Output].Columns[DoctorKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Match Output].Columns[DoctorKeyLkp]"
+                      name="DoctorKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">DoctorKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimDoctor.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimDoctor.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\LKP DimPatient"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ поточної версії пацієнта (SCD2)"
+              name="LKP DimPatient"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT PatientKey AS PatientKeyLkp, PatientID FROM dim.DimPatient WHERE IsCurrent = 1</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="PatientKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="PatientID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactVisit\LKP DimPatient.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\LKP DimPatient.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\LKP DimPatient.Inputs[Lookup Input].Columns[PatientID]"
+                      cachedDataType="i4"
+                      cachedName="PatientID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[PatientID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">PatientID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimPatient.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Match Output].Columns[PatientKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Match Output].Columns[PatientKeyLkp]"
+                      name="PatientKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">PatientKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimPatient.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimPatient.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\LKP DimVisitType"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Ключ junk-виміру за типом і статусом візиту"
+              name="LKP DimVisitType"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT VisitTypeKey AS VisitTypeKeyLkp, VisitType, VisitStatus FROM dim.DimVisitType</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="VisitTypeKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="VisitType" dataType="DT_WSTR" length="20" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="VisitStatus" dataType="DT_WSTR" length="15" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactVisit\LKP DimVisitType.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\LKP DimVisitType.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\LKP DimVisitType.Inputs[Lookup Input].Columns[VisitType]"
+                      cachedDataType="wstr"
+                      cachedLength="20"
+                      cachedName="VisitType"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitType]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">VisitType</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\LKP DimVisitType.Inputs[Lookup Input].Columns[VisitStatus]"
+                      cachedDataType="wstr"
+                      cachedLength="15"
+                      cachedName="VisitStatus"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitStatus]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">VisitStatus</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimVisitType.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Match Output].Columns[VisitTypeKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Match Output].Columns[VisitTypeKeyLkp]"
+                      name="VisitTypeKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">VisitTypeKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimVisitType.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactVisit\LKP DimVisitType.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\MC Невідомі ключі"
+              componentClassID="Microsoft.Multicast"
+              contactInfo="Multicast;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Завантажити з ключем -1 і записати в журнал"
+              name="MC Невідомі ключі">
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\MC Невідомі ключі.Inputs[Multicast Input 1]"
+                  name="Multicast Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\MC Невідомі ключі.Outputs[Multicast Output 1]"
+                  deleteOutputOnPathDetached="true"
+                  name="Multicast Output 1"
+                  synchronousInputId="Package\DFT FactVisit\MC Невідомі ключі.Inputs[Multicast Input 1]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\MC Невідомі ключі.Outputs[Multicast Output 4]"
+                  dangling="true"
+                  deleteOutputOnPathDetached="true"
+                  name="Multicast Output 4"
+                  synchronousInputId="Package\DFT FactVisit\MC Невідомі ключі.Inputs[Multicast Input 1]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\MC Невідомі ключі.Outputs[Multicast Output 2]"
+                  deleteOutputOnPathDetached="true"
+                  name="Multicast Output 2"
+                  synchronousInputId="Package\DFT FactVisit\MC Невідомі ключі.Inputs[Multicast Input 1]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\MC Невідомі ключі.Outputs[Multicast Output 3]"
+                  dangling="true"
+                  deleteOutputOnPathDetached="true"
+                  name="Multicast Output 3"
+                  synchronousInputId="Package\DFT FactVisit\MC Невідомі ключі.Inputs[Multicast Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\OLE_DST FactVisit"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="Fast load у fact.FactVisit"
+              name="OLE_DST FactVisit"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[fact].[FactVisit]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">100000</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactVisit\OLE_DST FactVisit.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[VisitID]"
+                      cachedDataType="i8"
+                      cachedName="VisitID"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[VisitID]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitID]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[RecordID]"
+                      cachedDataType="i4"
+                      cachedName="RecordID"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[RecordID]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[RecordID]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[DateKey]"
+                      cachedDataType="i4"
+                      cachedName="DateKey"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[DateKey]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DateKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[PatientKey]"
+                      cachedDataType="i4"
+                      cachedName="PatientKey"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[PatientKey]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PatientKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[DoctorKey]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKey"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[DoctorKey]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DoctorKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[DiseaseKey]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKey"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[DiseaseKey]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DiseaseKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[VisitTypeKey]"
+                      cachedDataType="i4"
+                      cachedName="VisitTypeKey"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[VisitTypeKey]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitTypeKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[AgeGroupKey]"
+                      cachedDataType="i4"
+                      cachedName="AgeGroupKey"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[AgeGroupKey]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[AgeGroupKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[VisitHour]"
+                      cachedDataType="ui1"
+                      cachedName="VisitHour"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[VisitHour]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitHour]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[DurationMin]"
+                      cachedDataType="i2"
+                      cachedName="DurationMin"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[DurationMin]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DurationMin]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[Cost]"
+                      cachedDataType="numeric"
+                      cachedName="Cost"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[Cost]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[Cost]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[IsCompleted]"
+                      cachedDataType="i4"
+                      cachedName="IsCompleted"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[IsCompleted]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsCompleted]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[IsNoShow]"
+                      cachedDataType="i4"
+                      cachedName="IsNoShow"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[IsNoShow]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsNoShow]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[PrescriptionCount]"
+                      cachedDataType="i4"
+                      cachedName="PrescriptionCount"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[PrescriptionCount]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PrescriptionCount]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[MedicationCost]"
+                      cachedDataType="numeric"
+                      cachedName="MedicationCost"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[MedicationCost]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[MedicationCost]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].Columns[ETLRunID]"
+                      cachedDataType="i4"
+                      cachedName="ETLRunID"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[ETLRunID]"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[ETLRunID]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[VisitID]"
+                      dataType="i8"
+                      name="VisitID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[RecordID]"
+                      dataType="i4"
+                      name="RecordID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[DateKey]"
+                      dataType="i4"
+                      name="DateKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[PatientKey]"
+                      dataType="i4"
+                      name="PatientKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[DoctorKey]"
+                      dataType="i4"
+                      name="DoctorKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[DiseaseKey]"
+                      dataType="i4"
+                      name="DiseaseKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[VisitTypeKey]"
+                      dataType="i4"
+                      name="VisitTypeKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[AgeGroupKey]"
+                      dataType="i4"
+                      name="AgeGroupKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[VisitHour]"
+                      dataType="ui1"
+                      name="VisitHour" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[DurationMin]"
+                      dataType="i2"
+                      name="DurationMin" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[Cost]"
+                      dataType="numeric"
+                      name="Cost"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[IsCompleted]"
+                      dataType="i4"
+                      name="IsCompleted" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[IsNoShow]"
+                      dataType="i4"
+                      name="IsNoShow" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[PrescriptionCount]"
+                      dataType="i4"
+                      name="PrescriptionCount" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[MedicationCost]"
+                      dataType="numeric"
+                      name="MedicationCost"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input].ExternalColumns[ETLRunID]"
+                      dataType="i4"
+                      name="ETLRunID" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\OLE_DST FactVisit.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_DST FactVisit.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_DST FactVisit.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_DST FactVisit.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\OLE_DST RejectedRows"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="Журнал відхилених рядків"
+              name="OLE_DST RejectedRows"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[etl].[RejectedRows]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">100000</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactVisit\OLE_DST RejectedRows.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].Columns[RunID]"
+                      cachedDataType="i4"
+                      cachedName="RunID"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[RunID]"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[RunID]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].Columns[PackageName]"
+                      cachedDataType="wstr"
+                      cachedLength="100"
+                      cachedName="PackageName"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[PackageName]"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[PackageName]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].Columns[SourceKey]"
+                      cachedDataType="wstr"
+                      cachedLength="100"
+                      cachedName="SourceKey"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[SourceKey]"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[SourceKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].Columns[RejectReason]"
+                      cachedDataType="wstr"
+                      cachedLength="200"
+                      cachedName="RejectReason"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[RejectReason]"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[RejectReason]" />
+                    <inputColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].Columns[RowData]"
+                      cachedDataType="wstr"
+                      cachedLength="1000"
+                      cachedName="RowData"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[RowData]"
+                      lineageId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output].Columns[RowData]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[RejectID]"
+                      dataType="i8"
+                      name="RejectID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[RunID]"
+                      dataType="i4"
+                      name="RunID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[PackageName]"
+                      dataType="wstr"
+                      length="100"
+                      name="PackageName" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[SourceKey]"
+                      dataType="wstr"
+                      length="100"
+                      name="SourceKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[RejectReason]"
+                      dataType="wstr"
+                      length="200"
+                      name="RejectReason" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[RowData]"
+                      dataType="wstr"
+                      length="1000"
+                      name="RowData" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[SourceFile]"
+                      dataType="wstr"
+                      length="260"
+                      name="SourceFile" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input].ExternalColumns[LoggedAt]"
+                      dataType="dbTimeStamp2"
+                      name="LoggedAt" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\OLE_DST RejectedRows.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_DST RejectedRows.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_DST RejectedRows.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_DST RejectedRows.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально)"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="VisitID &gt; watermark; основний діагноз, вік, кількість і вартість ліків"
+              name="OLE_SRC Візити (інкрементально)"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable">User::SqlVisits</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+                  connectionManagerRefId="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitID]"
+                      dataType="i8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitID]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitID]"
+                      name="VisitID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[RecordID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[RecordID]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[RecordID]"
+                      name="RecordID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitDate]"
+                      dataType="dbDate"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitDate]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitDate]"
+                      name="VisitDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitHourRaw]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitHourRaw]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitHourRaw]"
+                      name="VisitHourRaw"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[PatientID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[PatientID]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[PatientID]"
+                      name="PatientID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DoctorID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DoctorID]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DoctorID]"
+                      name="DoctorID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DiseaseID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DiseaseID]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DiseaseID]"
+                      name="DiseaseID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitType]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitType]"
+                      length="20"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitType]"
+                      name="VisitType"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitStatus]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitStatus]"
+                      length="15"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitStatus]"
+                      name="VisitStatus"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DurationMin]"
+                      dataType="i2"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DurationMin]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DurationMin]"
+                      name="DurationMin"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[Cost]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[Cost]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[Cost]"
+                      name="Cost"
+                      precision="12"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[AgeAtEvent]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[AgeAtEvent]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[AgeAtEvent]"
+                      name="AgeAtEvent"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[PrescriptionCount]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[PrescriptionCount]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[PrescriptionCount]"
+                      name="PrescriptionCount"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[MedicationCost]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[MedicationCost]"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[MedicationCost]"
+                      name="MedicationCost"
+                      precision="12"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitID]"
+                      dataType="i8"
+                      name="VisitID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[RecordID]"
+                      dataType="i4"
+                      name="RecordID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitDate]"
+                      dataType="dbDate"
+                      name="VisitDate" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitHourRaw]"
+                      dataType="i4"
+                      name="VisitHourRaw" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[PatientID]"
+                      dataType="i4"
+                      name="PatientID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DoctorID]"
+                      dataType="i4"
+                      name="DoctorID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DiseaseID]"
+                      dataType="i4"
+                      name="DiseaseID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitType]"
+                      dataType="wstr"
+                      length="20"
+                      name="VisitType" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitStatus]"
+                      dataType="wstr"
+                      length="15"
+                      name="VisitStatus" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DurationMin]"
+                      dataType="i2"
+                      name="DurationMin" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[Cost]"
+                      dataType="numeric"
+                      name="Cost"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[AgeAtEvent]"
+                      dataType="i4"
+                      name="AgeAtEvent" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[PrescriptionCount]"
+                      dataType="i4"
+                      name="PrescriptionCount" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[MedicationCost]"
+                      dataType="numeric"
+                      name="MedicationCost"
+                      precision="12"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitID]"
+                      dataType="i8"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitID]"
+                      name="VisitID" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[RecordID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[RecordID]"
+                      name="RecordID" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitDate]"
+                      dataType="dbDate"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitDate]"
+                      name="VisitDate" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitHourRaw]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitHourRaw]"
+                      name="VisitHourRaw" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[PatientID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[PatientID]"
+                      name="PatientID" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[DoctorID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[DoctorID]"
+                      name="DoctorID" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[DiseaseID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[DiseaseID]"
+                      name="DiseaseID" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitType]"
+                      dataType="wstr"
+                      length="20"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitType]"
+                      name="VisitType" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitStatus]"
+                      dataType="wstr"
+                      length="15"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitStatus]"
+                      name="VisitStatus" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[DurationMin]"
+                      dataType="i2"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[DurationMin]"
+                      name="DurationMin" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[Cost]"
+                      dataType="numeric"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[Cost]"
+                      name="Cost"
+                      precision="12"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[AgeAtEvent]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[AgeAtEvent]"
+                      name="AgeAtEvent" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[PrescriptionCount]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[PrescriptionCount]"
+                      name="PrescriptionCount" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[MedicationCost]"
+                      dataType="numeric"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[MedicationCost]"
+                      name="MedicationCost"
+                      precision="12"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\RC Відхилено"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Рядки з невідомими ключами"
+              name="RC Відхилено">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::RowsRejected</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\RC Відхилено.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\RC Відхилено.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\DFT FactVisit\RC Відхилено.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\RC Завантажено"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Завантажено у факт"
+              name="RC Завантажено">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::RowsInserted</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\RC Завантажено.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\RC Завантажено.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\DFT FactVisit\RC Завантажено.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\RC Прочитано"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Прочитано рядків"
+              name="RC Прочитано">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::RowsRead</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\RC Прочитано.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\RC Прочитано.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\DFT FactVisit\RC Прочитано.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactVisit\UNION Усі візити"
+              componentClassID="Microsoft.UnionAll"
+              contactInfo="Union All;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
+              description="Коректні рядки + рядки з невідомими членами"
+              name="UNION Усі візити"
+              version="1">
+              <inputs>
+                <input
+                  refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1]"
+                  name="Union All Input 1">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[VisitID]"
+                      cachedDataType="i8"
+                      cachedName="VisitID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitID]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitID]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[RecordID]"
+                      cachedDataType="i4"
+                      cachedName="RecordID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[RecordID]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[RecordID]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[DurationMin]"
+                      cachedDataType="i2"
+                      cachedName="DurationMin"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DurationMin]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DurationMin]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[Cost]"
+                      cachedDataType="numeric"
+                      cachedName="Cost"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[Cost]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[Cost]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[PrescriptionCount]"
+                      cachedDataType="i4"
+                      cachedName="PrescriptionCount"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[PrescriptionCount]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PrescriptionCount]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[MedicationCost]"
+                      cachedDataType="numeric"
+                      cachedName="MedicationCost"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[MedicationCost]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[MedicationCost]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[DateKey]"
+                      cachedDataType="i4"
+                      cachedName="DateKey"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[DateKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DateKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[VisitHour]"
+                      cachedDataType="ui1"
+                      cachedName="VisitHour"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[VisitHour]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitHour]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[AgeGroupKey]"
+                      cachedDataType="i4"
+                      cachedName="AgeGroupKey"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[AgeGroupKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[AgeGroupKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[IsCompleted]"
+                      cachedDataType="i4"
+                      cachedName="IsCompleted"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[IsCompleted]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsCompleted]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[IsNoShow]"
+                      cachedDataType="i4"
+                      cachedName="IsNoShow"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[IsNoShow]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsNoShow]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[ETLRunID]"
+                      cachedDataType="i4"
+                      cachedName="ETLRunID"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[ETLRunID]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[ETLRunID]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[PatientKey]"
+                      cachedDataType="i4"
+                      cachedName="PatientKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PatientKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[DoctorKey]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DoctorKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[DiseaseKey]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DiseaseKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1].Columns[VisitTypeKey]"
+                      cachedDataType="i4"
+                      cachedName="VisitTypeKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[VisitTypeKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitTypeKey]}</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+                <input
+                  refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2]"
+                  hasSideEffects="true"
+                  name="Union All Input 2">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[VisitID]"
+                      cachedDataType="i8"
+                      cachedName="VisitID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[VisitID]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitID]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[RecordID]"
+                      cachedDataType="i4"
+                      cachedName="RecordID"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[RecordID]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[RecordID]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[DurationMin]"
+                      cachedDataType="i2"
+                      cachedName="DurationMin"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[DurationMin]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DurationMin]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[Cost]"
+                      cachedDataType="numeric"
+                      cachedName="Cost"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[Cost]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[Cost]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[PrescriptionCount]"
+                      cachedDataType="i4"
+                      cachedName="PrescriptionCount"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[PrescriptionCount]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PrescriptionCount]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[MedicationCost]"
+                      cachedDataType="numeric"
+                      cachedName="MedicationCost"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      lineageId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output].Columns[MedicationCost]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[MedicationCost]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[DateKey]"
+                      cachedDataType="i4"
+                      cachedName="DateKey"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[DateKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DateKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[VisitHour]"
+                      cachedDataType="ui1"
+                      cachedName="VisitHour"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[VisitHour]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitHour]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[AgeGroupKey]"
+                      cachedDataType="i4"
+                      cachedName="AgeGroupKey"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[AgeGroupKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[AgeGroupKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[IsCompleted]"
+                      cachedDataType="i4"
+                      cachedName="IsCompleted"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[IsCompleted]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsCompleted]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[IsNoShow]"
+                      cachedDataType="i4"
+                      cachedName="IsNoShow"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[IsNoShow]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsNoShow]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[ETLRunID]"
+                      cachedDataType="i4"
+                      cachedName="ETLRunID"
+                      lineageId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output].Columns[ETLRunID]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[ETLRunID]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[PatientKey]"
+                      cachedDataType="i4"
+                      cachedName="PatientKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PatientKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[DoctorKey]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DoctorKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[DiseaseKey]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DiseaseKey]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2].Columns[VisitTypeKey]"
+                      cachedDataType="i4"
+                      cachedName="VisitTypeKey"
+                      lineageId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output].Columns[VisitTypeKey]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitTypeKey]}</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+                <input
+                  refId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 3]"
+                  dangling="true"
+                  hasSideEffects="true"
+                  name="Union All Input 3">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1]"
+                  name="Union All Output 1">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitID]"
+                      dataType="i8"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitID]"
+                      name="VisitID" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[RecordID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[RecordID]"
+                      name="RecordID" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DurationMin]"
+                      dataType="i2"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DurationMin]"
+                      name="DurationMin" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[Cost]"
+                      dataType="numeric"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[Cost]"
+                      name="Cost"
+                      precision="12"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PrescriptionCount]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PrescriptionCount]"
+                      name="PrescriptionCount" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[MedicationCost]"
+                      dataType="numeric"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[MedicationCost]"
+                      name="MedicationCost"
+                      precision="12"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DateKey]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DateKey]"
+                      name="DateKey" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitHour]"
+                      dataType="ui1"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitHour]"
+                      name="VisitHour" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[AgeGroupKey]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[AgeGroupKey]"
+                      name="AgeGroupKey" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsCompleted]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsCompleted]"
+                      name="IsCompleted" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsNoShow]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[IsNoShow]"
+                      name="IsNoShow" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[ETLRunID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[ETLRunID]"
+                      name="ETLRunID" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PatientKey]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[PatientKey]"
+                      name="PatientKey" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DoctorKey]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DoctorKey]"
+                      name="DoctorKey" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DiseaseKey]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[DiseaseKey]"
+                      name="DiseaseKey" />
+                    <outputColumn
+                      refId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitTypeKey]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1].Columns[VisitTypeKey]"
+                      name="VisitTypeKey" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\DFT FactVisit.Paths[Derived Column Output]"
+              endId="Package\DFT FactVisit\LKP DimPatient.Inputs[Lookup Input]"
+              name="Derived Column Output"
+              startId="Package\DFT FactVisit\DER Ключі дати та ознаки.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Derived Column Output2]"
+              endId="Package\DFT FactVisit\RC Відхилено.Inputs[Row Count Input 1]"
+              name="Derived Column Output"
+              startId="Package\DFT FactVisit\DER Опис відхилення.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Derived Column Output1]"
+              endId="Package\DFT FactVisit\CSPL Контроль ключів.Inputs[Conditional Split Input]"
+              name="Derived Column Output"
+              startId="Package\DFT FactVisit\DER Невідомі члени.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Lookup Match Output2]"
+              endId="Package\DFT FactVisit\LKP DimVisitType.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactVisit\LKP DimDisease.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Lookup Match Output3]"
+              endId="Package\DFT FactVisit\DER Невідомі члени.Inputs[Derived Column Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactVisit\LKP DimVisitType.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Lookup Match Output]"
+              endId="Package\DFT FactVisit\LKP DimDoctor.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactVisit\LKP DimPatient.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Lookup Match Output1]"
+              endId="Package\DFT FactVisit\LKP DimDisease.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactVisit\LKP DimDoctor.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Multicast Output 1]"
+              endId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 2]"
+              name="Multicast Output 1"
+              startId="Package\DFT FactVisit\MC Невідомі ключі.Outputs[Multicast Output 1]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Multicast Output 2]"
+              endId="Package\DFT FactVisit\DER Опис відхилення.Inputs[Derived Column Input]"
+              name="Multicast Output 2"
+              startId="Package\DFT FactVisit\MC Невідомі ключі.Outputs[Multicast Output 2]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[OLE DB Source Output]"
+              endId="Package\DFT FactVisit\RC Прочитано.Inputs[Row Count Input 1]"
+              name="OLE DB Source Output"
+              startId="Package\DFT FactVisit\OLE_SRC Візити (інкрементально).Outputs[OLE DB Source Output]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Row Count Output 1]"
+              endId="Package\DFT FactVisit\DER Ключі дати та ознаки.Inputs[Derived Column Input]"
+              name="Row Count Output 1"
+              startId="Package\DFT FactVisit\RC Прочитано.Outputs[Row Count Output 1]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Row Count Output 11]"
+              endId="Package\DFT FactVisit\OLE_DST RejectedRows.Inputs[OLE DB Destination Input]"
+              name="Row Count Output 1"
+              startId="Package\DFT FactVisit\RC Відхилено.Outputs[Row Count Output 1]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Row Count Output 12]"
+              endId="Package\DFT FactVisit\OLE_DST FactVisit.Inputs[OLE DB Destination Input]"
+              name="Row Count Output 1"
+              startId="Package\DFT FactVisit\RC Завантажено.Outputs[Row Count Output 1]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Union All Output 1]"
+              endId="Package\DFT FactVisit\RC Завантажено.Inputs[Row Count Input 1]"
+              name="Union All Output 1"
+              startId="Package\DFT FactVisit\UNION Усі візити.Outputs[Union All Output 1]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Коректні]"
+              endId="Package\DFT FactVisit\UNION Усі візити.Inputs[Union All Input 1]"
+              name="Коректні"
+              startId="Package\DFT FactVisit\CSPL Контроль ключів.Outputs[Коректні]" />
+            <path
+              refId="Package\DFT FactVisit.Paths[Невідомі ключі]"
+              endId="Package\DFT FactVisit\MC Невідомі ключі.Inputs[Multicast Input 1]"
+              name="Невідомі ключі"
+              startId="Package\DFT FactVisit\CSPL Контроль ключів.Outputs[Невідомі ключі]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Watermark"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{36848693-35F8-491F-AFE8-DD469DA6D51B}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Watermark"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{BCFD2742-6366-4988-8A48-A61320D4333A}"
+          SQLTask:SqlStatementSource="SELECT CAST(LastID AS varchar(20)) AS LastID FROM etl.Watermark WHERE TableName = N'FactVisit'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="LastID"
+            SQLTask:DtsVariableName="User::LastVisitID" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Завершення пакета"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{B4D52725-0AB9-46EF-8206-8A26AA8A322E}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Завершення пакета"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="SqlStatementSource">"EXEC etl.usp_PackageEnd @LogID = " + (DT_WSTR,12)@[User::LogID] + ", @RowsRead = " + (DT_WSTR,12)(@[User::RowsRead]) + ", @RowsInserted = " + (DT_WSTR,12)(@[User::RowsInserted]) + ", @RowsUpdated = " + (DT_WSTR,12)(@[User::RowsUpdated]) + ", @RowsRejected = " + (DT_WSTR,12)(@[User::RowsRejected])</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{BCFD2742-6366-4988-8A48-A61320D4333A}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_PackageEnd @LogID = 0, @RowsRead = 0, @RowsInserted = 0, @RowsUpdated = 0, @RowsRejected = 0" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Оновлення watermark"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{947523A1-6405-47E1-B192-DA0247C3166A}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Оновлення watermark"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{BCFD2742-6366-4988-8A48-A61320D4333A}"
+          SQLTask:SqlStatementSource="DECLARE @m BIGINT = (SELECT MAX(VisitID) FROM fact.FactVisit); EXEC etl.usp_SetWatermark N'FactVisit', @m, NULL;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Початок пакета"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{3E6C6529-177C-4610-BC38-839B50F2EBA0}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Початок пакета"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{BCFD2742-6366-4988-8A48-A61320D4333A}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_PackageStart @PackageName = N'03_Load_FactVisit'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="RunID"
+            SQLTask:DtsVariableName="User::RunID" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="LogID"
+            SQLTask:DtsVariableName="User::LogID" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{02CD5E75-F533-4870-887D-3F66E560CBD2\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{02CD5E75-F533-4870-887D-3F66E560CBD2}"
+      DTS:From="Package\SQL Watermark"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{02CD5E75-F533-4870-887D-3F66E560CBD2}"
+      DTS:To="Package\DFT FactVisit" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{73A6FE65-DE9F-4012-A49B-8DA564B04A86\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{73A6FE65-DE9F-4012-A49B-8DA564B04A86}"
+      DTS:From="Package\DFT FactVisit"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{73A6FE65-DE9F-4012-A49B-8DA564B04A86}"
+      DTS:To="Package\SQL Оновлення watermark" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{78A0C4B0-C561-4AA8-8123-66BD222502B3\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{78A0C4B0-C561-4AA8-8123-66BD222502B3}"
+      DTS:From="Package\SQL Оновлення watermark"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{78A0C4B0-C561-4AA8-8123-66BD222502B3}"
+      DTS:To="Package\SQL Завершення пакета" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{A26DA875-A30C-4E7F-83D6-3CFC76B7A6FE\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{A26DA875-A30C-4E7F-83D6-3CFC76B7A6FE}"
+      DTS:From="Package\SQL Початок пакета"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{A26DA875-A30C-4E7F-83D6-3CFC76B7A6FE}"
+      DTS:To="Package\SQL Watermark" />
+  </DTS:PrecedenceConstraints>
+  <DTS:EventHandlers>
+    <DTS:EventHandler
+      DTS:refId="Package.EventHandlers[OnError]"
+      DTS:CreationName="OnError"
+      DTS:DTSID="{8A6E9F2B-50F1-4EE3-9018-FB865A0E9D8C}"
+      DTS:EventID="0"
+      DTS:EventName="OnError"
+      DTS:LocaleID="-1">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:Description="The propagate property of the event"
+          DTS:DTSID="{67BC9146-833F-4111-BC01-30422F8F9AF8}"
+          DTS:IncludeInDebugDump="6789"
+          DTS:Namespace="System"
+          DTS:ObjectName="Propagate">
+          <DTS:VariableValue
+            DTS:DataType="11">-1</DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package.EventHandlers[OnError]\SQL Журнал помилки"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:DTSID="{FE2DD1D5-38B0-445A-A394-2993FCA2B8F1}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL Журнал помилки">
+          <DTS:Variables />
+          <DTS:PropertyExpression
+            DTS:Name="SqlStatementSource">"EXEC etl.usp_LogError @LogID = " + (DT_WSTR,12)@[User::LogID] + ", @PackageName = N'" + @[System::PackageName] + "', @SourceName = N'" + REPLACE(@[System::SourceName], "'", "''") + "', @ErrorCode = " + (DT_WSTR,12)@[System::ErrorCode] + ", @ErrorMessage = N'" + REPLACE(LEFT(@[System::ErrorDescription], 3500), "'", "''") + "'"</DTS:PropertyExpression>
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{BCFD2742-6366-4988-8A48-A61320D4333A}"
+              SQLTask:SqlStatementSource="EXEC etl.usp_LogError @LogID = 0, @PackageName = N'03_Load_FactVisit', @SourceName = N'', @ErrorCode = 0, @ErrorMessage = N''" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:EventHandler>
+  </DTS:EventHandlers>
+</DTS:Executable>

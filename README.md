@@ -15,7 +15,8 @@ Microsoft SQL Server (SSIS, SSAS, SSRS)
 ├── README.md
 ├── Documentation/
 │   ├── 01_Проектування_БД.md      — аналіз предметної області, ER-діаграми, нормалізація
-│   └── 02_Генерація_даних.md      — генератор, моделі реалістичності, валідація, статистика
+│   ├── 02_Генерація_даних.md      — генератор, моделі реалістичності, валідація, статистика
+│   └── 03_ETL_SSIS.md             — сховище даних, пакети SSIS, трансформації, контроль якості
 ├── Database/
 │   ├── CREATE_DATABASE.sql        — створення БД PolyclinicDB
 │   ├── CREATE_TABLES.sql          — 16 таблиць
@@ -25,17 +26,27 @@ Microsoft SQL Server (SSIS, SSAS, SSRS)
 │   ├── CREATE_PROCEDURES.sql      — функції, операційні процедури, процедури звітів
 │   ├── TEST_CONSTRAINTS.sql       — 22 автоматичні тести обмежень цілісності
 │   └── deploy.ps1                 — розгортання БД одним скриптом
-└── DataGeneration/
-    ├── 01_REFERENCE_DATA.sql      — довідники (МКХ-10, ліки, протипоказання, географія)
-    ├── 02_DOCTORS_PATIENTS.sql    — лікарі та 55 000 пацієнтів
-    ├── 03_MEDICAL_DATA.sql        — історії хвороб, діагнози, візити, призначення (2016–2025)
-    ├── 04_VALIDATE_AND_STATS.sql  — перевірка бізнес-правил і статистика
-    ├── generate.ps1               — повна генерація одним запуском (~2,5 хв)
-    └── generation_log.txt         — журнал останньої генерації
+├── DataGeneration/
+│   ├── 01_REFERENCE_DATA.sql      — довідники (МКХ-10, ліки, протипоказання, географія)
+│   ├── 02_DOCTORS_PATIENTS.sql    — лікарі та 55 000 пацієнтів
+│   ├── 03_MEDICAL_DATA.sql        — історії хвороб, діагнози, візити, призначення (2016–2025)
+│   ├── 04_VALIDATE_AND_STATS.sql  — перевірка бізнес-правил і статистика
+│   ├── 05_LAB_FILES.ps1           — CSV-файли лабораторії з навмисними проблемами якості даних
+│   ├── generate.ps1               — повна генерація одним запуском (~2,5 хв)
+│   └── generation_log.txt         — журнал останньої генерації
+└── SSIS_Projects/
+    ├── PolyclinicETL.sln          — рішення Visual Studio
+    ├── PolyclinicETL/             — 7 пакетів .dtsx (00_Master … 06_Load_LabResults), .dtproj
+    ├── DataWarehouse/             — створення PolyclinicDW, процедури ETL, тест інкрементальних змін
+    ├── LabFiles/                  — Inbox → Archive / Rejected (CSV лабораторії)
+    ├── Builder/                   — генератор пакетів SSIS (C#, об'єктна модель SSIS)
+    └── run_etl.ps1                — повний запуск ETL
 ```
 
 ## Вимоги
 - Microsoft SQL Server 2022 (Developer), SQL Server Management Studio
+- Visual Studio 2026 (або 2022) з розширенням SQL Server Integration Services Projects
+- Integration Services 2022 (компонент SQL Server — для запуску пакетів поза Visual Studio)
 
 ## Розгортання бази даних
 ```powershell
@@ -61,6 +72,25 @@ powershell -ExecutionPolicy Bypass -File DataGeneration\generate.ps1 -Server .
 | MedicalRecords | 538 258 |
 | Patients | 55 000 |
 | **Разом (усі таблиці)** | **3 568 805** |
+
+## ETL та сховище даних
+```powershell
+powershell -ExecutionPolicy Bypass -File DataGeneration\05_LAB_FILES.ps1                 # CSV-файли лабораторії
+powershell -ExecutionPolicy Bypass -File SSIS_Projects\DataWarehouse\deploy_dw.ps1       # створення PolyclinicDW
+powershell -ExecutionPolicy Bypass -File SSIS_Projects\run_etl.ps1                       # повний ETL (~45 с)
+```
+Або у Visual Studio: `SSIS_Projects/PolyclinicETL.sln` → `00_Master.dtsx` → Start.
+
+| Факт | Записів |
+|---|---:|
+| FactVisit | 1 086 026 |
+| FactPrescription | 1 011 647 |
+| FactTreatment | 534 961 |
+| FactLabResult | 101 558 |
+
+Використані трансформації: Data Cleansing, Data Conversion, Derived Column, Lookup, Aggregate,
+Conditional Split, Union All (+ Multicast, Sort, Row Count). Задачі та контейнери: Execute SQL,
+Script Task, For Each Loop, Sequence, Execute Package, File System, обробники OnError.
 
 ## Модель даних (коротко)
 - **Довідники:** Regions, Cities, Specialties, Departments, DiseaseCategories, Diseases,

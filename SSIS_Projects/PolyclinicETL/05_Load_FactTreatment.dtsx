@@ -1,0 +1,2905 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="10/30/2026 8:26:50 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="ASUS"
+  DTS:CreatorName="PolyclinicETL builder"
+  DTS:Description="Закриті історії хвороб → fact.FactTreatment: агрегування візитів (Aggregate), показники ефективності лікування"
+  DTS:DTSID="{7063CE0B-863E-44F0-948F-A5B13D960AC4}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.1000.6"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="05_Load_FactTreatment"
+  DTS:ProtectionLevel="0"
+  DTS:VersionGUID="{AA544E34-E238-4119-8428-E2B8A9242F0B}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[DW_PolyclinicDW]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{86F21FD2-87B4-4177-BADB-C28FE6289609}"
+      DTS:ObjectName="DW_PolyclinicDW">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">"Data Source=" + @[User::ServerName] + ";Initial Catalog=PolyclinicDW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;"</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=.;Initial Catalog=PolyclinicDW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{0D76E61C-92A0-4BC2-B356-061663326F37}"
+      DTS:ObjectName="OLTP_PolyclinicDB">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">"Data Source=" + @[User::ServerName] + ";Initial Catalog=PolyclinicDB;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;"</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=.;Initial Catalog=PolyclinicDB;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{75357258-221A-44C0-9FFF-403AE5E7A9FF}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="LogID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{478F28CE-B717-4514-99B6-138AD8AB14C6}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="NewTreatmentWatermark">
+      <DTS:VariableValue
+        DTS:DataType="8">1900-01-01 00:00:00</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{FD24FA05-449B-419E-A800-3B1566978200}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsInserted">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{124B1820-B1C5-4180-951C-AE03E2339B37}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsRead">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{5D453FE3-3066-4372-94B0-3E6998E46442}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsRejected">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{8D1D7E49-B881-44DB-B52E-BCBC9AA37188}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsUpdated">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{EEDD7BF4-29E6-4B74-B07F-D0389797731D}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RunID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{8C2A9B9A-7937-4D97-9276-F62750BCA339}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="ServerName">
+      <DTS:VariableValue
+        DTS:DataType="8">.</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{3EF83E82-D422-4710-B882-BFDCB8B63ABD}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="&quot;SELECT r.RecordID, r.PatientID, r.AttendingDoctorID AS DoctorID, dg.DiseaseID, r.OpenDate, r.CloseDate, r.Outcome, dg.Severity, ds.AvgTreatmentDays, DATEDIFF(YEAR, p.BirthDate, r.OpenDate) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, p.BirthDate, r.OpenDate), p.BirthDate) &gt; r.OpenDate THEN 1 ELSE 0 END AS AgeAtEvent, cm.Comorbidities, cm.Complications, v.Cost, CASE WHEN v.Status = N'Відбувся' THEN 1 ELSE 0 END AS IsCompletedVisit FROM dbo.MedicalRecords r JOIN dbo.Patients p ON p.PatientID = r.PatientID JOIN dbo.Diagnoses dg ON dg.RecordID = r.RecordID AND dg.DiagnosisType = N'Основний' JOIN dbo.Diseases ds ON ds.DiseaseID = dg.DiseaseID JOIN dbo.Visits v ON v.RecordID = r.RecordID CROSS APPLY (SELECT SUM(CASE WHEN x.DiagnosisType = N'Супутній' THEN 1 ELSE 0 END) AS Comorbidities, SUM(CASE WHEN x.DiagnosisType = N'Ускладнення' THEN 1 ELSE 0 END) AS Complications FROM dbo.Diagnoses x WHERE x.RecordID = r.RecordID) cm WHERE r.Status = N'Закрита' AND r.ModifiedAt &gt; '&quot; + @[User::TreatmentWatermark] + &quot;' AND r.ModifiedAt &lt;= '&quot; + @[User::NewTreatmentWatermark] + &quot;'&quot;"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="SqlTreatment">
+      <DTS:VariableValue
+        DTS:DataType="8">SELECT r.RecordID, r.PatientID, r.AttendingDoctorID AS DoctorID, dg.DiseaseID, r.OpenDate, r.CloseDate, r.Outcome, dg.Severity, ds.AvgTreatmentDays, DATEDIFF(YEAR, p.BirthDate, r.OpenDate) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, p.BirthDate, r.OpenDate), p.BirthDate) &gt; r.OpenDate THEN 1 ELSE 0 END AS AgeAtEvent, cm.Comorbidities, cm.Complications, v.Cost, CASE WHEN v.Status = N'Відбувся' THEN 1 ELSE 0 END AS IsCompletedVisit FROM dbo.MedicalRecords r JOIN dbo.Patients p ON p.PatientID = r.PatientID JOIN dbo.Diagnoses dg ON dg.RecordID = r.RecordID AND dg.DiagnosisType = N'Основний' JOIN dbo.Diseases ds ON ds.DiseaseID = dg.DiseaseID JOIN dbo.Visits v ON v.RecordID = r.RecordID CROSS APPLY (SELECT SUM(CASE WHEN x.DiagnosisType = N'Супутній' THEN 1 ELSE 0 END) AS Comorbidities, SUM(CASE WHEN x.DiagnosisType = N'Ускладнення' THEN 1 ELSE 0 END) AS Complications FROM dbo.Diagnoses x WHERE x.RecordID = r.RecordID) cm WHERE r.Status = N'Закрита' AND r.ModifiedAt &gt; '1900-01-01 00:00:00' AND r.ModifiedAt &lt;= '1900-01-01 00:00:00'</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{6D81FA3B-D960-4EFC-B93C-8D9536174C80}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="TreatmentWatermark">
+      <DTS:VariableValue
+        DTS:DataType="8">1900-01-01 00:00:00</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\DFT FactTreatment"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Візити закритих історій → агрегування по історії → fact.FactTreatment"
+      DTS:DTSID="{DA698001-31EE-490A-8F44-104D514E5743}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="DFT FactTreatment"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          defaultBufferMaxRows="50000"
+          defaultBufferSize="52428800"
+          version="1">
+          <components>
+            <component
+              refId="Package\DFT FactTreatment\AGG Візити по історії хвороби"
+              componentClassID="Microsoft.Aggregate"
+              contactInfo="Aggregate;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;3"
+              description="Групування за історією: кількість візитів, відбулися, вартість"
+              name="AGG Візити по історії хвороби"
+              version="3">
+              <properties>
+                <property
+                  dataType="System.UInt32"
+                  description="Specifies the approximate number of group by keys that the aggregation produces. Low indicates 500,000 key values, Medium indicates 5 million key values, and High indicates more than 25 million key values. Unspecified indicates no KeyScale value is used."
+                  name="KeyScale"
+                  typeConverter="KeyScaleType">0</property>
+                <property
+                  dataType="System.Null"
+                  description="Specifies the exact number of group by keys that the aggregation produces. If a KeyScale value is specified, the value in Keys takes precedence."
+                  name="Keys" />
+                <property
+                  dataType="System.UInt32"
+                  description="Specifies the approximate number of distinct values in a column that the aggregation counts distinctly. Low indicates 500,000 key values, Medium indicates 5 million key values, and High indicates more than 25 million key values. Unspecified indicates no CountDistinctScale value is used."
+                  name="CountDistinctScale"
+                  typeConverter="KeyScaleType">0</property>
+                <property
+                  dataType="System.Null"
+                  description="Specifies the exact number of distinct values in a column that the aggregation counts distinctly. If a CountDistinctScale value is specified, the value in CountDistinctKeys takes precedence."
+                  name="CountDistinctKeys" />
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage by which memory can be extended during the aggregation. Valid values are between 1 and 100."
+                  name="AutoExtendFactor">25</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1]"
+                  name="Aggregate Input 1">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[RecordID]"
+                      cachedDataType="i4"
+                      cachedName="RecordID"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[RecordID]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[PatientID]"
+                      cachedDataType="i4"
+                      cachedName="PatientID"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[PatientID]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[DoctorID]"
+                      cachedDataType="i4"
+                      cachedName="DoctorID"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[DoctorID]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[DiseaseID]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseID"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[DiseaseID]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[OpenDate]"
+                      cachedDataType="dbDate"
+                      cachedName="OpenDate"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[OpenDate]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[CloseDate]"
+                      cachedDataType="dbDate"
+                      cachedName="CloseDate"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[CloseDate]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[Outcome]"
+                      cachedDataType="wstr"
+                      cachedLength="30"
+                      cachedName="Outcome"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Outcome]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[Severity]"
+                      cachedDataType="ui1"
+                      cachedName="Severity"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Severity]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[AvgTreatmentDays]"
+                      cachedDataType="i2"
+                      cachedName="AvgTreatmentDays"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[AvgTreatmentDays]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[AgeAtEvent]"
+                      cachedDataType="i4"
+                      cachedName="AgeAtEvent"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[AgeAtEvent]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[Comorbidities]"
+                      cachedDataType="i4"
+                      cachedName="Comorbidities"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Comorbidities]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[Complications]"
+                      cachedDataType="i4"
+                      cachedName="Complications"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Complications]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[IsCompletedVisit]"
+                      cachedDataType="i4"
+                      cachedName="IsCompletedVisit"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[IsCompletedVisit]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1].Columns[Cost]"
+                      cachedDataType="numeric"
+                      cachedName="Cost"
+                      cachedPrecision="10"
+                      cachedScale="2"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Cost]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1]"
+                  name="Aggregate Output 1">
+                  <properties>
+                    <property
+                      dataType="System.UInt32"
+                      description="Specifies the approximate number of group by keys that the aggregation produces. Low indicates 500,000 key values, Medium indicates 5 million key values, and High indicates more than 25 million key values. Unspecified indicates no KeyScale value is used."
+                      name="KeyScale"
+                      typeConverter="KeyScaleType">0</property>
+                    <property
+                      dataType="System.Null"
+                      description="Specifies the exact number of group by keys that the aggregation produces. If a KeyScale value is specified, the value in Keys takes precedence."
+                      name="Keys" />
+                  </properties>
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[RecordID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[RecordID]"
+                      name="RecordID">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[RecordID]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[PatientID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[PatientID]"
+                      name="PatientID">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[PatientID]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[DoctorID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[DoctorID]"
+                      name="DoctorID">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[DoctorID]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[DiseaseID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[DiseaseID]"
+                      name="DiseaseID">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[DiseaseID]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[OpenDate]"
+                      dataType="dbDate"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[OpenDate]"
+                      name="OpenDate">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[OpenDate]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[CloseDate]"
+                      dataType="dbDate"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[CloseDate]"
+                      name="CloseDate">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[CloseDate]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Outcome]"
+                      dataType="wstr"
+                      length="30"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Outcome]"
+                      name="Outcome">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Outcome]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Severity]"
+                      dataType="ui1"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Severity]"
+                      name="Severity">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Severity]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[AvgTreatmentDays]"
+                      dataType="i2"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[AvgTreatmentDays]"
+                      name="AvgTreatmentDays">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[AvgTreatmentDays]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[AgeAtEvent]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[AgeAtEvent]"
+                      name="AgeAtEvent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[AgeAtEvent]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Comorbidities]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Comorbidities]"
+                      name="Comorbidities">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Comorbidities]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Complications]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Complications]"
+                      name="Complications">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Complications]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[VisitCountAgg]"
+                      dataType="ui8"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[VisitCountAgg]"
+                      name="VisitCountAgg">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\0:invalid}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">2</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[CompletedVisitsAgg]"
+                      dataType="i8"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[CompletedVisitsAgg]"
+                      name="CompletedVisitsAgg">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[IsCompletedVisit]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">4</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[TotalCostAgg]"
+                      dataType="numeric"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[TotalCostAgg]"
+                      name="TotalCostAgg"
+                      precision="10"
+                      scale="2">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Cost]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">4</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\DER Невідомі члени"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Ненайдений ключ → -1"
+              name="DER Невідомі члени"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\DER Невідомі члени.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Inputs[Derived Column Input].Columns[PatientKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="PatientKeyLkp"
+                      lineageId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Match Output].Columns[PatientKeyLkp]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Inputs[Derived Column Input].Columns[DoctorKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKeyLkp"
+                      lineageId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Match Output].Columns[DoctorKeyLkp]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Inputs[Derived Column Input].Columns[DiseaseKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKeyLkp"
+                      lineageId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Match Output].Columns[DiseaseKeyLkp]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Inputs[Derived Column Input].Columns[OutcomeKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="OutcomeKeyLkp"
+                      lineageId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Match Output].Columns[OutcomeKeyLkp]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\DFT FactTreatment\DER Невідомі члени.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]"
+                      name="PatientKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([PatientKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([PatientKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]"
+                      name="DoctorKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([DoctorKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([DoctorKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]"
+                      name="DiseaseKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([DiseaseKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([DiseaseKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[OutcomeKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[OutcomeKey]"
+                      name="OutcomeKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([OutcomeKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([OutcomeKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\DFT FactTreatment\DER Невідомі члени.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\DER Показники лікування"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Тривалість, відхилення від нормативу, ознаки одужання/позитивного результату"
+              name="DER Показники лікування"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[OpenDate]"
+                      cachedDataType="dbDate"
+                      cachedName="OpenDate"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[OpenDate]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[CloseDate]"
+                      cachedDataType="dbDate"
+                      cachedName="CloseDate"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[CloseDate]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[Outcome]"
+                      cachedDataType="wstr"
+                      cachedLength="30"
+                      cachedName="Outcome"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Outcome]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[AvgTreatmentDays]"
+                      cachedDataType="i2"
+                      cachedName="AvgTreatmentDays"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[AvgTreatmentDays]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[AgeAtEvent]"
+                      cachedDataType="i4"
+                      cachedName="AgeAtEvent"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[AgeAtEvent]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[Comorbidities]"
+                      cachedDataType="i4"
+                      cachedName="Comorbidities"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Comorbidities]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[Complications]"
+                      cachedDataType="i4"
+                      cachedName="Complications"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Complications]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[VisitCountAgg]"
+                      cachedDataType="ui8"
+                      cachedName="VisitCountAgg"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[VisitCountAgg]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[CompletedVisitsAgg]"
+                      cachedDataType="i8"
+                      cachedName="CompletedVisitsAgg"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[CompletedVisitsAgg]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input].Columns[TotalCostAgg]"
+                      cachedDataType="numeric"
+                      cachedName="TotalCostAgg"
+                      cachedPrecision="10"
+                      cachedScale="2"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[TotalCostAgg]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[OpenDateKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[OpenDateKey]"
+                      name="OpenDateKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">YEAR([OpenDate]) * 10000 + MONTH([OpenDate]) * 100 + DAY([OpenDate])</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">YEAR([OpenDate]) * 10000 + MONTH([OpenDate]) * 100 + DAY([OpenDate])</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[CloseDateKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[CloseDateKey]"
+                      name="CloseDateKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">YEAR([CloseDate]) * 10000 + MONTH([CloseDate]) * 100 + DAY([CloseDate])</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">YEAR([CloseDate]) * 10000 + MONTH([CloseDate]) * 100 + DAY([CloseDate])</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[AgeGroupKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[AgeGroupKey]"
+                      name="AgeGroupKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">[AgeAtEvent] &lt; 18 ? 1 : [AgeAtEvent] &lt; 35 ? 2 : [AgeAtEvent] &lt; 50 ? 3 : [AgeAtEvent] &lt; 65 ? 4 : 5</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">[AgeAtEvent] &lt; 18 ? 1 : [AgeAtEvent] &lt; 35 ? 2 : [AgeAtEvent] &lt; 50 ? 3 : [AgeAtEvent] &lt; 65 ? 4 : 5</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[TreatmentDays]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[TreatmentDays]"
+                      name="TreatmentDays"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">DATEDIFF("dd", [OpenDate], [CloseDate])</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">DATEDIFF("dd", [OpenDate], [CloseDate])</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[NormTreatmentDays]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[NormTreatmentDays]"
+                      name="NormTreatmentDays"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">(DT_I4)[AvgTreatmentDays]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">(DT_I4)[AvgTreatmentDays]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[DaysOverNorm]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[DaysOverNorm]"
+                      name="DaysOverNorm"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">DATEDIFF("dd", [OpenDate], [CloseDate]) - (DT_I4)[AvgTreatmentDays]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">DATEDIFF("dd", [OpenDate], [CloseDate]) - (DT_I4)[AvgTreatmentDays]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[VisitCount]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[VisitCount]"
+                      name="VisitCount"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">(DT_I4)[VisitCountAgg]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">(DT_I4)[VisitCountAgg]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[CompletedVisitCount]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[CompletedVisitCount]"
+                      name="CompletedVisitCount"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">(DT_I4)[CompletedVisitsAgg]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">(DT_I4)[CompletedVisitsAgg]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[TotalVisitCost]"
+                      dataType="numeric"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[TotalVisitCost]"
+                      name="TotalVisitCost"
+                      precision="12"
+                      scale="2"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">(DT_NUMERIC,12,2)[TotalCostAgg]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">(DT_NUMERIC,12,2)[TotalCostAgg]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[ComorbidityCount]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[ComorbidityCount]"
+                      name="ComorbidityCount"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">(DT_I4)[Comorbidities]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">(DT_I4)[Comorbidities]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[ComplicationCount]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[ComplicationCount]"
+                      name="ComplicationCount"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">(DT_I4)[Complications]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">(DT_I4)[Complications]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[IsRecovered]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[IsRecovered]"
+                      name="IsRecovered"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">[Outcome] == "Одужання" ? 1 : 0</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">[Outcome] == "Одужання" ? 1 : 0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[IsPositive]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[IsPositive]"
+                      name="IsPositive"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">[Outcome] == "Одужання" || [Outcome] == "Покращення" ? 1 : 0</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">[Outcome] == "Одужання" || [Outcome] == "Покращення" ? 1 : 0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[IsWithinNorm]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[IsWithinNorm]"
+                      name="IsWithinNorm"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">DATEDIFF("dd", [OpenDate], [CloseDate]) &lt;= (DT_I4)[AvgTreatmentDays] ? 1 : 0</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">DATEDIFF("dd", [OpenDate], [CloseDate]) &lt;= (DT_I4)[AvgTreatmentDays] ? 1 : 0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[ETLRunID]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[ETLRunID]"
+                      name="ETLRunID"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">@[User::RunID]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">@[User::RunID]</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\LKP DimDisease"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ хвороби (основний діагноз)"
+              name="LKP DimDisease"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT DiseaseKey AS DiseaseKeyLkp, DiseaseID FROM dim.DimDisease</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="DiseaseKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="DiseaseID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactTreatment\LKP DimDisease.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\LKP DimDisease.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\LKP DimDisease.Inputs[Lookup Input].Columns[DiseaseID]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseID"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[DiseaseID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">DiseaseID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimDisease.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Match Output].Columns[DiseaseKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Match Output].Columns[DiseaseKeyLkp]"
+                      name="DiseaseKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">DiseaseKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimDisease.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimDisease.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\LKP DimDoctor"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ поточної версії лікаря (SCD2)"
+              name="LKP DimDoctor"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT DoctorKey AS DoctorKeyLkp, DoctorID FROM dim.DimDoctor WHERE IsCurrent = 1</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="DoctorKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="DoctorID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactTreatment\LKP DimDoctor.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\LKP DimDoctor.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\LKP DimDoctor.Inputs[Lookup Input].Columns[DoctorID]"
+                      cachedDataType="i4"
+                      cachedName="DoctorID"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[DoctorID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">DoctorID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimDoctor.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Match Output].Columns[DoctorKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Match Output].Columns[DoctorKeyLkp]"
+                      name="DoctorKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">DoctorKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimDoctor.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimDoctor.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\LKP DimOutcome"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Ключ результату лікування"
+              name="LKP DimOutcome"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT OutcomeKey AS OutcomeKeyLkp, Outcome FROM dim.DimOutcome</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="OutcomeKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="Outcome" dataType="DT_WSTR" length="30" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactTreatment\LKP DimOutcome.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\LKP DimOutcome.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\LKP DimOutcome.Inputs[Lookup Input].Columns[Outcome]"
+                      cachedDataType="wstr"
+                      cachedLength="30"
+                      cachedName="Outcome"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Outcome]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">Outcome</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimOutcome.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Match Output].Columns[OutcomeKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Match Output].Columns[OutcomeKeyLkp]"
+                      name="OutcomeKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">OutcomeKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimOutcome.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimOutcome.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\LKP DimPatient"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ поточної версії пацієнта (SCD2)"
+              name="LKP DimPatient"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT PatientKey AS PatientKeyLkp, PatientID FROM dim.DimPatient WHERE IsCurrent = 1</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="PatientKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="PatientID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactTreatment\LKP DimPatient.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\LKP DimPatient.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\LKP DimPatient.Inputs[Lookup Input].Columns[PatientID]"
+                      cachedDataType="i4"
+                      cachedName="PatientID"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[PatientID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">PatientID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimPatient.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Match Output].Columns[PatientKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Match Output].Columns[PatientKeyLkp]"
+                      name="PatientKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">PatientKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimPatient.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP DimPatient.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\LKP Вже завантажені"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Захист від повторного завантаження: далі йдуть лише нові історії"
+              name="LKP Вже завантажені"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT RecordID FROM fact.FactTreatment</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">1</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="RecordID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactTreatment\LKP Вже завантажені.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\LKP Вже завантажені.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\LKP Вже завантажені.Inputs[Lookup Input].Columns[RecordID]"
+                      cachedDataType="i4"
+                      cachedName="RecordID"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[RecordID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">RecordID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\LKP Вже завантажені.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP Вже завантажені.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP Вже завантажені.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP Вже завантажені.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\LKP Вже завантажені.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactTreatment\LKP Вже завантажені.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP Вже завантажені.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP Вже завантажені.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\LKP Вже завантажені.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\LKP Вже завантажені.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\OLE_DST FactTreatment"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="Fast load у fact.FactTreatment"
+              name="OLE_DST FactTreatment"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[fact].[FactTreatment]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">100000</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[RecordID]"
+                      cachedDataType="i4"
+                      cachedName="RecordID"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[RecordID]"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[RecordID]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[OpenDateKey]"
+                      cachedDataType="i4"
+                      cachedName="OpenDateKey"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[OpenDateKey]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[OpenDateKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[CloseDateKey]"
+                      cachedDataType="i4"
+                      cachedName="CloseDateKey"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[CloseDateKey]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[CloseDateKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[PatientKey]"
+                      cachedDataType="i4"
+                      cachedName="PatientKey"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[PatientKey]"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[DoctorKey]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKey"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[DoctorKey]"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[DiseaseKey]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKey"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[DiseaseKey]"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[OutcomeKey]"
+                      cachedDataType="i4"
+                      cachedName="OutcomeKey"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[OutcomeKey]"
+                      lineageId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output].Columns[OutcomeKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[AgeGroupKey]"
+                      cachedDataType="i4"
+                      cachedName="AgeGroupKey"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[AgeGroupKey]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[AgeGroupKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[Severity]"
+                      cachedDataType="ui1"
+                      cachedName="Severity"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[Severity]"
+                      lineageId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1].Columns[Severity]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[TreatmentDays]"
+                      cachedDataType="i4"
+                      cachedName="TreatmentDays"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[TreatmentDays]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[TreatmentDays]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[NormTreatmentDays]"
+                      cachedDataType="i4"
+                      cachedName="NormTreatmentDays"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[NormTreatmentDays]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[NormTreatmentDays]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[DaysOverNorm]"
+                      cachedDataType="i4"
+                      cachedName="DaysOverNorm"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[DaysOverNorm]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[DaysOverNorm]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[VisitCount]"
+                      cachedDataType="i4"
+                      cachedName="VisitCount"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[VisitCount]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[VisitCount]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[CompletedVisitCount]"
+                      cachedDataType="i4"
+                      cachedName="CompletedVisitCount"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[CompletedVisitCount]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[CompletedVisitCount]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[TotalVisitCost]"
+                      cachedDataType="numeric"
+                      cachedName="TotalVisitCost"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[TotalVisitCost]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[TotalVisitCost]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[ComorbidityCount]"
+                      cachedDataType="i4"
+                      cachedName="ComorbidityCount"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[ComorbidityCount]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[ComorbidityCount]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[ComplicationCount]"
+                      cachedDataType="i4"
+                      cachedName="ComplicationCount"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[ComplicationCount]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[ComplicationCount]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[IsRecovered]"
+                      cachedDataType="i4"
+                      cachedName="IsRecovered"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[IsRecovered]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[IsRecovered]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[IsPositive]"
+                      cachedDataType="i4"
+                      cachedName="IsPositive"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[IsPositive]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[IsPositive]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[IsWithinNorm]"
+                      cachedDataType="i4"
+                      cachedName="IsWithinNorm"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[IsWithinNorm]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[IsWithinNorm]" />
+                    <inputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].Columns[ETLRunID]"
+                      cachedDataType="i4"
+                      cachedName="ETLRunID"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[ETLRunID]"
+                      lineageId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output].Columns[ETLRunID]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[RecordID]"
+                      dataType="i4"
+                      name="RecordID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[OpenDateKey]"
+                      dataType="i4"
+                      name="OpenDateKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[CloseDateKey]"
+                      dataType="i4"
+                      name="CloseDateKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[PatientKey]"
+                      dataType="i4"
+                      name="PatientKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[DoctorKey]"
+                      dataType="i4"
+                      name="DoctorKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[DiseaseKey]"
+                      dataType="i4"
+                      name="DiseaseKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[OutcomeKey]"
+                      dataType="i4"
+                      name="OutcomeKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[AgeGroupKey]"
+                      dataType="i4"
+                      name="AgeGroupKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[Severity]"
+                      dataType="ui1"
+                      name="Severity" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[TreatmentDays]"
+                      dataType="i4"
+                      name="TreatmentDays" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[NormTreatmentDays]"
+                      dataType="i4"
+                      name="NormTreatmentDays" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[DaysOverNorm]"
+                      dataType="i4"
+                      name="DaysOverNorm" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[VisitCount]"
+                      dataType="i4"
+                      name="VisitCount" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[CompletedVisitCount]"
+                      dataType="i4"
+                      name="CompletedVisitCount" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[TotalVisitCost]"
+                      dataType="numeric"
+                      name="TotalVisitCost"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[ComorbidityCount]"
+                      dataType="i4"
+                      name="ComorbidityCount" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[ComplicationCount]"
+                      dataType="i4"
+                      name="ComplicationCount" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[IsRecovered]"
+                      dataType="i4"
+                      name="IsRecovered" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[IsPositive]"
+                      dataType="i4"
+                      name="IsPositive" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[IsWithinNorm]"
+                      dataType="i4"
+                      name="IsWithinNorm" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input].ExternalColumns[ETLRunID]"
+                      dataType="i4"
+                      name="ETLRunID" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_DST FactTreatment.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_DST FactTreatment.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_DST FactTreatment.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="Один рядок на візит з атрибутами історії хвороби; ModifiedAt у межах (watermark; нова межа]"
+              name="OLE_SRC Візити закритих історій"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable">User::SqlTreatment</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+                  connectionManagerRefId="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[RecordID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[RecordID]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[RecordID]"
+                      name="RecordID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[PatientID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[PatientID]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[PatientID]"
+                      name="PatientID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[DoctorID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[DoctorID]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[DoctorID]"
+                      name="DoctorID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[DiseaseID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[DiseaseID]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[DiseaseID]"
+                      name="DiseaseID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[OpenDate]"
+                      dataType="dbDate"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[OpenDate]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[OpenDate]"
+                      name="OpenDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[CloseDate]"
+                      dataType="dbDate"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[CloseDate]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[CloseDate]"
+                      name="CloseDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Outcome]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Outcome]"
+                      length="30"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Outcome]"
+                      name="Outcome"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Severity]"
+                      dataType="ui1"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Severity]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Severity]"
+                      name="Severity"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[AvgTreatmentDays]"
+                      dataType="i2"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[AvgTreatmentDays]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[AvgTreatmentDays]"
+                      name="AvgTreatmentDays"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[AgeAtEvent]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[AgeAtEvent]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[AgeAtEvent]"
+                      name="AgeAtEvent"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Comorbidities]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Comorbidities]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Comorbidities]"
+                      name="Comorbidities"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Complications]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Complications]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Complications]"
+                      name="Complications"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Cost]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Cost]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[Cost]"
+                      name="Cost"
+                      precision="10"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[IsCompletedVisit]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[IsCompletedVisit]"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].Columns[IsCompletedVisit]"
+                      name="IsCompletedVisit"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[RecordID]"
+                      dataType="i4"
+                      name="RecordID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[PatientID]"
+                      dataType="i4"
+                      name="PatientID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[DoctorID]"
+                      dataType="i4"
+                      name="DoctorID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[DiseaseID]"
+                      dataType="i4"
+                      name="DiseaseID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[OpenDate]"
+                      dataType="dbDate"
+                      name="OpenDate" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[CloseDate]"
+                      dataType="dbDate"
+                      name="CloseDate" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Outcome]"
+                      dataType="wstr"
+                      length="30"
+                      name="Outcome" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Severity]"
+                      dataType="ui1"
+                      name="Severity" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[AvgTreatmentDays]"
+                      dataType="i2"
+                      name="AvgTreatmentDays" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[AgeAtEvent]"
+                      dataType="i4"
+                      name="AgeAtEvent" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Comorbidities]"
+                      dataType="i4"
+                      name="Comorbidities" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Complications]"
+                      dataType="i4"
+                      name="Complications" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[Cost]"
+                      dataType="numeric"
+                      name="Cost"
+                      precision="10"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output].ExternalColumns[IsCompletedVisit]"
+                      dataType="i4"
+                      name="IsCompletedVisit" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[RecordID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[RecordID]"
+                      name="RecordID" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[PatientID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[PatientID]"
+                      name="PatientID" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[DoctorID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[DoctorID]"
+                      name="DoctorID" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[DiseaseID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[DiseaseID]"
+                      name="DiseaseID" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[OpenDate]"
+                      dataType="dbDate"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[OpenDate]"
+                      name="OpenDate" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[CloseDate]"
+                      dataType="dbDate"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[CloseDate]"
+                      name="CloseDate" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Outcome]"
+                      dataType="wstr"
+                      length="30"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Outcome]"
+                      name="Outcome" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Severity]"
+                      dataType="ui1"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Severity]"
+                      name="Severity" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[AvgTreatmentDays]"
+                      dataType="i2"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[AvgTreatmentDays]"
+                      name="AvgTreatmentDays" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[AgeAtEvent]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[AgeAtEvent]"
+                      name="AgeAtEvent" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Comorbidities]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Comorbidities]"
+                      name="Comorbidities" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Complications]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Complications]"
+                      name="Complications" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Cost]"
+                      dataType="numeric"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[Cost]"
+                      name="Cost"
+                      precision="10"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[IsCompletedVisit]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[IsCompletedVisit]"
+                      name="IsCompletedVisit" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\RC Завантажено"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Завантажено історій"
+              name="RC Завантажено">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::RowsInserted</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\RC Завантажено.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\RC Завантажено.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\DFT FactTreatment\RC Завантажено.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactTreatment\RC Прочитано"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Прочитано візитів"
+              name="RC Прочитано">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::RowsRead</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\DFT FactTreatment\RC Прочитано.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactTreatment\RC Прочитано.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\DFT FactTreatment\RC Прочитано.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\DFT FactTreatment.Paths[Aggregate Output 1]"
+              endId="Package\DFT FactTreatment\LKP Вже завантажені.Inputs[Lookup Input]"
+              name="Aggregate Output 1"
+              startId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Outputs[Aggregate Output 1]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[Derived Column Output]"
+              endId="Package\DFT FactTreatment\LKP DimPatient.Inputs[Lookup Input]"
+              name="Derived Column Output"
+              startId="Package\DFT FactTreatment\DER Показники лікування.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[Derived Column Output1]"
+              endId="Package\DFT FactTreatment\RC Завантажено.Inputs[Row Count Input 1]"
+              name="Derived Column Output"
+              startId="Package\DFT FactTreatment\DER Невідомі члени.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[Lookup Match Output1]"
+              endId="Package\DFT FactTreatment\LKP DimDisease.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactTreatment\LKP DimDoctor.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[Lookup Match Output3]"
+              endId="Package\DFT FactTreatment\DER Невідомі члени.Inputs[Derived Column Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactTreatment\LKP DimOutcome.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[Lookup Match Output]"
+              endId="Package\DFT FactTreatment\LKP DimDoctor.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactTreatment\LKP DimPatient.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[Lookup Match Output2]"
+              endId="Package\DFT FactTreatment\LKP DimOutcome.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactTreatment\LKP DimDisease.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[Lookup No Match Output]"
+              endId="Package\DFT FactTreatment\DER Показники лікування.Inputs[Derived Column Input]"
+              name="Lookup No Match Output"
+              startId="Package\DFT FactTreatment\LKP Вже завантажені.Outputs[Lookup No Match Output]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[OLE DB Source Output]"
+              endId="Package\DFT FactTreatment\RC Прочитано.Inputs[Row Count Input 1]"
+              name="OLE DB Source Output"
+              startId="Package\DFT FactTreatment\OLE_SRC Візити закритих історій.Outputs[OLE DB Source Output]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[Row Count Output 11]"
+              endId="Package\DFT FactTreatment\OLE_DST FactTreatment.Inputs[OLE DB Destination Input]"
+              name="Row Count Output 1"
+              startId="Package\DFT FactTreatment\RC Завантажено.Outputs[Row Count Output 1]" />
+            <path
+              refId="Package\DFT FactTreatment.Paths[Row Count Output 1]"
+              endId="Package\DFT FactTreatment\AGG Візити по історії хвороби.Inputs[Aggregate Input 1]"
+              name="Row Count Output 1"
+              startId="Package\DFT FactTreatment\RC Прочитано.Outputs[Row Count Output 1]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Watermark"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{A59DE69A-7FCA-42CC-BB47-0DAD73FF2C78}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Watermark"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{86F21FD2-87B4-4177-BADB-C28FE6289609}"
+          SQLTask:SqlStatementSource="SELECT CONVERT(varchar(19), LastDate, 120) AS WM FROM etl.Watermark WHERE TableName = N'FactTreatment'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="WM"
+            SQLTask:DtsVariableName="User::TreatmentWatermark" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Завершення пакета"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{9638560B-AD7F-4C82-AA72-38A888D255EF}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Завершення пакета"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="SqlStatementSource">"EXEC etl.usp_PackageEnd @LogID = " + (DT_WSTR,12)@[User::LogID] + ", @RowsRead = " + (DT_WSTR,12)(@[User::RowsRead]) + ", @RowsInserted = " + (DT_WSTR,12)(@[User::RowsInserted]) + ", @RowsUpdated = " + (DT_WSTR,12)(@[User::RowsUpdated]) + ", @RowsRejected = " + (DT_WSTR,12)(@[User::RowsRejected])</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{86F21FD2-87B4-4177-BADB-C28FE6289609}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_PackageEnd @LogID = 0, @RowsRead = 0, @RowsInserted = 0, @RowsUpdated = 0, @RowsRejected = 0" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Нова межа завантаження"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{0A68A480-B047-470D-AF4C-AAF8AE034AEE}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Нова межа завантаження"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{0D76E61C-92A0-4BC2-B356-061663326F37}"
+          SQLTask:SqlStatementSource="SELECT CONVERT(varchar(19), ISNULL(MAX(ModifiedAt), '1900-01-01'), 120) AS WM FROM dbo.MedicalRecords WHERE Status = N'Закрита'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="WM"
+            SQLTask:DtsVariableName="User::NewTreatmentWatermark" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Оновлення watermark"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{4ADA3F1E-73B9-464E-A463-B45C79CE8EBD}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Оновлення watermark"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="SqlStatementSource">"EXEC etl.usp_SetWatermark N'FactTreatment', NULL, '" + @[User::NewTreatmentWatermark] + "'"</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{86F21FD2-87B4-4177-BADB-C28FE6289609}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_SetWatermark N'FactTreatment', NULL, '1900-01-01 00:00:00'" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Початок пакета"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{5EDD78ED-0950-45CE-801E-8693B8856118}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Початок пакета"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{86F21FD2-87B4-4177-BADB-C28FE6289609}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_PackageStart @PackageName = N'05_Load_FactTreatment'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="RunID"
+            SQLTask:DtsVariableName="User::RunID" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="LogID"
+            SQLTask:DtsVariableName="User::LogID" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{0B968198-51BF-4DCB-8084-FF9D2E698FBB\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{0B968198-51BF-4DCB-8084-FF9D2E698FBB}"
+      DTS:From="Package\SQL Watermark"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{0B968198-51BF-4DCB-8084-FF9D2E698FBB}"
+      DTS:To="Package\SQL Нова межа завантаження" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{626FF5BE-F89B-44BB-BF98-BA2B4A79981A\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{626FF5BE-F89B-44BB-BF98-BA2B4A79981A}"
+      DTS:From="Package\SQL Нова межа завантаження"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{626FF5BE-F89B-44BB-BF98-BA2B4A79981A}"
+      DTS:To="Package\DFT FactTreatment" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{AB80FF69-CE16-4AAB-896C-86FD0D8653D0\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{AB80FF69-CE16-4AAB-896C-86FD0D8653D0}"
+      DTS:From="Package\SQL Оновлення watermark"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{AB80FF69-CE16-4AAB-896C-86FD0D8653D0}"
+      DTS:To="Package\SQL Завершення пакета" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{C2AC39AB-3BD0-4B18-9CFC-016F7D67EA4B\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{C2AC39AB-3BD0-4B18-9CFC-016F7D67EA4B}"
+      DTS:From="Package\DFT FactTreatment"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{C2AC39AB-3BD0-4B18-9CFC-016F7D67EA4B}"
+      DTS:To="Package\SQL Оновлення watermark" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{C313C8A5-B255-4C1A-A1F3-02A9390FF6F7\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{C313C8A5-B255-4C1A-A1F3-02A9390FF6F7}"
+      DTS:From="Package\SQL Початок пакета"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{C313C8A5-B255-4C1A-A1F3-02A9390FF6F7}"
+      DTS:To="Package\SQL Watermark" />
+  </DTS:PrecedenceConstraints>
+  <DTS:EventHandlers>
+    <DTS:EventHandler
+      DTS:refId="Package.EventHandlers[OnError]"
+      DTS:CreationName="OnError"
+      DTS:DTSID="{8D77F383-32ED-4672-88BB-4E5DE3E72F41}"
+      DTS:EventID="539775828"
+      DTS:EventName="OnError"
+      DTS:LocaleID="-1">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:Description="The propagate property of the event"
+          DTS:DTSID="{F4B65E6A-3E22-4B79-BBA4-DEC27FE85897}"
+          DTS:IncludeInDebugDump="6789"
+          DTS:Namespace="System"
+          DTS:ObjectName="Propagate">
+          <DTS:VariableValue
+            DTS:DataType="11">-1</DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package.EventHandlers[OnError]\SQL Журнал помилки"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:DTSID="{F5139424-E824-4690-B53A-47310DEECA4C}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL Журнал помилки">
+          <DTS:Variables />
+          <DTS:PropertyExpression
+            DTS:Name="SqlStatementSource">"EXEC etl.usp_LogError @LogID = " + (DT_WSTR,12)@[User::LogID] + ", @PackageName = N'" + @[System::PackageName] + "', @SourceName = N'" + REPLACE(@[System::SourceName], "'", "''") + "', @ErrorCode = " + (DT_WSTR,12)@[System::ErrorCode] + ", @ErrorMessage = N'" + REPLACE(LEFT(@[System::ErrorDescription], 3500), "'", "''") + "'"</DTS:PropertyExpression>
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{86F21FD2-87B4-4177-BADB-C28FE6289609}"
+              SQLTask:SqlStatementSource="EXEC etl.usp_LogError @LogID = 0, @PackageName = N'05_Load_FactTreatment', @SourceName = N'', @ErrorCode = 0, @ErrorMessage = N''" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:EventHandler>
+  </DTS:EventHandlers>
+</DTS:Executable>

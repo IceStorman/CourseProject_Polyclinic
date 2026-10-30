@@ -1,0 +1,1870 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="10/30/2026 8:26:48 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="ASUS"
+  DTS:CreatorName="PolyclinicETL builder"
+  DTS:Description="Інкрементальне завантаження fact.FactPrescription (PrescriptionID &gt; watermark)"
+  DTS:DTSID="{D7E09EA3-5D9E-43DC-BE7D-303F75341828}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.1000.6"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="04_Load_FactPrescription"
+  DTS:ProtectionLevel="0"
+  DTS:VersionGUID="{F760465F-014B-40F0-A9C8-F7729B9CBEB1}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[DW_PolyclinicDW]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{C7681F71-E2C4-429C-988E-8AF243C3A988}"
+      DTS:ObjectName="DW_PolyclinicDW">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">"Data Source=" + @[User::ServerName] + ";Initial Catalog=PolyclinicDW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;"</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=.;Initial Catalog=PolyclinicDW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{0CF1E782-CA65-43E7-ADEC-F01B7EBBF163}"
+      DTS:ObjectName="OLTP_PolyclinicDB">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">"Data Source=" + @[User::ServerName] + ";Initial Catalog=PolyclinicDB;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;"</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=.;Initial Catalog=PolyclinicDB;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{1DADB657-F924-45AD-A718-966BF4C9D54F}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="LastPrescriptionID">
+      <DTS:VariableValue
+        DTS:DataType="8">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{4EFE11DB-55A9-4B3C-AA4B-793DCBCBFCA9}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="LogID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{09C8810E-A1C0-4B96-999A-79D9404C6B5A}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsInserted">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{E6F9AD60-E57A-4C83-A2D7-5B745FD66904}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsRead">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{CC21BAEA-9A5B-44A5-A1B6-C3D0289B723F}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsRejected">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{4E0B602F-BA64-47F8-8509-909408F93AA1}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsUpdated">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{08DE9148-B5E7-4E02-9DF8-75C2E2FEEEFA}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RunID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{C4F27A75-AD91-4AA8-8D6B-6D0FFDC588DA}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="ServerName">
+      <DTS:VariableValue
+        DTS:DataType="8">.</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{253881D0-3301-401C-8701-44A9A96EBA09}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="&quot;SELECT pr.PrescriptionID, pr.VisitID, CAST(v.VisitDateTime AS date) AS VisitDate, r.PatientID, v.DoctorID, dg.DiseaseID, pr.MedicationID, DATEDIFF(YEAR, p.BirthDate, CAST(v.VisitDateTime AS date)) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, p.BirthDate, CAST(v.VisitDateTime AS date)), p.BirthDate) &gt; CAST(v.VisitDateTime AS date) THEN 1 ELSE 0 END AS AgeAtEvent, pr.Quantity, pr.UnitPrice, CAST(pr.TotalCost AS decimal(12,2)) AS TotalCost, pr.DurationDays, pr.TimesPerDay FROM dbo.Prescriptions pr JOIN dbo.Visits v ON v.VisitID = pr.VisitID JOIN dbo.MedicalRecords r ON r.RecordID = v.RecordID JOIN dbo.Patients p ON p.PatientID = r.PatientID JOIN dbo.Diagnoses dg ON dg.RecordID = r.RecordID AND dg.DiagnosisType = N'Основний' WHERE pr.PrescriptionID &gt; &quot; + @[User::LastPrescriptionID]"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="SqlPrescriptions">
+      <DTS:VariableValue
+        DTS:DataType="8">SELECT pr.PrescriptionID, pr.VisitID, CAST(v.VisitDateTime AS date) AS VisitDate, r.PatientID, v.DoctorID, dg.DiseaseID, pr.MedicationID, DATEDIFF(YEAR, p.BirthDate, CAST(v.VisitDateTime AS date)) - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, p.BirthDate, CAST(v.VisitDateTime AS date)), p.BirthDate) &gt; CAST(v.VisitDateTime AS date) THEN 1 ELSE 0 END AS AgeAtEvent, pr.Quantity, pr.UnitPrice, CAST(pr.TotalCost AS decimal(12,2)) AS TotalCost, pr.DurationDays, pr.TimesPerDay FROM dbo.Prescriptions pr JOIN dbo.Visits v ON v.VisitID = pr.VisitID JOIN dbo.MedicalRecords r ON r.RecordID = v.RecordID JOIN dbo.Patients p ON p.PatientID = r.PatientID JOIN dbo.Diagnoses dg ON dg.RecordID = r.RecordID AND dg.DiagnosisType = N'Основний' WHERE pr.PrescriptionID &gt; 0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\DFT FactPrescription"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Призначення з OLTP → fact.FactPrescription"
+      DTS:DTSID="{FE00C3DA-EE1F-4BAE-865C-DF26A969577A}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="DFT FactPrescription"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          defaultBufferMaxRows="50000"
+          defaultBufferSize="52428800"
+          version="1">
+          <components>
+            <component
+              refId="Package\DFT FactPrescription\DER Ключ дати та вікова група"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Ключ дати і вікова група на дату візиту"
+              name="DER Ключ дати та вікова група"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Inputs[Derived Column Input].Columns[VisitDate]"
+                      cachedDataType="dbDate"
+                      cachedName="VisitDate"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[VisitDate]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Inputs[Derived Column Input].Columns[AgeAtEvent]"
+                      cachedDataType="i4"
+                      cachedName="AgeAtEvent"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[AgeAtEvent]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output].Columns[DateKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output].Columns[DateKey]"
+                      name="DateKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">YEAR([VisitDate]) * 10000 + MONTH([VisitDate]) * 100 + DAY([VisitDate])</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">YEAR([VisitDate]) * 10000 + MONTH([VisitDate]) * 100 + DAY([VisitDate])</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output].Columns[AgeGroupKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output].Columns[AgeGroupKey]"
+                      name="AgeGroupKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">[AgeAtEvent] &lt; 18 ? 1 : [AgeAtEvent] &lt; 35 ? 2 : [AgeAtEvent] &lt; 50 ? 3 : [AgeAtEvent] &lt; 65 ? 4 : 5</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">[AgeAtEvent] &lt; 18 ? 1 : [AgeAtEvent] &lt; 35 ? 2 : [AgeAtEvent] &lt; 50 ? 3 : [AgeAtEvent] &lt; 65 ? 4 : 5</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output].Columns[ETLRunID]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output].Columns[ETLRunID]"
+                      name="ETLRunID"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">@[User::RunID]</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">@[User::RunID]</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactPrescription\DER Невідомі члени"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Ненайдений ключ → -1"
+              name="DER Невідомі члени"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\DFT FactPrescription\DER Невідомі члени.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Inputs[Derived Column Input].Columns[PatientKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="PatientKeyLkp"
+                      lineageId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Match Output].Columns[PatientKeyLkp]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Inputs[Derived Column Input].Columns[DoctorKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKeyLkp"
+                      lineageId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Match Output].Columns[DoctorKeyLkp]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Inputs[Derived Column Input].Columns[DiseaseKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKeyLkp"
+                      lineageId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Match Output].Columns[DiseaseKeyLkp]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Inputs[Derived Column Input].Columns[MedicationKeyLkp]"
+                      cachedDataType="i4"
+                      cachedName="MedicationKeyLkp"
+                      lineageId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Match Output].Columns[MedicationKeyLkp]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\DFT FactPrescription\DER Невідомі члени.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]"
+                      name="PatientKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([PatientKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([PatientKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]"
+                      name="DoctorKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([DoctorKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([DoctorKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]"
+                      name="DiseaseKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([DiseaseKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([DiseaseKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[MedicationKey]"
+                      dataType="i4"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[MedicationKey]"
+                      name="MedicationKey"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          name="Expression">REPLACENULL([MedicationKeyLkp], -1)</property>
+                        <property
+                          dataType="System.String"
+                          name="FriendlyExpression">REPLACENULL([MedicationKeyLkp], -1)</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\DFT FactPrescription\DER Невідомі члени.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactPrescription\LKP DimDisease"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ хвороби (основний діагноз)"
+              name="LKP DimDisease"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT DiseaseKey AS DiseaseKeyLkp, DiseaseID FROM dim.DimDisease</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="DiseaseKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="DiseaseID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactPrescription\LKP DimDisease.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactPrescription\LKP DimDisease.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\LKP DimDisease.Inputs[Lookup Input].Columns[DiseaseID]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseID"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[DiseaseID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">DiseaseID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimDisease.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Match Output].Columns[DiseaseKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Match Output].Columns[DiseaseKeyLkp]"
+                      name="DiseaseKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">DiseaseKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimDisease.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimDisease.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactPrescription\LKP DimDoctor"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ поточної версії лікаря (SCD2)"
+              name="LKP DimDoctor"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT DoctorKey AS DoctorKeyLkp, DoctorID FROM dim.DimDoctor WHERE IsCurrent = 1</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="DoctorKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="DoctorID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactPrescription\LKP DimDoctor.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactPrescription\LKP DimDoctor.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\LKP DimDoctor.Inputs[Lookup Input].Columns[DoctorID]"
+                      cachedDataType="i4"
+                      cachedName="DoctorID"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[DoctorID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">DoctorID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimDoctor.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Match Output].Columns[DoctorKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Match Output].Columns[DoctorKeyLkp]"
+                      name="DoctorKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">DoctorKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimDoctor.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimDoctor.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactPrescription\LKP DimMedication"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ препарату"
+              name="LKP DimMedication"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT MedicationKey AS MedicationKeyLkp, MedicationID FROM dim.DimMedication</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="MedicationKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="MedicationID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactPrescription\LKP DimMedication.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactPrescription\LKP DimMedication.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\LKP DimMedication.Inputs[Lookup Input].Columns[MedicationID]"
+                      cachedDataType="i4"
+                      cachedName="MedicationID"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[MedicationID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">MedicationID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimMedication.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Match Output].Columns[MedicationKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Match Output].Columns[MedicationKeyLkp]"
+                      name="MedicationKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">MedicationKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimMedication.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimMedication.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactPrescription\LKP DimPatient"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Сурогатний ключ поточної версії пацієнта (SCD2)"
+              name="LKP DimPatient"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT PatientKey AS PatientKeyLkp, PatientID FROM dim.DimPatient WHERE IsCurrent = 1</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="PatientKeyLkp" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="PatientID" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactPrescription\LKP DimPatient.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactPrescription\LKP DimPatient.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\LKP DimPatient.Inputs[Lookup Input].Columns[PatientID]"
+                      cachedDataType="i4"
+                      cachedName="PatientID"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[PatientID]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">PatientID</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimPatient.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Match Output].Columns[PatientKeyLkp]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Match Output].Columns[PatientKeyLkp]"
+                      name="PatientKeyLkp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">PatientKeyLkp</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimPatient.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\DFT FactPrescription\LKP DimPatient.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactPrescription\OLE_DST FactPrescription"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="Fast load у fact.FactPrescription"
+              name="OLE_DST FactPrescription"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[fact].[FactPrescription]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">100000</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  connectionManagerRefId="Package.ConnectionManagers[DW_PolyclinicDW]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[PrescriptionID]"
+                      cachedDataType="i8"
+                      cachedName="PrescriptionID"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[PrescriptionID]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[PrescriptionID]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[VisitID]"
+                      cachedDataType="i8"
+                      cachedName="VisitID"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[VisitID]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[VisitID]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[DateKey]"
+                      cachedDataType="i4"
+                      cachedName="DateKey"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[DateKey]"
+                      lineageId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output].Columns[DateKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[PatientKey]"
+                      cachedDataType="i4"
+                      cachedName="PatientKey"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[PatientKey]"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[PatientKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[DoctorKey]"
+                      cachedDataType="i4"
+                      cachedName="DoctorKey"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[DoctorKey]"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[DoctorKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[DiseaseKey]"
+                      cachedDataType="i4"
+                      cachedName="DiseaseKey"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[DiseaseKey]"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[DiseaseKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[MedicationKey]"
+                      cachedDataType="i4"
+                      cachedName="MedicationKey"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[MedicationKey]"
+                      lineageId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output].Columns[MedicationKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[AgeGroupKey]"
+                      cachedDataType="i4"
+                      cachedName="AgeGroupKey"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[AgeGroupKey]"
+                      lineageId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output].Columns[AgeGroupKey]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[Quantity]"
+                      cachedDataType="i2"
+                      cachedName="Quantity"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[Quantity]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[Quantity]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[UnitPrice]"
+                      cachedDataType="numeric"
+                      cachedName="UnitPrice"
+                      cachedPrecision="10"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[UnitPrice]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[UnitPrice]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[TotalCost]"
+                      cachedDataType="numeric"
+                      cachedName="TotalCost"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[TotalCost]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[TotalCost]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[DurationDays]"
+                      cachedDataType="i2"
+                      cachedName="DurationDays"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[DurationDays]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[DurationDays]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[TimesPerDay]"
+                      cachedDataType="ui1"
+                      cachedName="TimesPerDay"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[TimesPerDay]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[TimesPerDay]" />
+                    <inputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].Columns[ETLRunID]"
+                      cachedDataType="i4"
+                      cachedName="ETLRunID"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[ETLRunID]"
+                      lineageId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output].Columns[ETLRunID]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[PrescriptionID]"
+                      dataType="i8"
+                      name="PrescriptionID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[VisitID]"
+                      dataType="i8"
+                      name="VisitID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[DateKey]"
+                      dataType="i4"
+                      name="DateKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[PatientKey]"
+                      dataType="i4"
+                      name="PatientKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[DoctorKey]"
+                      dataType="i4"
+                      name="DoctorKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[DiseaseKey]"
+                      dataType="i4"
+                      name="DiseaseKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[MedicationKey]"
+                      dataType="i4"
+                      name="MedicationKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[AgeGroupKey]"
+                      dataType="i4"
+                      name="AgeGroupKey" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[Quantity]"
+                      dataType="i2"
+                      name="Quantity" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[UnitPrice]"
+                      dataType="numeric"
+                      name="UnitPrice"
+                      precision="10"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[TotalCost]"
+                      dataType="numeric"
+                      name="TotalCost"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[DurationDays]"
+                      dataType="i2"
+                      name="DurationDays" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[TimesPerDay]"
+                      dataType="ui1"
+                      name="TimesPerDay" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input].ExternalColumns[ETLRunID]"
+                      dataType="i4"
+                      name="ETLRunID" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\OLE_DST FactPrescription.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_DST FactPrescription.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\OLE_DST FactPrescription.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально)"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="PrescriptionID &gt; watermark"
+              name="OLE_SRC Призначення (інкрементально)"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable">User::SqlPrescriptions</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+                  connectionManagerRefId="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[PrescriptionID]"
+                      dataType="i8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[PrescriptionID]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[PrescriptionID]"
+                      name="PrescriptionID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[VisitID]"
+                      dataType="i8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitID]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[VisitID]"
+                      name="VisitID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[VisitDate]"
+                      dataType="dbDate"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitDate]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[VisitDate]"
+                      name="VisitDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[PatientID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[PatientID]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[PatientID]"
+                      name="PatientID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[DoctorID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DoctorID]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[DoctorID]"
+                      name="DoctorID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[DiseaseID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DiseaseID]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[DiseaseID]"
+                      name="DiseaseID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[MedicationID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[MedicationID]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[MedicationID]"
+                      name="MedicationID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[AgeAtEvent]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[AgeAtEvent]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[AgeAtEvent]"
+                      name="AgeAtEvent"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[Quantity]"
+                      dataType="i2"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[Quantity]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[Quantity]"
+                      name="Quantity"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[UnitPrice]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[UnitPrice]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[UnitPrice]"
+                      name="UnitPrice"
+                      precision="10"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[TotalCost]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[TotalCost]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[TotalCost]"
+                      name="TotalCost"
+                      precision="12"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[DurationDays]"
+                      dataType="i2"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DurationDays]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[DurationDays]"
+                      name="DurationDays"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[TimesPerDay]"
+                      dataType="ui1"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[TimesPerDay]"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].Columns[TimesPerDay]"
+                      name="TimesPerDay"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[PrescriptionID]"
+                      dataType="i8"
+                      name="PrescriptionID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitID]"
+                      dataType="i8"
+                      name="VisitID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[VisitDate]"
+                      dataType="dbDate"
+                      name="VisitDate" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[PatientID]"
+                      dataType="i4"
+                      name="PatientID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DoctorID]"
+                      dataType="i4"
+                      name="DoctorID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DiseaseID]"
+                      dataType="i4"
+                      name="DiseaseID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[MedicationID]"
+                      dataType="i4"
+                      name="MedicationID" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[AgeAtEvent]"
+                      dataType="i4"
+                      name="AgeAtEvent" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[Quantity]"
+                      dataType="i2"
+                      name="Quantity" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[UnitPrice]"
+                      dataType="numeric"
+                      name="UnitPrice"
+                      precision="10"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[TotalCost]"
+                      dataType="numeric"
+                      name="TotalCost"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[DurationDays]"
+                      dataType="i2"
+                      name="DurationDays" />
+                    <externalMetadataColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output].ExternalColumns[TimesPerDay]"
+                      dataType="ui1"
+                      name="TimesPerDay" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[PrescriptionID]"
+                      dataType="i8"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[PrescriptionID]"
+                      name="PrescriptionID" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitID]"
+                      dataType="i8"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitID]"
+                      name="VisitID" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitDate]"
+                      dataType="dbDate"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[VisitDate]"
+                      name="VisitDate" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[PatientID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[PatientID]"
+                      name="PatientID" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[DoctorID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[DoctorID]"
+                      name="DoctorID" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[DiseaseID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[DiseaseID]"
+                      name="DiseaseID" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[MedicationID]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[MedicationID]"
+                      name="MedicationID" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[AgeAtEvent]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[AgeAtEvent]"
+                      name="AgeAtEvent" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[Quantity]"
+                      dataType="i2"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[Quantity]"
+                      name="Quantity" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[UnitPrice]"
+                      dataType="numeric"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[UnitPrice]"
+                      name="UnitPrice"
+                      precision="10"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[TotalCost]"
+                      dataType="numeric"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[TotalCost]"
+                      name="TotalCost"
+                      precision="12"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[DurationDays]"
+                      dataType="i2"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[DurationDays]"
+                      name="DurationDays" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[TimesPerDay]"
+                      dataType="ui1"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[TimesPerDay]"
+                      name="TimesPerDay" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactPrescription\RC Завантажено"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Завантажено у факт"
+              name="RC Завантажено">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::RowsInserted</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\DFT FactPrescription\RC Завантажено.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\RC Завантажено.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\DFT FactPrescription\RC Завантажено.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\DFT FactPrescription\RC Прочитано"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Прочитано рядків"
+              name="RC Прочитано">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::RowsRead</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\DFT FactPrescription\RC Прочитано.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\DFT FactPrescription\RC Прочитано.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\DFT FactPrescription\RC Прочитано.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\DFT FactPrescription.Paths[Derived Column Output1]"
+              endId="Package\DFT FactPrescription\RC Завантажено.Inputs[Row Count Input 1]"
+              name="Derived Column Output"
+              startId="Package\DFT FactPrescription\DER Невідомі члени.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\DFT FactPrescription.Paths[Derived Column Output]"
+              endId="Package\DFT FactPrescription\LKP DimPatient.Inputs[Lookup Input]"
+              name="Derived Column Output"
+              startId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\DFT FactPrescription.Paths[Lookup Match Output3]"
+              endId="Package\DFT FactPrescription\DER Невідомі члени.Inputs[Derived Column Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactPrescription\LKP DimMedication.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactPrescription.Paths[Lookup Match Output2]"
+              endId="Package\DFT FactPrescription\LKP DimMedication.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactPrescription\LKP DimDisease.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactPrescription.Paths[Lookup Match Output1]"
+              endId="Package\DFT FactPrescription\LKP DimDisease.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactPrescription\LKP DimDoctor.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactPrescription.Paths[Lookup Match Output]"
+              endId="Package\DFT FactPrescription\LKP DimDoctor.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\DFT FactPrescription\LKP DimPatient.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\DFT FactPrescription.Paths[OLE DB Source Output]"
+              endId="Package\DFT FactPrescription\RC Прочитано.Inputs[Row Count Input 1]"
+              name="OLE DB Source Output"
+              startId="Package\DFT FactPrescription\OLE_SRC Призначення (інкрементально).Outputs[OLE DB Source Output]" />
+            <path
+              refId="Package\DFT FactPrescription.Paths[Row Count Output 11]"
+              endId="Package\DFT FactPrescription\OLE_DST FactPrescription.Inputs[OLE DB Destination Input]"
+              name="Row Count Output 1"
+              startId="Package\DFT FactPrescription\RC Завантажено.Outputs[Row Count Output 1]" />
+            <path
+              refId="Package\DFT FactPrescription.Paths[Row Count Output 1]"
+              endId="Package\DFT FactPrescription\DER Ключ дати та вікова група.Inputs[Derived Column Input]"
+              name="Row Count Output 1"
+              startId="Package\DFT FactPrescription\RC Прочитано.Outputs[Row Count Output 1]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Watermark"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{E712A9D3-10A6-4C4A-B79B-367E53BAFFFF}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Watermark"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{C7681F71-E2C4-429C-988E-8AF243C3A988}"
+          SQLTask:SqlStatementSource="SELECT CAST(LastID AS varchar(20)) AS LastID FROM etl.Watermark WHERE TableName = N'FactPrescription'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="LastID"
+            SQLTask:DtsVariableName="User::LastPrescriptionID" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Завершення пакета"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{D9B3285C-04C4-4EC7-96A9-7972A747D824}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Завершення пакета"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="SqlStatementSource">"EXEC etl.usp_PackageEnd @LogID = " + (DT_WSTR,12)@[User::LogID] + ", @RowsRead = " + (DT_WSTR,12)(@[User::RowsRead]) + ", @RowsInserted = " + (DT_WSTR,12)(@[User::RowsInserted]) + ", @RowsUpdated = " + (DT_WSTR,12)(@[User::RowsUpdated]) + ", @RowsRejected = " + (DT_WSTR,12)(@[User::RowsRejected])</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{C7681F71-E2C4-429C-988E-8AF243C3A988}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_PackageEnd @LogID = 0, @RowsRead = 0, @RowsInserted = 0, @RowsUpdated = 0, @RowsRejected = 0" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Оновлення watermark"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{306B4B73-8B0D-42EE-939A-F9AF86FF81F5}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Оновлення watermark"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{C7681F71-E2C4-429C-988E-8AF243C3A988}"
+          SQLTask:SqlStatementSource="DECLARE @m BIGINT = (SELECT MAX(PrescriptionID) FROM fact.FactPrescription); EXEC etl.usp_SetWatermark N'FactPrescription', @m, NULL;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Початок пакета"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{DFE6BB1A-42DE-44CF-9F29-1F7BE6EF7E9C}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Початок пакета"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{C7681F71-E2C4-429C-988E-8AF243C3A988}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_PackageStart @PackageName = N'04_Load_FactPrescription'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="RunID"
+            SQLTask:DtsVariableName="User::RunID" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="LogID"
+            SQLTask:DtsVariableName="User::LogID" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{0C0E53A9-7CE2-4E6D-98A4-A42DD38DB78E\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{0C0E53A9-7CE2-4E6D-98A4-A42DD38DB78E}"
+      DTS:From="Package\DFT FactPrescription"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{0C0E53A9-7CE2-4E6D-98A4-A42DD38DB78E}"
+      DTS:To="Package\SQL Оновлення watermark" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{22C52B2B-1BC3-4BFA-B985-0641BA497354\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{22C52B2B-1BC3-4BFA-B985-0641BA497354}"
+      DTS:From="Package\SQL Оновлення watermark"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{22C52B2B-1BC3-4BFA-B985-0641BA497354}"
+      DTS:To="Package\SQL Завершення пакета" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{464ACE33-288D-47BF-B716-D4374ACCE381\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{464ACE33-288D-47BF-B716-D4374ACCE381}"
+      DTS:From="Package\SQL Watermark"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{464ACE33-288D-47BF-B716-D4374ACCE381}"
+      DTS:To="Package\DFT FactPrescription" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{C6585B5A-53DE-4723-9379-EAFD080AF6D2\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{C6585B5A-53DE-4723-9379-EAFD080AF6D2}"
+      DTS:From="Package\SQL Початок пакета"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{C6585B5A-53DE-4723-9379-EAFD080AF6D2}"
+      DTS:To="Package\SQL Watermark" />
+  </DTS:PrecedenceConstraints>
+  <DTS:EventHandlers>
+    <DTS:EventHandler
+      DTS:refId="Package.EventHandlers[OnError]"
+      DTS:CreationName="OnError"
+      DTS:DTSID="{23293C5D-3647-48E4-8844-072E240E7F21}"
+      DTS:EventID="0"
+      DTS:EventName="OnError"
+      DTS:LocaleID="-1">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:Description="The propagate property of the event"
+          DTS:DTSID="{7825E43A-5460-4E35-BE47-92F4B03629BC}"
+          DTS:IncludeInDebugDump="6789"
+          DTS:Namespace="System"
+          DTS:ObjectName="Propagate">
+          <DTS:VariableValue
+            DTS:DataType="11">-1</DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package.EventHandlers[OnError]\SQL Журнал помилки"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:DTSID="{513A65C7-BDD8-4C55-8BF1-39953AD74CC1}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL Журнал помилки">
+          <DTS:Variables />
+          <DTS:PropertyExpression
+            DTS:Name="SqlStatementSource">"EXEC etl.usp_LogError @LogID = " + (DT_WSTR,12)@[User::LogID] + ", @PackageName = N'" + @[System::PackageName] + "', @SourceName = N'" + REPLACE(@[System::SourceName], "'", "''") + "', @ErrorCode = " + (DT_WSTR,12)@[System::ErrorCode] + ", @ErrorMessage = N'" + REPLACE(LEFT(@[System::ErrorDescription], 3500), "'", "''") + "'"</DTS:PropertyExpression>
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{C7681F71-E2C4-429C-988E-8AF243C3A988}"
+              SQLTask:SqlStatementSource="EXEC etl.usp_LogError @LogID = 0, @PackageName = N'04_Load_FactPrescription', @SourceName = N'', @ErrorCode = 0, @ErrorMessage = N''" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:EventHandler>
+  </DTS:EventHandlers>
+</DTS:Executable>

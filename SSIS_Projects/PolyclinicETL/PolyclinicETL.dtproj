@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DeploymentModel>Project</DeploymentModel>
+  <ProductVersion>16.0.5467.0</ProductVersion>
+  <SchemaVersion>9.0.1.0</SchemaVersion>
+  <Database>
+    <Name>PolyclinicETL.database</Name>
+    <FullPath>PolyclinicETL.database</FullPath>
+  </Database>
+  <DataSources />
+  <DataSourceViews />
+  <DeploymentModelSpecificContent>
+    <Manifest>
+      <SSIS:Project SSIS:ProtectionLevel="DontSaveSensitive" xmlns:SSIS="www.microsoft.com/SqlServer/SSIS">
+        <SSIS:Properties>
+          <SSIS:Property SSIS:Name="ID">{6b1e9a5c-2d1f-4c2e-9a77-3f1c0d6e0601}</SSIS:Property>
+          <SSIS:Property SSIS:Name="Name">PolyclinicETL</SSIS:Property>
+          <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+          <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+          <SSIS:Property SSIS:Name="VersionBuild">0</SSIS:Property>
+          <SSIS:Property SSIS:Name="VersionComments"></SSIS:Property>
+          <SSIS:Property SSIS:Name="CreationDate">2026-10-30T20:00:00</SSIS:Property>
+          <SSIS:Property SSIS:Name="CreatorName">user</SSIS:Property>
+          <SSIS:Property SSIS:Name="CreatorComputerName">ASUS</SSIS:Property>
+          <SSIS:Property SSIS:Name="Description">ETL «Поліклініка»: PolyclinicDB (OLTP) + CSV лабораторії → PolyclinicDW</SSIS:Property>
+          <SSIS:Property SSIS:Name="FormatVersion">1</SSIS:Property>
+        </SSIS:Properties>
+        <SSIS:Packages>
+          <SSIS:Package SSIS:Name="00_Master.dtsx" SSIS:EntryPoint="1" />
+          <SSIS:Package SSIS:Name="01_Load_DimDate.dtsx" SSIS:EntryPoint="1" />
+          <SSIS:Package SSIS:Name="02_Load_Dimensions.dtsx" SSIS:EntryPoint="1" />
+          <SSIS:Package SSIS:Name="03_Load_FactVisit.dtsx" SSIS:EntryPoint="1" />
+          <SSIS:Package SSIS:Name="04_Load_FactPrescription.dtsx" SSIS:EntryPoint="1" />
+          <SSIS:Package SSIS:Name="05_Load_FactTreatment.dtsx" SSIS:EntryPoint="1" />
+          <SSIS:Package SSIS:Name="06_Load_LabResults.dtsx" SSIS:EntryPoint="1" />
+        </SSIS:Packages>
+        <SSIS:ConnectionManagers />
+        <SSIS:DeploymentInfo>
+          <SSIS:ProjectConnectionParameters />
+          <SSIS:PackageInfo>
+            <SSIS:PackageMetaData SSIS:Name="00_Master.dtsx">
+              <SSIS:Properties>
+                <SSIS:Property SSIS:Name="ID">{B1117189-D44E-46B1-AB51-47E917E7D6AB}</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">00_Master</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionComments"></SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{36628025-DD69-4B3C-8533-B8E56E8BCBE7}</SSIS:Property>
+                <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">Головний пакет: повний запуск ETL — календар і виміри, потім факти (паралельно), потім файли лабораторії</SSIS:Property>
+                <SSIS:Property SSIS:Name="ProtectionLevel">0</SSIS:Property>
+              </SSIS:Properties>
+              <SSIS:Parameters />
+            </SSIS:PackageMetaData>
+            <SSIS:PackageMetaData SSIS:Name="01_Load_DimDate.dtsx">
+              <SSIS:Properties>
+                <SSIS:Property SSIS:Name="ID">{36B6DB7B-0A78-4031-9CA0-125602D925A9}</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">01_Load_DimDate</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionComments"></SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{B8051ECA-3B6E-4D6F-B71E-CAD0F5048242}</SSIS:Property>
+                <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">Генерація календарного виміру dim.DimDate (2015–2026)</SSIS:Property>
+                <SSIS:Property SSIS:Name="ProtectionLevel">0</SSIS:Property>
+              </SSIS:Properties>
+              <SSIS:Parameters />
+            </SSIS:PackageMetaData>
+            <SSIS:PackageMetaData SSIS:Name="02_Load_Dimensions.dtsx">
+              <SSIS:Properties>
+                <SSIS:Property SSIS:Name="ID">{2B2C46A1-D9EE-4710-A677-5C096429975D}</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">02_Load_Dimensions</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionComments"></SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{19F68A29-80E8-45C1-AD9D-1E17F2E791C7}</SSIS:Property>
+                <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">Завантаження вимірів: DimDisease, DimMedication (SCD Type 1, виявлення змін у SSIS), DimPatient, DimDoctor (SCD Type 2, інкрементально за ModifiedAt)</SSIS:Property>
+                <SSIS:Property SSIS:Name="ProtectionLevel">0</SSIS:Property>
+              </SSIS:Properties>
+              <SSIS:Parameters />
+            </SSIS:PackageMetaData>
+            <SSIS:PackageMetaData SSIS:Name="03_Load_FactVisit.dtsx">
+              <SSIS:Properties>
+                <SSIS:Property SSIS:Name="ID">{0E5C5F71-C43F-4C2B-9E82-4D858A16BD6F}</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">03_Load_FactVisit</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionComments"></SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{A157A218-5E5A-4342-BB51-04F39A801E25}</SSIS:Property>
+                <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">Інкрементальне завантаження fact.FactVisit (VisitID &gt; watermark): пошук ключів вимірів, невідомі ключі → -1 і журнал etl.RejectedRows</SSIS:Property>
+                <SSIS:Property SSIS:Name="ProtectionLevel">0</SSIS:Property>
+              </SSIS:Properties>
+              <SSIS:Parameters />
+            </SSIS:PackageMetaData>
+            <SSIS:PackageMetaData SSIS:Name="04_Load_FactPrescription.dtsx">
+              <SSIS:Properties>
+                <SSIS:Property SSIS:Name="ID">{D7E09EA3-5D9E-43DC-BE7D-303F75341828}</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">04_Load_FactPrescription</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionComments"></SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{F760465F-014B-40F0-A9C8-F7729B9CBEB1}</SSIS:Property>
+                <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">Інкрементальне завантаження fact.FactPrescription (PrescriptionID &gt; watermark)</SSIS:Property>
+                <SSIS:Property SSIS:Name="ProtectionLevel">0</SSIS:Property>
+              </SSIS:Properties>
+              <SSIS:Parameters />
+            </SSIS:PackageMetaData>
+            <SSIS:PackageMetaData SSIS:Name="05_Load_FactTreatment.dtsx">
+              <SSIS:Properties>
+                <SSIS:Property SSIS:Name="ID">{7063CE0B-863E-44F0-948F-A5B13D960AC4}</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">05_Load_FactTreatment</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionComments"></SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{AA544E34-E238-4119-8428-E2B8A9242F0B}</SSIS:Property>
+                <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">Закриті історії хвороб → fact.FactTreatment: агрегування візитів (Aggregate), показники ефективності лікування</SSIS:Property>
+                <SSIS:Property SSIS:Name="ProtectionLevel">0</SSIS:Property>
+              </SSIS:Properties>
+              <SSIS:Parameters />
+            </SSIS:PackageMetaData>
+            <SSIS:PackageMetaData SSIS:Name="06_Load_LabResults.dtsx">
+              <SSIS:Properties>
+                <SSIS:Property SSIS:Name="ID">{8A851A51-1C24-4487-B107-55AF8918A547}</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">06_Load_LabResults</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionComments"></SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{8C6DBDC1-75B7-46A2-A50F-8A39BE1D0A05}</SSIS:Property>
+                <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">Обробка всіх CSV-файлів лабораторії (For Each Loop): перевірка структури (Script Task), очищення та перетворення даних, відсів некоректних і дубльованих рядків, завантаження fact.FactLabResult, архівування файлів</SSIS:Property>
+                <SSIS:Property SSIS:Name="ProtectionLevel">0</SSIS:Property>
+              </SSIS:Properties>
+              <SSIS:Parameters />
+            </SSIS:PackageMetaData>
+          </SSIS:PackageInfo>
+        </SSIS:DeploymentInfo>
+      </SSIS:Project>
+    </Manifest>
+  </DeploymentModelSpecificContent>
+  <ControlFlowParts />
+  <Miscellaneous />
+  <Configurations>
+    <Configuration>
+      <Name>Development</Name>
+      <Options>
+        <OutputPath>bin</OutputPath>
+        <ConnectionMappings />
+        <ConnectionProviderMappings />
+        <ConnectionSecurityMappings />
+        <DatabaseStorageLocations />
+        <TargetServerVersion>SQLServer2022</TargetServerVersion>
+        <ParameterConfigurationValues />
+      </Options>
+    </Configuration>
+  </Configurations>
+</Project>

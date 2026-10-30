@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="10/30/2026 8:26:38 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="ASUS"
+  DTS:CreatorName="PolyclinicETL builder"
+  DTS:Description="Генерація календарного виміру dim.DimDate (2015–2026)"
+  DTS:DTSID="{36B6DB7B-0A78-4031-9CA0-125602D925A9}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.1000.6"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="01_Load_DimDate"
+  DTS:ProtectionLevel="0"
+  DTS:VersionGUID="{B8051ECA-3B6E-4D6F-B71E-CAD0F5048242}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[DW_PolyclinicDW]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{AB8221D6-6F9D-4672-897E-E4B72CB82A95}"
+      DTS:ObjectName="DW_PolyclinicDW">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">"Data Source=" + @[User::ServerName] + ";Initial Catalog=PolyclinicDW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;"</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=.;Initial Catalog=PolyclinicDW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[OLTP_PolyclinicDB]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{04C8491A-58D1-4FA0-8321-2F57BB26796F}"
+      DTS:ObjectName="OLTP_PolyclinicDB">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">"Data Source=" + @[User::ServerName] + ";Initial Catalog=PolyclinicDB;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;"</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectRetryCount="1"
+          DTS:ConnectRetryInterval="5"
+          DTS:ConnectionString="Data Source=.;Initial Catalog=PolyclinicDB;Provider=MSOLEDBSQL;Integrated Security=SSPI;Application Name=PolyclinicETL;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{5EF683AF-EAE3-4F4F-9C38-2BCD2856DBE9}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="LogID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{C7EE8C8E-84C7-4558-A09E-202395F9DCF4}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsInserted">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{4B233A2D-BDE9-4A45-9947-3B652235FB04}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsRead">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{C59360E2-A381-4FA2-B375-80991EF2693D}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsRejected">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{DD8D92B9-4CF8-4B40-8904-03BE54341B2E}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RowsUpdated">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{D135D275-A3F8-4FCA-B94E-5257689434E0}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="RunID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{E8747A06-2F1A-44E4-86FC-5E6105472ADD}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="ServerName">
+      <DTS:VariableValue
+        DTS:DataType="8">.</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\SQL Генерація календаря"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{BDE9CD6E-D2BE-4783-A7DE-FEE294087A64}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Генерація календаря"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AB8221D6-6F9D-4672-897E-E4B72CB82A95}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_Load_DimDate @DateFrom = '2015-01-01', @DateTo = '2026-12-31'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="RowsInserted"
+            SQLTask:DtsVariableName="User::RowsInserted" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Завершення пакета"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{F76A23E3-5984-4AAA-8BD9-1F4A9DA9BA5C}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Завершення пакета"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="SqlStatementSource">"EXEC etl.usp_PackageEnd @LogID = " + (DT_WSTR,12)@[User::LogID] + ", @RowsRead = " + (DT_WSTR,12)(@[User::RowsRead]) + ", @RowsInserted = " + (DT_WSTR,12)(@[User::RowsInserted]) + ", @RowsUpdated = " + (DT_WSTR,12)(@[User::RowsUpdated]) + ", @RowsRejected = " + (DT_WSTR,12)(@[User::RowsRejected])</DTS:PropertyExpression>
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AB8221D6-6F9D-4672-897E-E4B72CB82A95}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_PackageEnd @LogID = 0, @RowsRead = 0, @RowsInserted = 0, @RowsUpdated = 0, @RowsRejected = 0" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Початок пакета"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{6729EB4B-6CD8-4827-B885-74FF8CF397AA}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Початок пакета"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AB8221D6-6F9D-4672-897E-E4B72CB82A95}"
+          SQLTask:SqlStatementSource="EXEC etl.usp_PackageStart @PackageName = N'01_Load_DimDate'"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="RunID"
+            SQLTask:DtsVariableName="User::RunID" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="LogID"
+            SQLTask:DtsVariableName="User::LogID" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{6E902A3C-5BB0-4892-B992-1F242295B2FA\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{6E902A3C-5BB0-4892-B992-1F242295B2FA}"
+      DTS:From="Package\SQL Генерація календаря"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{6E902A3C-5BB0-4892-B992-1F242295B2FA}"
+      DTS:To="Package\SQL Завершення пакета" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{9F2CC66A-EA58-4B30-AE33-75D68CD66AE9\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{9F2CC66A-EA58-4B30-AE33-75D68CD66AE9}"
+      DTS:From="Package\SQL Початок пакета"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{9F2CC66A-EA58-4B30-AE33-75D68CD66AE9}"
+      DTS:To="Package\SQL Генерація календаря" />
+  </DTS:PrecedenceConstraints>
+  <DTS:EventHandlers>
+    <DTS:EventHandler
+      DTS:refId="Package.EventHandlers[OnError]"
+      DTS:CreationName="OnError"
+      DTS:DTSID="{0D4F3CDA-35AF-4FC2-909F-059BEA89B230}"
+      DTS:EventID="5177431"
+      DTS:EventName="OnError"
+      DTS:LocaleID="-1">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:Description="The propagate property of the event"
+          DTS:DTSID="{AACF499E-D4C6-42A9-9816-FC99E25AC372}"
+          DTS:IncludeInDebugDump="6789"
+          DTS:Namespace="System"
+          DTS:ObjectName="Propagate">
+          <DTS:VariableValue
+            DTS:DataType="11">-1</DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package.EventHandlers[OnError]\SQL Журнал помилки"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:DTSID="{A0CC7DA3-5E5F-4E61-A603-EA6F7D03FB5A}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL Журнал помилки">
+          <DTS:Variables />
+          <DTS:PropertyExpression
+            DTS:Name="SqlStatementSource">"EXEC etl.usp_LogError @LogID = " + (DT_WSTR,12)@[User::LogID] + ", @PackageName = N'" + @[System::PackageName] + "', @SourceName = N'" + REPLACE(@[System::SourceName], "'", "''") + "', @ErrorCode = " + (DT_WSTR,12)@[System::ErrorCode] + ", @ErrorMessage = N'" + REPLACE(LEFT(@[System::ErrorDescription], 3500), "'", "''") + "'"</DTS:PropertyExpression>
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{AB8221D6-6F9D-4672-897E-E4B72CB82A95}"
+              SQLTask:SqlStatementSource="EXEC etl.usp_LogError @LogID = 0, @PackageName = N'01_Load_DimDate', @SourceName = N'', @ErrorCode = 0, @ErrorMessage = N''" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:EventHandler>
+  </DTS:EventHandlers>
+</DTS:Executable>
