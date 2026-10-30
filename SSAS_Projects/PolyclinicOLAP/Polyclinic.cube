@@ -1,0 +1,4249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Cube xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:ddl200="http://schemas.microsoft.com/analysisservices/2010/engine/200" xmlns:ddl200_200="http://schemas.microsoft.com/analysisservices/2010/engine/200/200" xmlns:ddl300="http://schemas.microsoft.com/analysisservices/2011/engine/300" xmlns:ddl300_300="http://schemas.microsoft.com/analysisservices/2011/engine/300/300" xmlns:ddl400="http://schemas.microsoft.com/analysisservices/2012/engine/400" xmlns:ddl400_400="http://schemas.microsoft.com/analysisservices/2012/engine/400/400" xmlns:ddl500="http://schemas.microsoft.com/analysisservices/2013/engine/500" xmlns:ddl500_500="http://schemas.microsoft.com/analysisservices/2013/engine/500/500" xmlns="http://schemas.microsoft.com/analysisservices/2003/engine">
+  <ID>Polyclinic</ID>
+  <Name>Поліклініка</Name>
+  <Description>Аналітика поліклініки: візити, призначення, ефективність лікування, лабораторні аналізи</Description>
+  <Language>1058</Language>
+  <Collation>Ukrainian_CI_AS</Collation>
+  <Dimensions>
+    <Dimension>
+      <ID>Date</ID>
+      <Name>Дата</Name>
+      <DimensionID>Date</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>Date</AttributeID>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Month</AttributeID>
+          <AggregationUsage>Full</AggregationUsage>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Quarter</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+        <Attribute>
+          <AttributeID>HalfYear</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Year</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>MonthOfYear</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>DayOfWeek</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Season</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>DayType</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>Calendar</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+    <Dimension>
+      <ID>OpenDate</ID>
+      <Name>Дата відкриття історії</Name>
+      <DimensionID>Date</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>Date</AttributeID>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Month</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Quarter</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+        <Attribute>
+          <AttributeID>HalfYear</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Year</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>MonthOfYear</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>DayOfWeek</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Season</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>DayType</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>Calendar</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+    <Dimension>
+      <ID>Patient</ID>
+      <Name>Пацієнт</Name>
+      <DimensionID>Patient</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>Patient</AttributeID>
+          <AggregationUsage>None</AggregationUsage>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+        <Attribute>
+          <AttributeID>City</AttributeID>
+          <AggregationUsage>None</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Region</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>CityGroup</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Gender</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>BirthYear</AttributeID>
+          <AggregationUsage>None</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>BloodType</AttributeID>
+          <AggregationUsage>None</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Insurance</AttributeID>
+          <AggregationUsage>None</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>CurrentAgeGroup</AttributeID>
+          <AggregationUsage>None</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>PatientID</AttributeID>
+          <AggregationUsage>None</AggregationUsage>
+          <AttributeHierarchyEnabled>false</AttributeHierarchyEnabled>
+          <AttributeHierarchyVisible>false</AttributeHierarchyVisible>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>Geography</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+    <Dimension>
+      <ID>Doctor</ID>
+      <Name>Лікар</Name>
+      <DimensionID>Doctor</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>Doctor</AttributeID>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Specialty</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Department</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Category</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Employment</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>Structure</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+    <Dimension>
+      <ID>Disease</ID>
+      <Name>Хвороба</Name>
+      <DimensionID>Disease</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>Disease</AttributeID>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Chapter</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Course</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Severity</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Infectious</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Seasonality</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>ICD</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+    <Dimension>
+      <ID>Medication</ID>
+      <Name>Препарат</Name>
+      <DimensionID>Medication</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>Medication</AttributeID>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Group</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Rx</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>PriceCategory</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>Manufacturer</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>Groups</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+    <Dimension>
+      <ID>AgeGroup</ID>
+      <Name>Вікова група</Name>
+      <DimensionID>AgeGroup</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>AgeGroup</AttributeID>
+        </Attribute>
+        <Attribute>
+          <AttributeID>AgeCategory</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>Age</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+    <Dimension>
+      <ID>VisitType</ID>
+      <Name>Тип візиту</Name>
+      <DimensionID>VisitType</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>VisitTypeStatus</AttributeID>
+        </Attribute>
+        <Attribute>
+          <AttributeID>VisitType</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+        <Attribute>
+          <AttributeID>VisitStatus</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>TypeStatus</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+    <Dimension>
+      <ID>Outcome</ID>
+      <Name>Результат лікування</Name>
+      <DimensionID>Outcome</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>Outcome</AttributeID>
+        </Attribute>
+        <Attribute>
+          <AttributeID>OutcomeGroup</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>Outcomes</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+    <Dimension>
+      <ID>LabTest</ID>
+      <Name>Аналіз</Name>
+      <DimensionID>LabTest</DimensionID>
+      <Attributes>
+        <Attribute>
+          <AttributeID>LabTest</AttributeID>
+        </Attribute>
+        <Attribute>
+          <AttributeID>TestGroup</AttributeID>
+          <AggregationUsage>Unrestricted</AggregationUsage>
+        </Attribute>
+      </Attributes>
+      <Hierarchies>
+        <Hierarchy>
+          <HierarchyID>Tests</HierarchyID>
+        </Hierarchy>
+      </Hierarchies>
+    </Dimension>
+  </Dimensions>
+  <Perspectives>
+    <Perspective>
+      <ID>Finance</ID>
+      <Name>Фінанси</Name>
+      <Dimensions>
+        <Dimension>
+          <CubeDimensionID>Doctor</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Doctor</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Department</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Specialty</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Employment</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Category</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Structure</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>Medication</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Medication</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Rx</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>PriceCategory</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Group</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Manufacturer</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Groups</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>Disease</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Disease</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Severity</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Infectious</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Course</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Seasonality</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Chapter</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>ICD</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>Date</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Calendar</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>VisitType</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>VisitTypeStatus</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>VisitType</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>VisitStatus</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>TypeStatus</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+      </Dimensions>
+      <MeasureGroups>
+        <MeasureGroup>
+          <MeasureGroupID>Visits</MeasureGroupID>
+          <Measures>
+            <Measure>
+              <MeasureID>NoShows</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>DurationMin</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>VisitMedCost</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>Revenue</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MinVisitCost</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MaxVisitCost</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>AvgDailyVisits</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>VisitCount</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>CompletedVisits</MeasureID>
+            </Measure>
+          </Measures>
+        </MeasureGroup>
+        <MeasureGroup>
+          <MeasureGroupID>Prescriptions</MeasureGroupID>
+          <Measures>
+            <Measure>
+              <MeasureID>Packages</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>PrescriptionCost</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MaxUnitPrice</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MinUnitPrice</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>PrescriptionCount</MeasureID>
+            </Measure>
+          </Measures>
+        </MeasureGroup>
+      </MeasureGroups>
+      <Calculations>
+        <Calculation>
+          <Name>[Measures].[Ріст виручки YoY]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Виручка на годину прийому]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Топ-10 лікарів за виручкою]</Name>
+          <Type>Set</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Середня вартість візиту]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Частка виручки]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Виручка YTD]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Виручка PY]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Рейтинг лікаря за виручкою]</Name>
+          <Type>Member</Type>
+        </Calculation>
+      </Calculations>
+      <Kpis>
+        <Kpi>
+          <KpiID>KPI_RevenueGrowth</KpiID>
+        </Kpi>
+      </Kpis>
+    </Perspective>
+    <Perspective>
+      <ID>Clinical</ID>
+      <Name>Клінічна аналітика</Name>
+      <Dimensions>
+        <Dimension>
+          <CubeDimensionID>Patient</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Patient</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>City</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CityGroup</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Insurance</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CurrentAgeGroup</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BirthYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>PatientID</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Region</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Gender</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BloodType</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Geography</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>Doctor</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Doctor</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Department</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Specialty</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Employment</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Category</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Structure</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>Disease</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Disease</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Severity</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Infectious</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Course</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Seasonality</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Chapter</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>ICD</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>AgeGroup</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>AgeGroup</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>AgeCategory</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Age</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>Date</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Calendar</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>Outcome</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Outcome</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>OutcomeGroup</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Outcomes</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>OpenDate</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Calendar</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+      </Dimensions>
+      <MeasureGroups>
+        <MeasureGroup>
+          <MeasureGroupID>Treatment</MeasureGroupID>
+          <Measures>
+            <Measure>
+              <MeasureID>NormDays</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>Positive</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MinTreatmentDays</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MaxTreatmentDays</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>Cases</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>TreatmentDays</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>WithinNorm</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>TreatmentCost</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>Complications</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>Recovered</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>Comorbidities</MeasureID>
+            </Measure>
+          </Measures>
+        </MeasureGroup>
+        <MeasureGroup>
+          <MeasureGroupID>Visits</MeasureGroupID>
+          <Measures>
+            <Measure>
+              <MeasureID>NoShows</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>DurationMin</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>VisitMedCost</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>Revenue</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MinVisitCost</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MaxVisitCost</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>AvgDailyVisits</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>VisitCount</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>CompletedVisits</MeasureID>
+            </Measure>
+          </Measures>
+        </MeasureGroup>
+        <MeasureGroup>
+          <MeasureGroupID>UniquePatients</MeasureGroupID>
+          <Measures>
+            <Measure>
+              <MeasureID>UniquePatients</MeasureID>
+            </Measure>
+          </Measures>
+        </MeasureGroup>
+      </MeasureGroups>
+      <Calculations>
+        <Calculation>
+          <Name>[Measures].[Ефективність лікування]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Рейтинг хвороби за випадками]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Середня тривалість лікування]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Рівень одужання]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Дотримання нормативу]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Перевищення нормативу (днів)]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Візитів на пацієнта]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Топ-10 хвороб за випадками]</Name>
+          <Type>Set</Type>
+        </Calculation>
+      </Calculations>
+      <Kpis>
+        <Kpi>
+          <KpiID>KPI_WithinNorm</KpiID>
+        </Kpi>
+        <Kpi>
+          <KpiID>KPI_Effectiveness</KpiID>
+        </Kpi>
+      </Kpis>
+    </Perspective>
+    <Perspective>
+      <ID>Laboratory</ID>
+      <Name>Лабораторія</Name>
+      <Dimensions>
+        <Dimension>
+          <CubeDimensionID>Patient</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Patient</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>City</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CityGroup</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Insurance</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CurrentAgeGroup</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BirthYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>PatientID</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Region</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Gender</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BloodType</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Geography</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>AgeGroup</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>AgeGroup</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>AgeCategory</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Age</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>Date</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Calendar</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+        <Dimension>
+          <CubeDimensionID>LabTest</CubeDimensionID>
+          <Attributes>
+            <Attribute>
+              <AttributeID>TestGroup</AttributeID>
+            </Attribute>
+            <Attribute>
+              <AttributeID>LabTest</AttributeID>
+            </Attribute>
+          </Attributes>
+          <Hierarchies>
+            <Hierarchy>
+              <HierarchyID>Tests</HierarchyID>
+            </Hierarchy>
+          </Hierarchies>
+        </Dimension>
+      </Dimensions>
+      <MeasureGroups>
+        <MeasureGroup>
+          <MeasureGroupID>LabResults</MeasureGroupID>
+          <Measures>
+            <Measure>
+              <MeasureID>Abnormal</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>Low</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>ResultSum</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MinResult</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>High</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>MaxResult</MeasureID>
+            </Measure>
+            <Measure>
+              <MeasureID>LabCount</MeasureID>
+            </Measure>
+          </Measures>
+        </MeasureGroup>
+      </MeasureGroups>
+      <Calculations>
+        <Calculation>
+          <Name>[Measures].[Середнє значення аналізу]</Name>
+          <Type>Member</Type>
+        </Calculation>
+        <Calculation>
+          <Name>[Measures].[Частка аналізів з відхиленням]</Name>
+          <Type>Member</Type>
+        </Calculation>
+      </Calculations>
+    </Perspective>
+  </Perspectives>
+  <MeasureGroups>
+    <MeasureGroup>
+      <ID>Visits</ID>
+      <Name>Візити</Name>
+      <Measures>
+        <Measure>
+          <ID>VisitCount</ID>
+          <Name>Кількість візитів</Name>
+          <AggregateFunction>Count</AggregateFunction>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="RowBinding">
+              <TableID>FactVisit</TableID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>Revenue</ID>
+          <Name>Виручка</Name>
+          <DataType>Currency</DataType>
+          <Source>
+            <DataType>Currency</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactVisit</TableID>
+              <ColumnID>Cost</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+        <Measure>
+          <ID>CompletedVisits</ID>
+          <Name>Проведені візити</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactVisit</TableID>
+              <ColumnID>IsCompleted</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>NoShows</ID>
+          <Name>Неявки</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactVisit</TableID>
+              <ColumnID>IsNoShow</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>DurationMin</ID>
+          <Name>Хвилини прийомів</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactVisit</TableID>
+              <ColumnID>DurationMin</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>MinVisitCost</ID>
+          <Name>Мінімальна вартість візиту</Name>
+          <AggregateFunction>Min</AggregateFunction>
+          <DataType>Currency</DataType>
+          <Source>
+            <DataType>Currency</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactVisit</TableID>
+              <ColumnID>Cost</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+        <Measure>
+          <ID>MaxVisitCost</ID>
+          <Name>Максимальна вартість візиту</Name>
+          <AggregateFunction>Max</AggregateFunction>
+          <DataType>Currency</DataType>
+          <Source>
+            <DataType>Currency</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactVisit</TableID>
+              <ColumnID>Cost</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+        <Measure>
+          <ID>AvgDailyVisits</ID>
+          <Name>Середня кількість візитів на день</Name>
+          <AggregateFunction>AverageOfChildren</AggregateFunction>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactVisit</TableID>
+              <ColumnID>IsCompleted</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>VisitMedCost</ID>
+          <Name>Вартість ліків за візити</Name>
+          <DataType>Currency</DataType>
+          <Source>
+            <DataType>Currency</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactVisit</TableID>
+              <ColumnID>MedicationCost</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+      </Measures>
+      <StorageMode>Molap</StorageMode>
+      <EstimatedRows>1086026</EstimatedRows>
+      <ProcessingMode>Regular</ProcessingMode>
+      <Dimensions>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Date</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>DateKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>QuarterNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>HalfYearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayOfWeek</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>Season</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayTypeName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Patient</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Patient</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>PatientKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>City</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>City</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Region</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>Region</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CityGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CityGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Gender</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>GenderName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BirthYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BirthYear</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BloodType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BloodType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Insurance</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>HasInsurance</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CurrentAgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CurrentAgeGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>PatientID</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>PatientID</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Doctor</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Doctor</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>DoctorKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Specialty</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Specialty</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Department</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Department</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Category</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Category</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Employment</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>EmploymentStatus</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Disease</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Disease</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>DiseaseKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Chapter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>ICDChapter</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Course</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>CourseType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Severity</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>Severity</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Infectious</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>InfectiousName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Seasonality</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>Seasonality</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>VisitType</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>VisitTypeStatus</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>VisitTypeKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>VisitType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimVisitType</TableID>
+                    <ColumnID>VisitType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>VisitStatus</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimVisitType</TableID>
+                    <ColumnID>VisitStatus</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>AgeGroup</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>AgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>AgeGroupKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>AgeCategory</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimAgeGroup</TableID>
+                    <ColumnID>AgeCategory</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+      </Dimensions>
+      <ProactiveCaching>
+        <SilenceInterval>-PT1S</SilenceInterval>
+        <Latency>-PT1S</Latency>
+        <SilenceOverrideInterval>-PT1S</SilenceOverrideInterval>
+        <ForceRebuildInterval>-PT1S</ForceRebuildInterval>
+        <Source xsi:type="ProactiveCachingInheritedBinding" />
+      </ProactiveCaching>
+    </MeasureGroup>
+    <MeasureGroup>
+      <ID>UniquePatients</ID>
+      <Name>Унікальні пацієнти</Name>
+      <Measures>
+        <Measure>
+          <ID>UniquePatients</ID>
+          <Name>Унікальні пацієнти</Name>
+          <AggregateFunction>DistinctCount</AggregateFunction>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactVisit</TableID>
+              <ColumnID>PatientKey</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+      </Measures>
+      <StorageMode>Molap</StorageMode>
+      <EstimatedRows>1086026</EstimatedRows>
+      <ProcessingMode>Regular</ProcessingMode>
+      <Dimensions>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Date</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>DateKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>QuarterNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>HalfYearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayOfWeek</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>Season</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayTypeName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Patient</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Patient</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>PatientKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>City</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>City</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Region</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>Region</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CityGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CityGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Gender</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>GenderName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BirthYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BirthYear</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BloodType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BloodType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Insurance</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>HasInsurance</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CurrentAgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CurrentAgeGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>PatientID</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>PatientID</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Doctor</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Doctor</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>DoctorKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Specialty</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Specialty</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Department</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Department</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Category</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Category</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Employment</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>EmploymentStatus</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Disease</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Disease</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>DiseaseKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Chapter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>ICDChapter</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Course</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>CourseType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Severity</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>Severity</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Infectious</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>InfectiousName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Seasonality</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>Seasonality</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>VisitType</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>VisitTypeStatus</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>VisitTypeKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>VisitType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimVisitType</TableID>
+                    <ColumnID>VisitType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>VisitStatus</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimVisitType</TableID>
+                    <ColumnID>VisitStatus</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>AgeGroup</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>AgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactVisit</TableID>
+                    <ColumnID>AgeGroupKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>AgeCategory</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimAgeGroup</TableID>
+                    <ColumnID>AgeCategory</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+      </Dimensions>
+      <ProactiveCaching>
+        <SilenceInterval>-PT1S</SilenceInterval>
+        <Latency>-PT1S</Latency>
+        <SilenceOverrideInterval>-PT1S</SilenceOverrideInterval>
+        <ForceRebuildInterval>-PT1S</ForceRebuildInterval>
+        <Source xsi:type="ProactiveCachingInheritedBinding" />
+      </ProactiveCaching>
+    </MeasureGroup>
+    <MeasureGroup>
+      <ID>Prescriptions</ID>
+      <Name>Призначення</Name>
+      <Measures>
+        <Measure>
+          <ID>PrescriptionCount</ID>
+          <Name>Кількість призначень</Name>
+          <AggregateFunction>Count</AggregateFunction>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="RowBinding">
+              <TableID>FactPrescription</TableID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>Packages</ID>
+          <Name>Кількість упаковок</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactPrescription</TableID>
+              <ColumnID>Quantity</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>PrescriptionCost</ID>
+          <Name>Вартість призначень</Name>
+          <DataType>Currency</DataType>
+          <Source>
+            <DataType>Currency</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactPrescription</TableID>
+              <ColumnID>TotalCost</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+        <Measure>
+          <ID>MaxUnitPrice</ID>
+          <Name>Максимальна ціна упаковки</Name>
+          <AggregateFunction>Max</AggregateFunction>
+          <DataType>Currency</DataType>
+          <Source>
+            <DataType>Currency</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactPrescription</TableID>
+              <ColumnID>UnitPrice</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+        <Measure>
+          <ID>MinUnitPrice</ID>
+          <Name>Мінімальна ціна упаковки</Name>
+          <AggregateFunction>Min</AggregateFunction>
+          <DataType>Currency</DataType>
+          <Source>
+            <DataType>Currency</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactPrescription</TableID>
+              <ColumnID>UnitPrice</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+      </Measures>
+      <StorageMode>Molap</StorageMode>
+      <EstimatedRows>1011647</EstimatedRows>
+      <ProcessingMode>Regular</ProcessingMode>
+      <Dimensions>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Date</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactPrescription</TableID>
+                    <ColumnID>DateKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>QuarterNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>HalfYearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayOfWeek</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>Season</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayTypeName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Patient</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Patient</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactPrescription</TableID>
+                    <ColumnID>PatientKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>City</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>City</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Region</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>Region</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CityGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CityGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Gender</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>GenderName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BirthYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BirthYear</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BloodType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BloodType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Insurance</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>HasInsurance</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CurrentAgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CurrentAgeGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>PatientID</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>PatientID</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Doctor</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Doctor</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactPrescription</TableID>
+                    <ColumnID>DoctorKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Specialty</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Specialty</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Department</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Department</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Category</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Category</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Employment</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>EmploymentStatus</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Disease</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Disease</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactPrescription</TableID>
+                    <ColumnID>DiseaseKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Chapter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>ICDChapter</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Course</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>CourseType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Severity</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>Severity</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Infectious</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>InfectiousName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Seasonality</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>Seasonality</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Medication</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Medication</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactPrescription</TableID>
+                    <ColumnID>MedicationKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Group</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimMedication</TableID>
+                    <ColumnID>GroupName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Rx</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimMedication</TableID>
+                    <ColumnID>PrescriptionStatus</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>PriceCategory</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimMedication</TableID>
+                    <ColumnID>PriceCategory</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Manufacturer</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimMedication</TableID>
+                    <ColumnID>Manufacturer</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>AgeGroup</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>AgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactPrescription</TableID>
+                    <ColumnID>AgeGroupKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>AgeCategory</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimAgeGroup</TableID>
+                    <ColumnID>AgeCategory</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+      </Dimensions>
+      <ProactiveCaching>
+        <SilenceInterval>-PT1S</SilenceInterval>
+        <Latency>-PT1S</Latency>
+        <SilenceOverrideInterval>-PT1S</SilenceOverrideInterval>
+        <ForceRebuildInterval>-PT1S</ForceRebuildInterval>
+        <Source xsi:type="ProactiveCachingInheritedBinding" />
+      </ProactiveCaching>
+    </MeasureGroup>
+    <MeasureGroup>
+      <ID>Treatment</ID>
+      <Name>Лікування</Name>
+      <Measures>
+        <Measure>
+          <ID>Cases</ID>
+          <Name>Випадки лікування</Name>
+          <AggregateFunction>Count</AggregateFunction>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="RowBinding">
+              <TableID>FactTreatment</TableID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>TreatmentDays</ID>
+          <Name>Дні лікування</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>TreatmentDays</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>NormDays</ID>
+          <Name>Нормативні дні лікування</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>NormTreatmentDays</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>Recovered</ID>
+          <Name>Одужання</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>IsRecovered</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>Positive</ID>
+          <Name>Позитивні результати</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>IsPositive</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>WithinNorm</ID>
+          <Name>Лікування в межах нормативу</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>IsWithinNorm</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>TreatmentCost</ID>
+          <Name>Вартість лікування</Name>
+          <DataType>Currency</DataType>
+          <Source>
+            <DataType>Currency</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>TotalVisitCost</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+        <Measure>
+          <ID>MinTreatmentDays</ID>
+          <Name>Мінімальна тривалість лікування</Name>
+          <AggregateFunction>Min</AggregateFunction>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>TreatmentDays</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>MaxTreatmentDays</ID>
+          <Name>Максимальна тривалість лікування</Name>
+          <AggregateFunction>Max</AggregateFunction>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>TreatmentDays</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>Comorbidities</ID>
+          <Name>Супутні захворювання</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>ComorbidityCount</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>Complications</ID>
+          <Name>Ускладнення</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactTreatment</TableID>
+              <ColumnID>ComplicationCount</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+      </Measures>
+      <StorageMode>Molap</StorageMode>
+      <EstimatedRows>534961</EstimatedRows>
+      <ProcessingMode>Regular</ProcessingMode>
+      <Dimensions>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Date</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactTreatment</TableID>
+                    <ColumnID>CloseDateKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>QuarterNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>HalfYearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayOfWeek</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>Season</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayTypeName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>OpenDate</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactTreatment</TableID>
+                    <ColumnID>OpenDateKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>QuarterNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>HalfYearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayOfWeek</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>Season</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayTypeName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Patient</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Patient</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactTreatment</TableID>
+                    <ColumnID>PatientKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>City</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>City</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Region</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>Region</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CityGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CityGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Gender</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>GenderName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BirthYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BirthYear</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BloodType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BloodType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Insurance</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>HasInsurance</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CurrentAgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CurrentAgeGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>PatientID</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>PatientID</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Doctor</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Doctor</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactTreatment</TableID>
+                    <ColumnID>DoctorKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Specialty</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Specialty</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Department</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Department</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Category</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>Category</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Employment</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDoctor</TableID>
+                    <ColumnID>EmploymentStatus</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Disease</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Disease</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactTreatment</TableID>
+                    <ColumnID>DiseaseKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Chapter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>ICDChapter</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Course</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>CourseType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Severity</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>Severity</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Infectious</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>InfectiousName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Seasonality</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDisease</TableID>
+                    <ColumnID>Seasonality</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Outcome</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Outcome</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactTreatment</TableID>
+                    <ColumnID>OutcomeKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>OutcomeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimOutcome</TableID>
+                    <ColumnID>OutcomeGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>AgeGroup</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>AgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactTreatment</TableID>
+                    <ColumnID>AgeGroupKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>AgeCategory</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimAgeGroup</TableID>
+                    <ColumnID>AgeCategory</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+      </Dimensions>
+      <ProactiveCaching>
+        <SilenceInterval>-PT1S</SilenceInterval>
+        <Latency>-PT1S</Latency>
+        <SilenceOverrideInterval>-PT1S</SilenceOverrideInterval>
+        <ForceRebuildInterval>-PT1S</ForceRebuildInterval>
+        <Source xsi:type="ProactiveCachingInheritedBinding" />
+      </ProactiveCaching>
+    </MeasureGroup>
+    <MeasureGroup>
+      <ID>LabResults</ID>
+      <Name>Аналізи</Name>
+      <Measures>
+        <Measure>
+          <ID>LabCount</ID>
+          <Name>Кількість аналізів</Name>
+          <AggregateFunction>Count</AggregateFunction>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="RowBinding">
+              <TableID>FactLabResult</TableID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>Abnormal</ID>
+          <Name>Аналізи з відхиленням</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactLabResult</TableID>
+              <ColumnID>IsAbnormal</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>High</ID>
+          <Name>Вище норми</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactLabResult</TableID>
+              <ColumnID>IsHigh</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>Low</ID>
+          <Name>Нижче норми</Name>
+          <DataType>Integer</DataType>
+          <Source>
+            <DataType>Integer</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactLabResult</TableID>
+              <ColumnID>IsLow</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0</FormatString>
+        </Measure>
+        <Measure>
+          <ID>ResultSum</ID>
+          <Name>Сума значень</Name>
+          <DataType>Double</DataType>
+          <Source>
+            <DataType>Double</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactLabResult</TableID>
+              <ColumnID>ResultValue</ColumnID>
+            </Source>
+          </Source>
+          <Visible>false</Visible>
+          <FormatString>#,##0.000</FormatString>
+        </Measure>
+        <Measure>
+          <ID>MinResult</ID>
+          <Name>Мінімальне значення аналізу</Name>
+          <AggregateFunction>Min</AggregateFunction>
+          <DataType>Double</DataType>
+          <Source>
+            <DataType>Double</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactLabResult</TableID>
+              <ColumnID>ResultValue</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+        <Measure>
+          <ID>MaxResult</ID>
+          <Name>Максимальне значення аналізу</Name>
+          <AggregateFunction>Max</AggregateFunction>
+          <DataType>Double</DataType>
+          <Source>
+            <DataType>Double</DataType>
+            <Source xsi:type="ColumnBinding">
+              <TableID>FactLabResult</TableID>
+              <ColumnID>ResultValue</ColumnID>
+            </Source>
+          </Source>
+          <FormatString>#,##0.00</FormatString>
+        </Measure>
+      </Measures>
+      <StorageMode>Holap</StorageMode>
+      <EstimatedRows>101558</EstimatedRows>
+      <ProcessingMode>Regular</ProcessingMode>
+      <Dimensions>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Date</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Date</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactLabResult</TableID>
+                    <ColumnID>DateKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Month</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Quarter</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>QuarterNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>HalfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>HalfYearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Year</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>YearNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>MonthOfYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>MonthNo</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayOfWeek</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>UnsignedTinyInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayOfWeek</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Season</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>Season</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>DayType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimDate</TableID>
+                    <ColumnID>DayTypeName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>Patient</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>Patient</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactLabResult</TableID>
+                    <ColumnID>PatientKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>City</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>City</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Region</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>Region</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CityGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CityGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Gender</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>GenderName</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BirthYear</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>SmallInt</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BirthYear</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>BloodType</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>BloodType</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>Insurance</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>HasInsurance</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>CurrentAgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>CurrentAgeGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+            <Attribute>
+              <AttributeID>PatientID</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimPatient</TableID>
+                    <ColumnID>PatientID</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>LabTest</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>LabTest</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactLabResult</TableID>
+                    <ColumnID>LabTestKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>TestGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimLabTest</TableID>
+                    <ColumnID>TestGroup</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension">
+          <CubeDimensionID>AgeGroup</CubeDimensionID>
+          <Cardinality>One</Cardinality>
+          <Attributes>
+            <Attribute>
+              <AttributeID>AgeGroup</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>Integer</DataType>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>FactLabResult</TableID>
+                    <ColumnID>AgeGroupKey</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+            <Attribute>
+              <AttributeID>AgeCategory</AttributeID>
+              <KeyColumns>
+                <KeyColumn>
+                  <DataType>WChar</DataType>
+                  <DataSize>250</DataSize>
+                  <Source xsi:type="ColumnBinding">
+                    <TableID>DimAgeGroup</TableID>
+                    <ColumnID>AgeCategory</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+      </Dimensions>
+      <ProactiveCaching>
+        <SilenceInterval>-PT1S</SilenceInterval>
+        <Latency>-PT1S</Latency>
+        <SilenceOverrideInterval>-PT1S</SilenceOverrideInterval>
+        <ForceRebuildInterval>-PT1S</ForceRebuildInterval>
+        <Source xsi:type="ProactiveCachingInheritedBinding" />
+      </ProactiveCaching>
+    </MeasureGroup>
+  </MeasureGroups>
+  <Source>
+    <DataSourceViewID>PolyclinicDW</DataSourceViewID>
+  </Source>
+  <MdxScripts>
+    <MdxScript>
+      <ID>MdxScript</ID>
+      <Name>MdxScript</Name>
+      <Commands>
+        <Command>
+          <Text>CALCULATE;
+
+/* ================== Середні показники ================== */
+CREATE MEMBER CURRENTCUBE.[Measures].[Середня вартість візиту] AS
+    IIF([Measures].[Проведені візити] = 0, NULL, [Measures].[Виручка] / [Measures].[Проведені візити]),
+    FORMAT_STRING = "#,##0.00", VISIBLE = 1, DISPLAY_FOLDER = 'Середні показники', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Середня тривалість лікування] AS
+    IIF([Measures].[Випадки лікування] = 0, NULL, [Measures].[Дні лікування] / [Measures].[Випадки лікування]),
+    FORMAT_STRING = "#,##0.0", VISIBLE = 1, DISPLAY_FOLDER = 'Середні показники', ASSOCIATED_MEASURE_GROUP = 'Лікування';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Середнє значення аналізу] AS
+    IIF([Measures].[Кількість аналізів] = 0, NULL, [Measures].[Сума значень] / [Measures].[Кількість аналізів]),
+    FORMAT_STRING = "#,##0.00", VISIBLE = 1, DISPLAY_FOLDER = 'Середні показники', ASSOCIATED_MEASURE_GROUP = 'Аналізи';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Візитів на пацієнта] AS
+    IIF([Measures].[Унікальні пацієнти] = 0, NULL, [Measures].[Кількість візитів] / [Measures].[Унікальні пацієнти]),
+    FORMAT_STRING = "#,##0.00", VISIBLE = 1, DISPLAY_FOLDER = 'Середні показники', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+/* ================== Відсоткові показники ================== */
+CREATE MEMBER CURRENTCUBE.[Measures].[Рівень одужання] AS
+    IIF([Measures].[Випадки лікування] = 0, NULL, [Measures].[Одужання] / [Measures].[Випадки лікування]),
+    FORMAT_STRING = "Percent", VISIBLE = 1, DISPLAY_FOLDER = 'Відсоткові показники', ASSOCIATED_MEASURE_GROUP = 'Лікування';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Ефективність лікування] AS
+    IIF([Measures].[Випадки лікування] = 0, NULL, [Measures].[Позитивні результати] / [Measures].[Випадки лікування]),
+    FORMAT_STRING = "Percent", VISIBLE = 1, DISPLAY_FOLDER = 'Відсоткові показники', ASSOCIATED_MEASURE_GROUP = 'Лікування';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Дотримання нормативу] AS
+    IIF([Measures].[Випадки лікування] = 0, NULL, [Measures].[Лікування в межах нормативу] / [Measures].[Випадки лікування]),
+    FORMAT_STRING = "Percent", VISIBLE = 1, DISPLAY_FOLDER = 'Відсоткові показники', ASSOCIATED_MEASURE_GROUP = 'Лікування';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Частка неявок] AS
+    IIF([Measures].[Кількість візитів] = 0, NULL, [Measures].[Неявки] / [Measures].[Кількість візитів]),
+    FORMAT_STRING = "Percent", VISIBLE = 1, DISPLAY_FOLDER = 'Відсоткові показники', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Частка аналізів з відхиленням] AS
+    IIF([Measures].[Кількість аналізів] = 0, NULL, [Measures].[Аналізи з відхиленням] / [Measures].[Кількість аналізів]),
+    FORMAT_STRING = "Percent", VISIBLE = 1, DISPLAY_FOLDER = 'Відсоткові показники', ASSOCIATED_MEASURE_GROUP = 'Аналізи';
+
+/* частка від загальної виручки (за всіма вимірами, крім часу) */
+CREATE MEMBER CURRENTCUBE.[Measures].[Частка виручки] AS
+    IIF(([Measures].[Виручка], Root([Лікар]), Root([Хвороба]), Root([Пацієнт]), Root([Тип візиту]), Root([Вікова група])) = 0, NULL,
+        [Measures].[Виручка] / ([Measures].[Виручка], Root([Лікар]), Root([Хвороба]), Root([Пацієнт]), Root([Тип візиту]), Root([Вікова група]))),
+    FORMAT_STRING = "Percent", VISIBLE = 1, DISPLAY_FOLDER = 'Відсоткові показники', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+/* ================== Time Intelligence ================== */
+CREATE MEMBER CURRENTCUBE.[Measures].[Виручка YTD] AS
+    AGGREGATE(YTD([Дата].[Календар].CurrentMember), [Measures].[Виручка]),
+    FORMAT_STRING = "#,##0.00", VISIBLE = 1, DISPLAY_FOLDER = 'Динаміка', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Виручка PY] AS
+    ([Measures].[Виручка], ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)),
+    FORMAT_STRING = "#,##0.00", VISIBLE = 1, DISPLAY_FOLDER = 'Динаміка', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Ріст виручки YoY] AS
+    IIF(ISEMPTY([Measures].[Виручка PY]) OR [Measures].[Виручка PY] = 0, NULL,
+        ([Measures].[Виручка] - [Measures].[Виручка PY]) / [Measures].[Виручка PY]),
+    FORMAT_STRING = "Percent", VISIBLE = 1, DISPLAY_FOLDER = 'Динаміка', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Візити PY] AS
+    ([Measures].[Кількість візитів], ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)),
+    FORMAT_STRING = "#,##0", VISIBLE = 1, DISPLAY_FOLDER = 'Динаміка', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Ріст візитів YoY] AS
+    IIF(ISEMPTY([Measures].[Візити PY]) OR [Measures].[Візити PY] = 0, NULL,
+        ([Measures].[Кількість візитів] - [Measures].[Візити PY]) / [Measures].[Візити PY]),
+    FORMAT_STRING = "Percent", VISIBLE = 1, DISPLAY_FOLDER = 'Динаміка', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+/* зміна до попереднього періоду того самого рівня (на рівні місяця — MoM) */
+CREATE MEMBER CURRENTCUBE.[Measures].[Ріст візитів MoM] AS
+    IIF([Дата].[Календар].CurrentMember.Level IS [Дата].[Календар].[Місяць]
+        AND NOT ISEMPTY(([Measures].[Кількість візитів], [Дата].[Календар].CurrentMember.PrevMember)),
+        ([Measures].[Кількість візитів] - ([Measures].[Кількість візитів], [Дата].[Календар].CurrentMember.PrevMember))
+            / ([Measures].[Кількість візитів], [Дата].[Календар].CurrentMember.PrevMember), NULL),
+    FORMAT_STRING = "Percent", VISIBLE = 1, DISPLAY_FOLDER = 'Динаміка', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+/* ================== Ковзне середнє ================== */
+CREATE MEMBER CURRENTCUBE.[Measures].[Ковзне середнє візитів (3 періоди)] AS
+    AVG(LastPeriods(3, [Дата].[Календар].CurrentMember), [Measures].[Кількість візитів]),
+    FORMAT_STRING = "#,##0", VISIBLE = 1, DISPLAY_FOLDER = 'Динаміка', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Ковзне середнє виручки (12 місяців)] AS
+    IIF([Дата].[Календар].CurrentMember.Level IS [Дата].[Календар].[Місяць],
+        AVG(LastPeriods(12, [Дата].[Календар].CurrentMember), [Measures].[Виручка]), NULL),
+    FORMAT_STRING = "#,##0.00", VISIBLE = 1, DISPLAY_FOLDER = 'Динаміка', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+/* ================== Рейтинги ================== */
+CREATE DYNAMIC SET CURRENTCUBE.[Топ-10 лікарів за виручкою] AS
+    TOPCOUNT([Лікар].[Лікар].[Лікар].MEMBERS, 10, [Measures].[Виручка]), DISPLAY_FOLDER = 'Рейтинги';
+
+CREATE DYNAMIC SET CURRENTCUBE.[Топ-10 хвороб за випадками] AS
+    TOPCOUNT([Хвороба].[Хвороба].[Хвороба].MEMBERS, 10, [Measures].[Випадки лікування]), DISPLAY_FOLDER = 'Рейтинги';
+
+CREATE DYNAMIC SET CURRENTCUBE.[Топ-10 препаратів за вартістю] AS
+    TOPCOUNT([Препарат].[Препарат].[Препарат].MEMBERS, 10, [Measures].[Вартість призначень]), DISPLAY_FOLDER = 'Рейтинги';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Рейтинг лікаря за виручкою] AS
+    IIF([Лікар].[Лікар].CurrentMember.Level.Ordinal = 0 OR ISEMPTY([Measures].[Виручка]), NULL,
+        RANK([Лікар].[Лікар].CurrentMember,
+             ORDER(NONEMPTY([Лікар].[Лікар].[Лікар].MEMBERS, [Measures].[Виручка]), [Measures].[Виручка], BDESC))),
+    FORMAT_STRING = "#,##0", VISIBLE = 1, DISPLAY_FOLDER = 'Рейтинги', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Рейтинг хвороби за випадками] AS
+    IIF([Хвороба].[Хвороба].CurrentMember.Level.Ordinal = 0 OR ISEMPTY([Measures].[Випадки лікування]), NULL,
+        RANK([Хвороба].[Хвороба].CurrentMember,
+             ORDER(NONEMPTY([Хвороба].[Хвороба].[Хвороба].MEMBERS, [Measures].[Випадки лікування]), [Measures].[Випадки лікування], BDESC))),
+    FORMAT_STRING = "#,##0", VISIBLE = 1, DISPLAY_FOLDER = 'Рейтинги', ASSOCIATED_MEASURE_GROUP = 'Лікування';
+
+/* ================== Бізнес-показники ================== */
+CREATE MEMBER CURRENTCUBE.[Measures].[Виручка на годину прийому] AS
+    IIF([Measures].[Хвилини прийомів] = 0, NULL, [Measures].[Виручка] / ([Measures].[Хвилини прийомів] / 60)),
+    FORMAT_STRING = "#,##0.00", VISIBLE = 1, DISPLAY_FOLDER = 'Бізнес-показники', ASSOCIATED_MEASURE_GROUP = 'Візити';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Вартість лікування на випадок] AS
+    IIF([Measures].[Випадки лікування] = 0, NULL, [Measures].[Вартість лікування] / [Measures].[Випадки лікування]),
+    FORMAT_STRING = "#,##0.00", VISIBLE = 1, DISPLAY_FOLDER = 'Бізнес-показники', ASSOCIATED_MEASURE_GROUP = 'Лікування';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Перевищення нормативу (днів)] AS
+    IIF([Measures].[Випадки лікування] = 0, NULL,
+        ([Measures].[Дні лікування] - [Measures].[Нормативні дні лікування]) / [Measures].[Випадки лікування]),
+    FORMAT_STRING = "#,##0.0", VISIBLE = 1, DISPLAY_FOLDER = 'Бізнес-показники', ASSOCIATED_MEASURE_GROUP = 'Лікування';
+
+CREATE MEMBER CURRENTCUBE.[Measures].[Ліки на один візит] AS
+    IIF([Measures].[Проведені візити] = 0, NULL, [Measures].[Вартість ліків за візити] / [Measures].[Проведені візити]),
+    FORMAT_STRING = "#,##0.00", VISIBLE = 1, DISPLAY_FOLDER = 'Бізнес-показники', ASSOCIATED_MEASURE_GROUP = 'Візити';
+</Text>
+        </Command>
+      </Commands>
+    </MdxScript>
+  </MdxScripts>
+  <Kpis>
+    <Kpi>
+      <ID>KPI_Effectiveness</ID>
+      <Name>Ефективність лікування</Name>
+      <Description>Частка закритих випадків з одужанням або покращенням. Ціль — 80%.</Description>
+      <DisplayFolder>Клінічні</DisplayFolder>
+      <AssociatedMeasureGroupID>Treatment</AssociatedMeasureGroupID>
+      <Value>[Measures].[Ефективність лікування]</Value>
+      <Goal>0.80</Goal>
+      <Status>CASE WHEN KPIValue("Ефективність лікування") &gt;= KPIGoal("Ефективність лікування") THEN 1 WHEN KPIValue("Ефективність лікування") &gt;= 0.75 THEN 0 ELSE -1 END</Status>
+      <Trend>CASE WHEN ISEMPTY((KPIValue("Ефективність лікування"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember))) THEN 0 WHEN KPIValue("Ефективність лікування") &gt; (KPIValue("Ефективність лікування"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)) THEN 1 WHEN KPIValue("Ефективність лікування") &lt; (KPIValue("Ефективність лікування"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)) THEN -1 ELSE 0 END</Trend>
+      <TrendGraphic>Standard Arrow</TrendGraphic>
+      <StatusGraphic>Traffic Light - Single</StatusGraphic>
+    </Kpi>
+    <Kpi>
+      <ID>KPI_WithinNorm</ID>
+      <Name>Дотримання нормативу лікування</Name>
+      <Description>Частка випадків, вилікуваних за нормативний строк. Ціль — 60%.</Description>
+      <DisplayFolder>Клінічні</DisplayFolder>
+      <AssociatedMeasureGroupID>Treatment</AssociatedMeasureGroupID>
+      <Value>[Measures].[Дотримання нормативу]</Value>
+      <Goal>0.60</Goal>
+      <Status>CASE WHEN KPIValue("Дотримання нормативу лікування") &gt;= KPIGoal("Дотримання нормативу лікування") THEN 1 WHEN KPIValue("Дотримання нормативу лікування") &gt;= 0.50 THEN 0 ELSE -1 END</Status>
+      <Trend>CASE WHEN ISEMPTY((KPIValue("Дотримання нормативу лікування"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember))) THEN 0 WHEN KPIValue("Дотримання нормативу лікування") &gt; (KPIValue("Дотримання нормативу лікування"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)) THEN 1 WHEN KPIValue("Дотримання нормативу лікування") &lt; (KPIValue("Дотримання нормативу лікування"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)) THEN -1 ELSE 0 END</Trend>
+      <TrendGraphic>Standard Arrow</TrendGraphic>
+      <StatusGraphic>Traffic Light - Single</StatusGraphic>
+    </Kpi>
+    <Kpi>
+      <ID>KPI_NoShow</ID>
+      <Name>Частка неявок</Name>
+      <Description>Частка запланованих візитів, на які пацієнт не з'явився. Ціль — не більше 4%.</Description>
+      <DisplayFolder>Операційні</DisplayFolder>
+      <AssociatedMeasureGroupID>Visits</AssociatedMeasureGroupID>
+      <Value>[Measures].[Частка неявок]</Value>
+      <Goal>0.04</Goal>
+      <Status>CASE WHEN KPIValue("Частка неявок") &lt;= KPIGoal("Частка неявок") THEN 1 WHEN KPIValue("Частка неявок") &lt;= 0.06 THEN 0 ELSE -1 END</Status>
+      <Trend>CASE WHEN ISEMPTY((KPIValue("Частка неявок"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember))) THEN 0 WHEN KPIValue("Частка неявок") &lt; (KPIValue("Частка неявок"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)) THEN 1 WHEN KPIValue("Частка неявок") &gt; (KPIValue("Частка неявок"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)) THEN -1 ELSE 0 END</Trend>
+      <TrendGraphic>Standard Arrow</TrendGraphic>
+      <StatusGraphic>Traffic Light - Single</StatusGraphic>
+    </Kpi>
+    <Kpi>
+      <ID>KPI_RevenueGrowth</ID>
+      <Name>Ріст виручки</Name>
+      <Description>Зміна виручки порівняно з аналогічним періодом попереднього року. Ціль — +5%.</Description>
+      <DisplayFolder>Фінансові</DisplayFolder>
+      <AssociatedMeasureGroupID>Visits</AssociatedMeasureGroupID>
+      <Value>[Measures].[Ріст виручки YoY]</Value>
+      <Goal>0.05</Goal>
+      <Status>CASE WHEN ISEMPTY(KPIValue("Ріст виручки")) THEN 0 WHEN KPIValue("Ріст виручки") &gt;= KPIGoal("Ріст виручки") THEN 1 WHEN KPIValue("Ріст виручки") &gt;= 0 THEN 0 ELSE -1 END</Status>
+      <Trend>CASE WHEN ISEMPTY((KPIValue("Ріст виручки"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember))) THEN 0 WHEN KPIValue("Ріст виручки") &gt; (KPIValue("Ріст виручки"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)) THEN 1 WHEN KPIValue("Ріст виручки") &lt; (KPIValue("Ріст виручки"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember)) THEN -1 ELSE 0 END</Trend>
+      <TrendGraphic>Standard Arrow</TrendGraphic>
+      <StatusGraphic>Traffic Light - Single</StatusGraphic>
+    </Kpi>
+  </Kpis>
+  <ProactiveCaching>
+    <SilenceInterval>-PT1S</SilenceInterval>
+    <Latency>-PT1S</Latency>
+    <SilenceOverrideInterval>-PT1S</SilenceOverrideInterval>
+    <ForceRebuildInterval>-PT1S</ForceRebuildInterval>
+    <Source xsi:type="ProactiveCachingInheritedBinding" />
+  </ProactiveCaching>
+</Cube>

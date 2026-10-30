@@ -1,0 +1,699 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DataSourceView xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:ddl200="http://schemas.microsoft.com/analysisservices/2010/engine/200" xmlns:ddl200_200="http://schemas.microsoft.com/analysisservices/2010/engine/200/200" xmlns:ddl300="http://schemas.microsoft.com/analysisservices/2011/engine/300" xmlns:ddl300_300="http://schemas.microsoft.com/analysisservices/2011/engine/300/300" xmlns:ddl400="http://schemas.microsoft.com/analysisservices/2012/engine/400" xmlns:ddl400_400="http://schemas.microsoft.com/analysisservices/2012/engine/400/400" xmlns:ddl500="http://schemas.microsoft.com/analysisservices/2013/engine/500" xmlns:ddl500_500="http://schemas.microsoft.com/analysisservices/2013/engine/500/500" xmlns="http://schemas.microsoft.com/analysisservices/2003/engine">
+  <ID>PolyclinicDW</ID>
+  <Name>PolyclinicDW</Name>
+  <DataSourceID>PolyclinicDW</DataSourceID>
+  <Schema>
+    <xs:schema id="PolyclinicDW" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop">
+      <xs:element name="PolyclinicDW" msdata:IsDataSet="true" msdata:Locale="">
+        <xs:complexType>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="DimDate" msprop:DbTableName="DimDate" msprop:FriendlyName="DimDate" msprop:TableType="Table" msprop:DbSchemaName="dim">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="DateKey" type="xs:int" />
+                  <xs:element name="FullDate" type="xs:dateTime" />
+                  <xs:element name="DayOfMonth" type="xs:unsignedByte" />
+                  <xs:element name="DayOfWeek" type="xs:unsignedByte" />
+                  <xs:element name="DayName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="15" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="WeekOfYear" type="xs:unsignedByte" />
+                  <xs:element name="MonthNo" type="xs:unsignedByte" />
+                  <xs:element name="MonthName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="15" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="MonthYear">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="7" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="MonthYearName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="25" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="QuarterNo" type="xs:unsignedByte" />
+                  <xs:element name="QuarterName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="10" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="YearNo" type="xs:short" />
+                  <xs:element name="Season">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="10" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="IsWeekend" type="xs:boolean" />
+                  <xs:element name="IsHoliday" type="xs:boolean" />
+                  <xs:element name="HolidayName" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="50" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="IsWorkingDay" type="xs:boolean" />
+                  <xs:element name="DateName" msprop:Description="Дата у форматі дд.мм.рррр" msprop:IsLogical="True" msprop:ComputedColumnExpression="CONVERT(nvarchar(10), FullDate, 104)" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="QuarterYearName" msprop:Description="Квартал з роком" msprop:IsLogical="True" msprop:ComputedColumnExpression="QuarterName + N' ' + CAST(YearNo AS nvarchar(4))" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="HalfYearName" msprop:Description="Півріччя з роком" msprop:IsLogical="True" msprop:ComputedColumnExpression="CASE WHEN MonthNo &lt;= 6 THEN N'I півріччя ' ELSE N'II півріччя ' END + CAST(YearNo AS nvarchar(4))" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="HalfYearNo" msprop:Description="Ключ півріччя" msprop:IsLogical="True" msprop:ComputedColumnExpression="YearNo * 10 + CASE WHEN MonthNo &lt;= 6 THEN 1 ELSE 2 END" type="xs:int" minOccurs="0" />
+                  <xs:element name="DayTypeName" msprop:Description="Тип дня" msprop:IsLogical="True" msprop:ComputedColumnExpression="CASE WHEN IsHoliday = 1 THEN N'Святковий' WHEN IsWorkingDay = 0 THEN N'Вихідний' ELSE N'Робочий' END" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="DimDoctor" msprop:DbTableName="DimDoctor" msprop:FriendlyName="DimDoctor" msprop:TableType="Table" msprop:DbSchemaName="dim">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="DoctorKey" type="xs:int" />
+                  <xs:element name="DoctorID" type="xs:int" />
+                  <xs:element name="FullName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="160" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="ShortName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="80" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="Gender">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="1" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="Specialty">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="Department">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="Category">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="HireDate" type="xs:dateTime" />
+                  <xs:element name="DismissalDate" type="xs:dateTime" minOccurs="0" />
+                  <xs:element name="EmploymentStatus">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="ValidFrom" type="xs:dateTime" />
+                  <xs:element name="ValidTo" type="xs:dateTime" />
+                  <xs:element name="IsCurrent" type="xs:boolean" />
+                  <xs:element name="ETLRunID" type="xs:int" minOccurs="0" />
+                  <xs:element name="DoctorLabel" msprop:Description="Лікар зі спеціальністю" msprop:IsLogical="True" msprop:ComputedColumnExpression="ShortName + N' (' + Specialty + N')'" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="DimDisease" msprop:DbTableName="DimDisease" msprop:FriendlyName="DimDisease" msprop:TableType="Table" msprop:DbSchemaName="dim">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="DiseaseKey" type="xs:int" />
+                  <xs:element name="DiseaseID" type="xs:int" />
+                  <xs:element name="ICDCode">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="10" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="DiseaseName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="200" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="DiseaseFullName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="220" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="ICDChapter">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="10" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="CategoryName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="150" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="IsChronic" type="xs:boolean" />
+                  <xs:element name="CourseType">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="15" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="IsInfectious" type="xs:boolean" />
+                  <xs:element name="Severity" type="xs:unsignedByte" />
+                  <xs:element name="SeverityName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="AvgTreatmentDays" type="xs:short" />
+                  <xs:element name="Seasonality">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="ETLRunID" type="xs:int" minOccurs="0" />
+                  <xs:element name="InfectiousName" msprop:Description="Інфекційність" msprop:IsLogical="True" msprop:ComputedColumnExpression="CASE WHEN IsInfectious = 1 THEN N'Інфекційна' ELSE N'Неінфекційна' END" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="DimMedication" msprop:DbTableName="DimMedication" msprop:FriendlyName="DimMedication" msprop:TableType="Table" msprop:DbSchemaName="dim">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="MedicationKey" type="xs:int" />
+                  <xs:element name="MedicationID" type="xs:int" />
+                  <xs:element name="MedicationName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="150" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="ActiveSubstance">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="150" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="GroupName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="DosageForm">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="50" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="Manufacturer">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="PrescriptionStatus">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="CurrentPrice" type="xs:decimal" />
+                  <xs:element name="PriceCategory">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="ETLRunID" type="xs:int" minOccurs="0" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="DimAgeGroup" msprop:DbTableName="DimAgeGroup" msprop:FriendlyName="DimAgeGroup" msprop:TableType="Table" msprop:DbSchemaName="dim">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="AgeGroupKey" type="xs:int" />
+                  <xs:element name="AgeGroup">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="15" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="AgeCategory">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="MinAge" type="xs:unsignedByte" />
+                  <xs:element name="MaxAge" type="xs:unsignedByte" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="DimVisitType" msprop:DbTableName="DimVisitType" msprop:FriendlyName="DimVisitType" msprop:TableType="Table" msprop:DbSchemaName="dim">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="VisitTypeKey" type="xs:int" />
+                  <xs:element name="VisitType">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="VisitStatus">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="15" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="IsCompleted" type="xs:boolean" />
+                  <xs:element name="VisitTypeLabel" msprop:Description="Тип і статус візиту" msprop:IsLogical="True" msprop:ComputedColumnExpression="VisitType + N' — ' + VisitStatus" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="DimOutcome" msprop:DbTableName="DimOutcome" msprop:FriendlyName="DimOutcome" msprop:TableType="Table" msprop:DbSchemaName="dim">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="OutcomeKey" type="xs:int" />
+                  <xs:element name="Outcome">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="30" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="OutcomeGroup">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="15" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="IsPositive" type="xs:boolean" />
+                  <xs:element name="SortOrder" type="xs:unsignedByte" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="DimLabTest" msprop:DbTableName="DimLabTest" msprop:FriendlyName="DimLabTest" msprop:TableType="Table" msprop:DbSchemaName="dim">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="LabTestKey" type="xs:int" />
+                  <xs:element name="TestCode">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="10" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="TestName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="TestGroup">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="50" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="Unit">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="RefMin" type="xs:decimal" />
+                  <xs:element name="RefMax" type="xs:decimal" />
+                  <xs:element name="PlausibleMax" type="xs:decimal" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="FactVisit" msprop:DbTableName="FactVisit" msprop:FriendlyName="FactVisit" msprop:TableType="Table" msprop:DbSchemaName="fact">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="VisitID" type="xs:long" />
+                  <xs:element name="RecordID" type="xs:int" />
+                  <xs:element name="DateKey" type="xs:int" />
+                  <xs:element name="PatientKey" type="xs:int" />
+                  <xs:element name="DoctorKey" type="xs:int" />
+                  <xs:element name="DiseaseKey" type="xs:int" />
+                  <xs:element name="VisitTypeKey" type="xs:int" />
+                  <xs:element name="AgeGroupKey" type="xs:int" />
+                  <xs:element name="VisitHour" type="xs:unsignedByte" />
+                  <xs:element name="DurationMin" type="xs:short" />
+                  <xs:element name="Cost" type="xs:decimal" />
+                  <xs:element name="IsCompleted" type="xs:int" />
+                  <xs:element name="IsNoShow" type="xs:int" />
+                  <xs:element name="PrescriptionCount" type="xs:int" />
+                  <xs:element name="MedicationCost" type="xs:decimal" />
+                  <xs:element name="ETLRunID" type="xs:int" minOccurs="0" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="FactPrescription" msprop:DbTableName="FactPrescription" msprop:FriendlyName="FactPrescription" msprop:TableType="Table" msprop:DbSchemaName="fact">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="PrescriptionID" type="xs:long" />
+                  <xs:element name="VisitID" type="xs:long" />
+                  <xs:element name="DateKey" type="xs:int" />
+                  <xs:element name="PatientKey" type="xs:int" />
+                  <xs:element name="DoctorKey" type="xs:int" />
+                  <xs:element name="DiseaseKey" type="xs:int" />
+                  <xs:element name="MedicationKey" type="xs:int" />
+                  <xs:element name="AgeGroupKey" type="xs:int" />
+                  <xs:element name="Quantity" type="xs:short" />
+                  <xs:element name="UnitPrice" type="xs:decimal" />
+                  <xs:element name="TotalCost" type="xs:decimal" />
+                  <xs:element name="DurationDays" type="xs:short" />
+                  <xs:element name="TimesPerDay" type="xs:unsignedByte" />
+                  <xs:element name="ETLRunID" type="xs:int" minOccurs="0" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="FactTreatment" msprop:DbTableName="FactTreatment" msprop:FriendlyName="FactTreatment" msprop:TableType="Table" msprop:DbSchemaName="fact">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="RecordID" type="xs:int" />
+                  <xs:element name="OpenDateKey" type="xs:int" />
+                  <xs:element name="CloseDateKey" type="xs:int" />
+                  <xs:element name="PatientKey" type="xs:int" />
+                  <xs:element name="DoctorKey" type="xs:int" />
+                  <xs:element name="DiseaseKey" type="xs:int" />
+                  <xs:element name="OutcomeKey" type="xs:int" />
+                  <xs:element name="AgeGroupKey" type="xs:int" />
+                  <xs:element name="Severity" type="xs:unsignedByte" />
+                  <xs:element name="TreatmentDays" type="xs:int" />
+                  <xs:element name="NormTreatmentDays" type="xs:int" />
+                  <xs:element name="DaysOverNorm" type="xs:int" />
+                  <xs:element name="VisitCount" type="xs:int" />
+                  <xs:element name="CompletedVisitCount" type="xs:int" />
+                  <xs:element name="TotalVisitCost" type="xs:decimal" />
+                  <xs:element name="ComorbidityCount" type="xs:int" />
+                  <xs:element name="ComplicationCount" type="xs:int" />
+                  <xs:element name="IsRecovered" type="xs:int" />
+                  <xs:element name="IsPositive" type="xs:int" />
+                  <xs:element name="IsWithinNorm" type="xs:int" />
+                  <xs:element name="ETLRunID" type="xs:int" minOccurs="0" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="FactLabResult" msprop:DbTableName="FactLabResult" msprop:FriendlyName="FactLabResult" msprop:TableType="Table" msprop:DbSchemaName="fact">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="LabResultID" type="xs:long" />
+                  <xs:element name="LabOrderNo">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="20" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="DateKey" type="xs:int" />
+                  <xs:element name="PatientKey" type="xs:int" />
+                  <xs:element name="LabTestKey" type="xs:int" />
+                  <xs:element name="AgeGroupKey" type="xs:int" />
+                  <xs:element name="ResultValue" type="xs:decimal" />
+                  <xs:element name="IsAbnormal" type="xs:int" />
+                  <xs:element name="IsHigh" type="xs:int" />
+                  <xs:element name="IsLow" type="xs:int" />
+                  <xs:element name="SourceFile">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="260" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="ETLRunID" type="xs:int" minOccurs="0" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="DimPatient" msprop:Description="Пацієнт з поточною (на 31.12.2025) віковою групою" msprop:QueryDefinition="SELECT p.PatientKey, p.PatientID, p.FullName, p.GenderName, p.BirthYear, p.BloodType, p.City, p.Region, p.CityGroup, p.HasInsurance, p.IsCurrent, CASE WHEN p.PatientKey &lt; 0 THEN N'Невідомо' WHEN DATEDIFF(YEAR, p.BirthDate, '2025-12-31') &lt; 18 THEN N'0-17' WHEN DATEDIFF(YEAR, p.BirthDate, '2025-12-31') &lt; 35 THEN N'18-34' WHEN DATEDIFF(YEAR, p.BirthDate, '2025-12-31') &lt; 50 THEN N'35-49' WHEN DATEDIFF(YEAR, p.BirthDate, '2025-12-31') &lt; 65 THEN N'50-64' ELSE N'65+' END AS CurrentAgeGroup FROM dim.DimPatient AS p" msprop:FriendlyName="DimPatient" msprop:TableType="View" msprop:IsLogical="True">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="PatientKey" type="xs:int" />
+                  <xs:element name="PatientID" type="xs:int" />
+                  <xs:element name="FullName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="160" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="GenderName">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="10" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="BirthYear" type="xs:short" />
+                  <xs:element name="BloodType">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="10" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="City">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="Region">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="100" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="CityGroup">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="30" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="HasInsurance">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="10" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="IsCurrent" type="xs:boolean" />
+                  <xs:element name="CurrentAgeGroup" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="8" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="DiseaseChapter" msprop:Description="Класи МКХ-10 (для вибору класу у звітах)" msprop:QueryDefinition="SELECT DISTINCT ICDChapter, ICDChapter + N' ' + CategoryName AS ChapterLabel FROM dim.DimDisease" msprop:FriendlyName="DiseaseChapter" msprop:TableType="View" msprop:IsLogical="True">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="ICDChapter">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="10" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="ChapterLabel" minOccurs="0">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:maxLength value="161" />
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:choice>
+        </xs:complexType>
+        <xs:unique name="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DimDate" />
+          <xs:field xpath="DateKey" />
+        </xs:unique>
+        <xs:unique name="DimDoctor_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DimDoctor" />
+          <xs:field xpath="DoctorKey" />
+        </xs:unique>
+        <xs:unique name="DimDisease_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DimDisease" />
+          <xs:field xpath="DiseaseKey" />
+        </xs:unique>
+        <xs:unique name="DimMedication_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DimMedication" />
+          <xs:field xpath="MedicationKey" />
+        </xs:unique>
+        <xs:unique name="DimAgeGroup_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DimAgeGroup" />
+          <xs:field xpath="AgeGroupKey" />
+        </xs:unique>
+        <xs:unique name="DimVisitType_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DimVisitType" />
+          <xs:field xpath="VisitTypeKey" />
+        </xs:unique>
+        <xs:unique name="DimOutcome_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DimOutcome" />
+          <xs:field xpath="OutcomeKey" />
+        </xs:unique>
+        <xs:unique name="DimLabTest_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DimLabTest" />
+          <xs:field xpath="LabTestKey" />
+        </xs:unique>
+        <xs:unique name="FactVisit_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//FactVisit" />
+          <xs:field xpath="VisitID" />
+        </xs:unique>
+        <xs:unique name="FactPrescription_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//FactPrescription" />
+          <xs:field xpath="PrescriptionID" />
+        </xs:unique>
+        <xs:unique name="FactTreatment_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//FactTreatment" />
+          <xs:field xpath="RecordID" />
+        </xs:unique>
+        <xs:unique name="FactLabResult_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//FactLabResult" />
+          <xs:field xpath="LabResultID" />
+        </xs:unique>
+        <xs:unique name="DimPatient_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DimPatient" />
+          <xs:field xpath="PatientKey" />
+        </xs:unique>
+        <xs:unique name="DiseaseChapter_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+          <xs:selector xpath=".//DiseaseChapter" />
+          <xs:field xpath="ICDChapter" />
+        </xs:unique>
+      </xs:element>
+      <xs:annotation>
+        <xs:appinfo>
+          <msdata:Relationship name="FactVisit_DateKey_DimDate" msdata:parent="DimDate" msdata:child="FactVisit" msdata:parentkey="DateKey" msdata:childkey="DateKey" />
+          <msdata:Relationship name="FactVisit_PatientKey_DimPatient" msdata:parent="DimPatient" msdata:child="FactVisit" msdata:parentkey="PatientKey" msdata:childkey="PatientKey" />
+          <msdata:Relationship name="FactVisit_DoctorKey_DimDoctor" msdata:parent="DimDoctor" msdata:child="FactVisit" msdata:parentkey="DoctorKey" msdata:childkey="DoctorKey" />
+          <msdata:Relationship name="FactVisit_DiseaseKey_DimDisease" msdata:parent="DimDisease" msdata:child="FactVisit" msdata:parentkey="DiseaseKey" msdata:childkey="DiseaseKey" />
+          <msdata:Relationship name="FactVisit_VisitTypeKey_DimVisitType" msdata:parent="DimVisitType" msdata:child="FactVisit" msdata:parentkey="VisitTypeKey" msdata:childkey="VisitTypeKey" />
+          <msdata:Relationship name="FactVisit_AgeGroupKey_DimAgeGroup" msdata:parent="DimAgeGroup" msdata:child="FactVisit" msdata:parentkey="AgeGroupKey" msdata:childkey="AgeGroupKey" />
+          <msdata:Relationship name="FactPrescription_DateKey_DimDate" msdata:parent="DimDate" msdata:child="FactPrescription" msdata:parentkey="DateKey" msdata:childkey="DateKey" />
+          <msdata:Relationship name="FactPrescription_PatientKey_DimPatient" msdata:parent="DimPatient" msdata:child="FactPrescription" msdata:parentkey="PatientKey" msdata:childkey="PatientKey" />
+          <msdata:Relationship name="FactPrescription_DoctorKey_DimDoctor" msdata:parent="DimDoctor" msdata:child="FactPrescription" msdata:parentkey="DoctorKey" msdata:childkey="DoctorKey" />
+          <msdata:Relationship name="FactPrescription_DiseaseKey_DimDisease" msdata:parent="DimDisease" msdata:child="FactPrescription" msdata:parentkey="DiseaseKey" msdata:childkey="DiseaseKey" />
+          <msdata:Relationship name="FactPrescription_MedicationKey_DimMedication" msdata:parent="DimMedication" msdata:child="FactPrescription" msdata:parentkey="MedicationKey" msdata:childkey="MedicationKey" />
+          <msdata:Relationship name="FactPrescription_AgeGroupKey_DimAgeGroup" msdata:parent="DimAgeGroup" msdata:child="FactPrescription" msdata:parentkey="AgeGroupKey" msdata:childkey="AgeGroupKey" />
+          <msdata:Relationship name="FactTreatment_CloseDateKey_DimDate" msdata:parent="DimDate" msdata:child="FactTreatment" msdata:parentkey="DateKey" msdata:childkey="CloseDateKey" />
+          <msdata:Relationship name="FactTreatment_OpenDateKey_DimDate" msdata:parent="DimDate" msdata:child="FactTreatment" msdata:parentkey="DateKey" msdata:childkey="OpenDateKey" />
+          <msdata:Relationship name="FactTreatment_PatientKey_DimPatient" msdata:parent="DimPatient" msdata:child="FactTreatment" msdata:parentkey="PatientKey" msdata:childkey="PatientKey" />
+          <msdata:Relationship name="FactTreatment_DoctorKey_DimDoctor" msdata:parent="DimDoctor" msdata:child="FactTreatment" msdata:parentkey="DoctorKey" msdata:childkey="DoctorKey" />
+          <msdata:Relationship name="FactTreatment_DiseaseKey_DimDisease" msdata:parent="DimDisease" msdata:child="FactTreatment" msdata:parentkey="DiseaseKey" msdata:childkey="DiseaseKey" />
+          <msdata:Relationship name="FactTreatment_OutcomeKey_DimOutcome" msdata:parent="DimOutcome" msdata:child="FactTreatment" msdata:parentkey="OutcomeKey" msdata:childkey="OutcomeKey" />
+          <msdata:Relationship name="FactTreatment_AgeGroupKey_DimAgeGroup" msdata:parent="DimAgeGroup" msdata:child="FactTreatment" msdata:parentkey="AgeGroupKey" msdata:childkey="AgeGroupKey" />
+          <msdata:Relationship name="FactLabResult_DateKey_DimDate" msdata:parent="DimDate" msdata:child="FactLabResult" msdata:parentkey="DateKey" msdata:childkey="DateKey" />
+          <msdata:Relationship name="FactLabResult_PatientKey_DimPatient" msdata:parent="DimPatient" msdata:child="FactLabResult" msdata:parentkey="PatientKey" msdata:childkey="PatientKey" />
+          <msdata:Relationship name="FactLabResult_LabTestKey_DimLabTest" msdata:parent="DimLabTest" msdata:child="FactLabResult" msdata:parentkey="LabTestKey" msdata:childkey="LabTestKey" />
+          <msdata:Relationship name="FactLabResult_AgeGroupKey_DimAgeGroup" msdata:parent="DimAgeGroup" msdata:child="FactLabResult" msdata:parentkey="AgeGroupKey" msdata:childkey="AgeGroupKey" />
+          <msdata:Relationship name="DimDisease_ICDChapter_DiseaseChapter" msdata:parent="DiseaseChapter" msdata:child="DimDisease" msdata:parentkey="ICDChapter" msdata:childkey="ICDChapter" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:schema>
+    <PolyclinicDW xmlns="" />
+  </Schema>
+</DataSourceView>
