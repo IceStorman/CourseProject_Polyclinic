@@ -1,0 +1,14 @@
+﻿
+Query                   ColdMs WarmMs Rows
+-----                   ------ ------ ----
+Q1 OLTP (PolyclinicDB)     197     96  181
+Q1 DW (PolyclinicDW)       167     70  181
+Q1 OLAP (з агрегаціями)    105      5  181
+Q2 OLTP (PolyclinicDB)    6385   6257  720
+Q2 DW (PolyclinicDW)       136     26  720
+Q2 OLAP (з агрегаціями)     36     18  720
+Q1 OLAP (без агрегацій)    102      5  181
+Q2 OLAP (без агрегацій)     35     18  720
+
+
+

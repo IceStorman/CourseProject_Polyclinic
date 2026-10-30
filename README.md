@@ -16,7 +16,8 @@ Microsoft SQL Server (SSIS, SSAS, SSRS)
 ├── Documentation/
 │   ├── 01_Проектування_БД.md      — аналіз предметної області, ER-діаграми, нормалізація
 │   ├── 02_Генерація_даних.md      — генератор, моделі реалістичності, валідація, статистика
-│   └── 03_ETL_SSIS.md             — сховище даних, пакети SSIS, трансформації, контроль якості
+│   ├── 03_ETL_SSIS.md             — сховище даних, пакети SSIS, трансформації, контроль якості
+│   └── 04_OLAP_SSAS.md            — OLAP-куб: виміри, міри, MDX, KPI, оптимізація, тестування
 ├── Database/
 │   ├── CREATE_DATABASE.sql        — створення БД PolyclinicDB
 │   ├── CREATE_TABLES.sql          — 16 таблиць
@@ -34,19 +35,25 @@ Microsoft SQL Server (SSIS, SSAS, SSRS)
 │   ├── 05_LAB_FILES.ps1           — CSV-файли лабораторії з навмисними проблемами якості даних
 │   ├── generate.ps1               — повна генерація одним запуском (~2,5 хв)
 │   └── generation_log.txt         — журнал останньої генерації
-└── SSIS_Projects/
-    ├── PolyclinicETL.sln          — рішення Visual Studio
-    ├── PolyclinicETL/             — 7 пакетів .dtsx (00_Master … 06_Load_LabResults), .dtproj
-    ├── DataWarehouse/             — створення PolyclinicDW, процедури ETL, тест інкрементальних змін
-    ├── LabFiles/                  — Inbox → Archive / Rejected (CSV лабораторії)
-    ├── Builder/                   — генератор пакетів SSIS (C#, об'єктна модель SSIS)
-    └── run_etl.ps1                — повний запуск ETL
+├── SSIS_Projects/
+│   ├── PolyclinicETL.sln          — рішення Visual Studio
+│   ├── PolyclinicETL/             — 7 пакетів .dtsx (00_Master … 06_Load_LabResults), .dtproj
+│   ├── DataWarehouse/             — створення PolyclinicDW, процедури ETL, тест інкрементальних змін
+│   ├── LabFiles/                  — Inbox → Archive / Rejected (CSV лабораторії)
+│   ├── Builder/                   — генератор пакетів SSIS (C#, об'єктна модель SSIS)
+│   └── run_etl.ps1                — повний запуск ETL
+└── SSAS_Projects/
+    ├── PolyclinicOLAP.sln         — рішення Visual Studio
+    ├── PolyclinicOLAP/            — проєкт SSAS Multidimensional (.dsv, .dim, .cube, .partitions)
+    ├── Builder/                   — створення та обробка куба (C#, AMO), MDX-скрипт, KPI
+    └── Tests/                     — MDX-запити, порівняння продуктивності OLTP / DW / OLAP
 ```
 
 ## Вимоги
 - Microsoft SQL Server 2022 (Developer), SQL Server Management Studio
 - Visual Studio 2026 (або 2022) з розширенням SQL Server Integration Services Projects
 - Integration Services 2022 (компонент SQL Server — для запуску пакетів поза Visual Studio)
+- SQL Server Analysis Services 2022 у режимі Multidimensional; розширення Analysis Services Projects для Visual Studio
 
 ## Розгортання бази даних
 ```powershell
@@ -91,6 +98,23 @@ powershell -ExecutionPolicy Bypass -File SSIS_Projects\run_etl.ps1              
 Використані трансформації: Data Cleansing, Data Conversion, Derived Column, Lookup, Aggregate,
 Conditional Split, Union All (+ Multicast, Sort, Row Count). Задачі та контейнери: Execute SQL,
 Script Task, For Each Loop, Sequence, Execute Package, File System, обробники OnError.
+
+## OLAP-куб
+```powershell
+powershell -ExecutionPolicy Bypass -File SSAS_Projects\Builder\build_cube.ps1            # розгортання, обробка, агрегації, backup
+powershell -ExecutionPolicy Bypass -File SSAS_Projects\Tests\run_all_mdx.ps1             # демонстраційні MDX-запити
+powershell -ExecutionPolicy Bypass -File SSAS_Projects\Tests\test_performance.ps1        # OLTP vs DW vs OLAP
+```
+Або у Visual Studio: `SSAS_Projects/PolyclinicOLAP.sln` → Deploy. Сервер — SSAS 2022 у режимі Multidimensional.
+
+| Показник | Значення |
+|---|---|
+| Виміри | Дата (рольовий), Пацієнт (SCD2), Лікар (SCD2), Хвороба, Препарат, Вікова група, Тип візиту, Результат лікування, Аналіз |
+| Групи мір | Візити, Унікальні пацієнти (Distinct Count), Призначення, Лікування, Аналізи |
+| Міри | 33 фізичні (Sum, Count, Min, Max, Distinct Count, AverageOfChildren) + 24 обчислювані |
+| MDX | YTD, PY, YoY, MoM, ковзні середні, Топ-10, RANK, бізнес-показники; 4 KPI |
+| Оптимізація | MOLAP/HOLAP, партиції за роками, агрегації ~30%, 3 перспективи |
+| Швидкодія | статистика захворювань: OLTP 6,4 с → куб 36 мс |
 
 ## Модель даних (коротко)
 - **Довідники:** Regions, Cities, Specialties, Departments, DiseaseCategories, Diseases,
