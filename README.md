@@ -14,16 +14,24 @@ Microsoft SQL Server (SSIS, SSAS, SSRS)
 ```
 ├── README.md
 ├── Documentation/
-│   └── 01_Проектування_БД.md      — аналіз предметної області, ER-діаграми, нормалізація
-└── Database/
-    ├── CREATE_DATABASE.sql        — створення БД PolyclinicDB
-    ├── CREATE_TABLES.sql          — 16 таблиць
-    ├── CREATE_CONSTRAINTS.sql     — FOREIGN KEY, UNIQUE, CHECK, DEFAULT
-    ├── CREATE_INDEXES.sql         — індекси (у т.ч. фільтровані та покриваючі)
-    ├── CREATE_TRIGGERS.sql        — 6 тригерів (бізнес-правила, аудит)
-    ├── CREATE_PROCEDURES.sql      — функції, операційні процедури, процедури звітів
-    ├── TEST_CONSTRAINTS.sql       — 22 автоматичні тести обмежень цілісності
-    └── deploy.ps1                 — розгортання БД одним скриптом
+│   ├── 01_Проектування_БД.md      — аналіз предметної області, ER-діаграми, нормалізація
+│   └── 02_Генерація_даних.md      — генератор, моделі реалістичності, валідація, статистика
+├── Database/
+│   ├── CREATE_DATABASE.sql        — створення БД PolyclinicDB
+│   ├── CREATE_TABLES.sql          — 16 таблиць
+│   ├── CREATE_CONSTRAINTS.sql     — FOREIGN KEY, UNIQUE, CHECK, DEFAULT
+│   ├── CREATE_INDEXES.sql         — індекси (у т.ч. фільтровані та покриваючі)
+│   ├── CREATE_TRIGGERS.sql        — 6 тригерів (бізнес-правила, аудит)
+│   ├── CREATE_PROCEDURES.sql      — функції, операційні процедури, процедури звітів
+│   ├── TEST_CONSTRAINTS.sql       — 22 автоматичні тести обмежень цілісності
+│   └── deploy.ps1                 — розгортання БД одним скриптом
+└── DataGeneration/
+    ├── 01_REFERENCE_DATA.sql      — довідники (МКХ-10, ліки, протипоказання, географія)
+    ├── 02_DOCTORS_PATIENTS.sql    — лікарі та 55 000 пацієнтів
+    ├── 03_MEDICAL_DATA.sql        — історії хвороб, діагнози, візити, призначення (2016–2025)
+    ├── 04_VALIDATE_AND_STATS.sql  — перевірка бізнес-правил і статистика
+    ├── generate.ps1               — повна генерація одним запуском (~2,5 хв)
+    └── generation_log.txt         — журнал останньої генерації
 ```
 
 ## Вимоги
@@ -38,6 +46,21 @@ powershell -ExecutionPolicy Bypass -File Database\deploy.ps1 -Server .
 ```powershell
 sqlcmd -S . -E -I -f 65001 -i Database\TEST_CONSTRAINTS.sql
 ```
+
+## Генерація даних
+```powershell
+powershell -ExecutionPolicy Bypass -File DataGeneration\generate.ps1 -Server .
+```
+Перестворює БД і заповнює її даними за ~2,5 хв.
+
+| Таблиця | Записів |
+|---|---:|
+| Visits | 1 086 025 |
+| Prescriptions | 1 011 646 |
+| Diagnoses | 877 443 |
+| MedicalRecords | 538 258 |
+| Patients | 55 000 |
+| **Разом (усі таблиці)** | **3 568 805** |
 
 ## Модель даних (коротко)
 - **Довідники:** Regions, Cities, Specialties, Departments, DiseaseCategories, Diseases,
