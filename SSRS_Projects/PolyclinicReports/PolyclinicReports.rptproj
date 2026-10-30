@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ToolsVersion="2.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <FullPath>Debug</FullPath>
+    <OutputPath>bin\Debug</OutputPath>
+    <ErrorLevel>2</ErrorLevel>
+    <OverwriteDatasets>False</OverwriteDatasets>
+    <OverwriteDataSources>False</OverwriteDataSources>
+    <TargetServerVersion>SSRS2016</TargetServerVersion>
+    <Platform>Win32</Platform>
+    <TargetReportFolder>Поліклініка</TargetReportFolder>
+    <TargetDatasetFolder>Поліклініка/Набори даних</TargetDatasetFolder>
+    <TargetDatasourceFolder>Поліклініка/Джерела даних</TargetDatasourceFolder>
+    <TargetReportPartFolder>Поліклініка/Частини звітів</TargetReportPartFolder>
+    <TargetServerURL>http://localhost/ReportServer</TargetServerURL>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <FullPath>Release</FullPath>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorLevel>2</ErrorLevel>
+    <OverwriteDatasets>False</OverwriteDatasets>
+    <OverwriteDataSources>False</OverwriteDataSources>
+    <TargetServerVersion>SSRS2016</TargetServerVersion>
+    <Platform>Win32</Platform>
+    <TargetReportFolder>Поліклініка</TargetReportFolder>
+    <TargetDatasetFolder>Поліклініка/Набори даних</TargetDatasetFolder>
+    <TargetDatasourceFolder>Поліклініка/Джерела даних</TargetDatasourceFolder>
+    <TargetReportPartFolder>Поліклініка/Частини звітів</TargetReportPartFolder>
+    <TargetServerURL>http://localhost/ReportServer</TargetServerURL>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DataSources>@(DataSource)</DataSources>
+    <DataSets>@(DataSet)</DataSets>
+    <Reports>@(Report)</Reports>
+  </PropertyGroup>
+  <ItemGroup>
+    <DataSource Include="PolyclinicDW.rds" />
+    <DataSource Include="PolyclinicDB.rds" />
+    <DataSource Include="PolyclinicOLAP.rds" />
+  </ItemGroup>
+  <ItemGroup>
+    <Report Include="01_Лікарі_та_пацієнти.rdl" />
+    <Report Include="02_Історія_хвороби_пацієнта.rdl" />
+    <Report Include="02a_Призначення_візиту.rdl" />
+    <Report Include="03_Завантаженість_лікарів.rdl" />
+    <Report Include="04_Ефективність_лікування.rdl" />
+    <Report Include="05_Статистика_захворювань.rdl" />
+    <Report Include="06_Дашборд.rdl" />
+    <Report Include="07_Пацієнти_з_діагнозом.rdl" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Reporting Services\Microsoft.ReportingServices.MSBuilder.targets" />
+</Project>
