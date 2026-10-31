@@ -1,4 +1,3 @@
-# Runs every query from Tests\mdx and saves the results to mdx_results.txt
 param([string]$Server = "localhost")
 $out = Join-Path $PSScriptRoot "mdx_results.txt"
 Remove-Item $out -ErrorAction SilentlyContinue

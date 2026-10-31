@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Курсова робота NVBD, варіант 6 «Поліклініка».
-Бібліотека для створення звітів SSRS (RDL 2016): джерела та набори даних (SQL, MDX),
-параметри, текстові поля, таблиці з групуванням, матриці, діаграми, датчики, індикатори,
-вкладені звіти. Звіти описуються в reports.py.
-"""
 import uuid
 from xml.sax.saxutils import escape
 
@@ -13,7 +6,6 @@ RDL_NS = ('xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/repor
           'xmlns:df="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition/defaultfontfamily" '
           'MustUnderstand="df"')
 
-# Кольори оформлення
 DARK = "#1F4E79"
 MID = "#D6E4F0"
 LIGHT = "#EEF3F9"
@@ -54,13 +46,11 @@ class Report:
         self.n += 1
         return f"{prefix}{self.n}"
 
-    # ------------------------------------------------------------------ дані
     def source(self, name):
         if name not in self.sources:
             self.sources.append(name)
 
     def ds_sql(self, name, source, query, fields, params=None, filters=None):
-        """fields: [(назва, тип .NET)], params: {"@Param": "=вираз"}"""
         self.source(source)
         qp = "".join(f'<QueryParameter Name="{esc(k)}"><Value>{esc(v)}</Value></QueryParameter>'
                      for k, v in (params or {}).items())
@@ -73,7 +63,6 @@ class Report:
             + self._filters(filters) + "</DataSet>")
 
     def ds_mdx(self, name, query, fields, params=None, filters=None, source="PolyclinicOLAP"):
-        """fields: [(назва, "Level"|"Measure", UniqueName)]; параметри MDX — без «@» в назві"""
         self.source(source)
         qp = "".join(f'<QueryParameter Name="{esc(k)}"><Value>{esc(v)}</Value></QueryParameter>'
                      for k, v in (params or {}).items())
@@ -100,7 +89,6 @@ class Report:
 
     def param(self, name, prompt, dtype="String", default=None, default_ds=None, multi=False, values_ds=None,
               static_values=None, hidden=False, nullable=False, allow_blank=False):
-        """default: значення або список; default_ds: (набір, поле); values_ds: (набір, поле значення, поле назви)"""
         x = f'<ReportParameter Name="{name}"><DataType>{dtype}</DataType>'
         if nullable:
             x += "<Nullable>true</Nullable>"
@@ -128,7 +116,6 @@ class Report:
         x += "</ReportParameter>"
         self.params.append(x)
 
-    # --------------------------------------------------------- елементи звіту
     def tb(self, value, name=None, fmt=None, bold=False, size=9, color=None, bg=None, align=None, border=True,
            pos=None, sort=None, toggle=None, action=None, tooltip=None, italic=False, hidden=None, valign="Middle",
            padding=2, can_grow=True, colspan=None, docmap=None, font="Segoe UI"):
@@ -194,15 +181,9 @@ class Report:
                              pos=(top + 0.9, 0, self.body_w, 0.6), padding=0), top + 1.5)
         return top + (1.6 if subtitle_expr else 1.0)
 
-    # ------------------------------------------------------------ таблиця
     def table(self, name, dataset, widths, header, groups, details, total=None, pos=(0, 0), hidden=None,
               no_rows="Немає даних за вибраними параметрами", detail_sort=None, keep_header=True, detail_hidden_by=None,
               detail_expanded=False):
-        """
-        header / details / total: список рядків; рядок — список комірок (xml текстового поля або (xml, colspan))
-        groups: [{"name","expr","sort","rows":[рядок...],"docmap","pagebreak","toggle_by": textbox, "hidden": bool}]
-        Групи вкладені одна в одну; деталі — найглибший рівень (detail_hidden_by: textbox-перемикач).
-        """
         ncols = len(widths)
         rows_xml = []
 
@@ -290,16 +271,8 @@ class Report:
                f"<Width>{cm(sum(widths))}</Width><Style><Border><Style>None</Style></Border></Style></Tablix>")
         return x, top + 0.6 * len(rows_xml)
 
-    # ------------------------------------------------------------ матриця
     def matrix(self, name, dataset, row_groups, col_group, cell, total_col_cell, total_row_cells, corner, pos,
                cell_width=1.6, col_total_header="Разом", row_total_label="Разом"):
-        """
-        row_groups: [{"name","expr","sort","header": xml, "width"}] (2 рівні)
-        col_group: {"name","expr","sort","header": xml}
-        cell: xml комірки даних; total_col_cell: xml комірки «Разом» праворуч
-        total_row_cells: (xml для місяця, xml для «Разом») — підсумковий рядок
-        corner: [xml для кожного стовпця заголовків рядків]
-        """
         g1, g2 = row_groups
         cols = f"<TablixColumn><Width>{cm(cell_width)}</Width></TablixColumn>" * 2
         rows = (f"<TablixRow><Height>0.6cm</Height><TablixCells><TablixCell><CellContents>{cell}</CellContents></TablixCell>"
@@ -340,14 +313,9 @@ class Report:
              f"<Width>{cm(g1['width'] + g2['width'] + 2 * cell_width)}</Width><Style><Border><Style>None</Style></Border></Style></Tablix>")
         return x, top + 1.8
 
-    # ------------------------------------------------------------ діаграми
     def chart(self, name, dataset, ctype, category, series, title=None, pos=None, subtype="Plain", value_format="#,##0",
               legend=True, labels=False, category_sort=None, label_expr=None, sparkline=False, value_max=None,
               value_min=None, palette="BrightPastel", colors=None, label_format=None, label_text=None):
-        """
-        ctype: Column, Bar, Line, Shape (Pie); category: вираз групування категорій
-        series: [(назва серії, вираз Y, тип або None, колір або None)]
-        """
         cat = (f'<ChartCategoryHierarchy><ChartMembers><ChartMember><Group Name="{name}_Cat"><GroupExpressions>'
                f"<GroupExpression>{esc(category)}</GroupExpression></GroupExpressions></Group>"
                + (f"<SortExpressions><SortExpression><Value>{esc(category_sort[0])}</Value>"
@@ -425,7 +393,6 @@ class Report:
                "<BackgroundColor>White</BackgroundColor><BackgroundGradientType>None</BackgroundGradientType></Style></Chart>")
         return x
 
-    # ------------------------------------------------------------ датчики
     def radial_gauge(self, name, dataset, value, pos, maximum=100, ranges=(), title=None, fmt="0"):
         rng = "".join(
             f'<ScaleRange Name="{name}_R{i}"><Style><Border><Style>None</Style></Border><BackgroundColor>{c}</BackgroundColor>'
@@ -463,7 +430,6 @@ class Report:
                 + self._pos(pos) + "<Style><Border><Style>None</Style></Border></Style></GaugePanel>")
 
     def indicator(self, name, dataset, value, pos=None):
-        """Трисигнальний індикатор стану KPI: -1 червоний, 0 жовтий, 1 зелений"""
         states = "".join(
             f'<IndicatorState Name="{n}"><StartValue><Value>{a}</Value></StartValue><EndValue><Value>{b}</Value></EndValue>'
             f"<Color>{c}</Color><ScaleFactor>1</ScaleFactor><IndicatorStyle>Circle</IndicatorStyle></IndicatorState>"
@@ -487,7 +453,6 @@ class Report:
                 + self._pos(pos) + f"<Style><Border><Color>{GRID}</Color><Style>Solid</Style></Border>"
                 + (f"<BackgroundColor>{bg}</BackgroundColor>" if bg else "") + "</Style></Rectangle>")
 
-    # ------------------------------------------------------------ збереження
     def to_xml(self):
         srcs = "".join(f'<DataSource Name="{s}"><DataSourceReference>{s}</DataSourceReference>'
                        f"<rd:SecurityType>None</rd:SecurityType><rd:DataSourceID>{guid()}</rd:DataSourceID></DataSource>"

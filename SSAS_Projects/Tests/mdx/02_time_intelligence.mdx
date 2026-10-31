@@ -1,4 +1,3 @@
--- Time Intelligence за місяцями 2025 року: YTD, попередній рік, YoY, MoM, ковзне середнє
 SELECT { [Measures].[Кількість візитів], [Measures].[Ріст візитів MoM], [Measures].[Ковзне середнє візитів (3 періоди)],
          [Measures].[Виручка], [Measures].[Виручка YTD], [Measures].[Виручка PY], [Measures].[Ріст виручки YoY] } ON COLUMNS,
        DESCENDANTS([Дата].[Календар].[Рік].&[2025], [Дата].[Календар].[Місяць]) ON ROWS

@@ -1,8 +1,3 @@
-# Builds the SSIS packages of PolyclinicETL from the C# definitions (SSIS object model v16)
-# and optionally runs them with DTExec.
-# Usage:
-#   powershell -ExecutionPolicy Bypass -File SSIS_Projects\Builder\build.ps1            # build all
-#   powershell -ExecutionPolicy Bypass -File SSIS_Projects\Builder\build.ps1 -Only 01,02 -Run
 param(
     [string]$Server = ".",
     [string]$Only = "",

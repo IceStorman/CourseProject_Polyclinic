@@ -1,7 +1,4 @@
-﻿# Deploys the PolyclinicReports project to SQL Server Reporting Services (SOAP API ReportService2010):
-# folders, shared data sources, reports with data source references; optionally renders every report to PDF.
-# Usage:  powershell -ExecutionPolicy Bypass -File SSRS_Projects\Builder\deploy_reports.ps1 [-ReportServer http://localhost/ReportServer] [-Render]
-param(
+﻿param(
     [string]$ReportServer = "http://localhost/ReportServer",
     [string]$Folder = "Поліклініка",
     [switch]$Render
@@ -27,7 +24,6 @@ function Ensure-Folder([string]$parent, [string]$name, [string]$description) {
 $root = Ensure-Folder "/" $Folder "Аналітична звітність поліклініки (курсова робота NVBD, варіант 6)"
 $dsFolder = Ensure-Folder $root "Джерела даних" "Спільні джерела даних звітів"
 
-# ---- спільні джерела даних (Windows-автентифікація користувача, що переглядає звіт) ----
 foreach ($file in Get-ChildItem $project -Filter *.rds) {
     [xml]$x = Get-Content $file.FullName -Encoding UTF8
     $def = New-Object "$ns.DataSourceDefinition"
@@ -39,7 +35,6 @@ foreach ($file in Get-ChildItem $project -Filter *.rds) {
     Write-Host "Data source: $dsFolder/$($file.BaseName) ($($def.Extension))"
 }
 
-# ---- звіти ----
 $failed = 0
 foreach ($file in Get-ChildItem $project -Filter *.rdl | Sort-Object Name) {
     $bytes = [IO.File]::ReadAllBytes($file.FullName)
@@ -66,12 +61,11 @@ foreach ($file in Get-ChildItem $project -Filter *.rdl | Sort-Object Name) {
 }
 if ($failed) { throw "$failed report(s) failed to deploy" }
 
-# ---- рендеринг кожного звіту в PDF (перевірка виконання з даними) ----
 if ($Render) {
     $out = Join-Path $PSScriptRoot "..\Exports"
     New-Item -ItemType Directory -Force $out | Out-Null
     foreach ($file in Get-ChildItem $project -Filter *.rdl | Sort-Object Name) {
-        if ($file.BaseName -like "02a_*") { continue }   # вкладений звіт рендериться в складі звіту 02
+        if ($file.BaseName -like "02a_*") { continue }
         $url = "$ReportServer`?" + [Uri]::EscapeDataString("$root/$($file.BaseName)") + "&rs:Format=PDF"
         $pdf = Join-Path $out "$($file.BaseName).pdf"
         $t = Get-Date

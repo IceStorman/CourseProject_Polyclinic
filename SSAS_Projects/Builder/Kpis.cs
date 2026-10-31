@@ -1,13 +1,9 @@
-// =====================================================================
-// KPI куба «Поліклініка»: значення, ціль, статус (світлофор), тренд (рік до року).
-// =====================================================================
 using Microsoft.AnalysisServices;
 
 namespace PolyclinicOlap
 {
     public static class Kpis
     {
-        // Тренд: порівняння зі значенням за аналогічний період попереднього року
         static string Trend(string name, bool higherIsBetter)
         {
             string prev = "(KPIValue(\"" + name + "\"), ParallelPeriod([Дата].[Календар].[Рік], 1, [Дата].[Календар].CurrentMember))";

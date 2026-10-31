@@ -1,6 +1,3 @@
-// =====================================================================
-// Курсова робота NVBD, варіант 6 «Поліклініка» — пакети фактів.
-// =====================================================================
 using System;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Dts.Runtime;
@@ -18,7 +15,6 @@ namespace PolyclinicEtl
             AddLab(defs);
         }
 
-        // Пошук сурогатних ключів поточних версій вимірів (невідомий ключ → NULL, далі → -1)
         static IDTSComponentMetaData100 LookupPatient(Flow f, Pkg k, IDTSComponentMetaData100 up)
         {
             return f.Lookup("LKP DimPatient", f.Out(up), k.Dw,
@@ -47,9 +43,6 @@ namespace PolyclinicEtl
                  + "EXEC etl.usp_SetWatermark N'" + table + "', @m, NULL;";
         }
 
-        // =============================================================
-        // 03. Факт «Візит»
-        // =============================================================
         public static Pkg FactVisit()
         {
             Pkg k = new Pkg("03_Load_FactVisit.dtsx",
@@ -116,9 +109,6 @@ namespace PolyclinicEtl
             return k;
         }
 
-        // =============================================================
-        // 04. Факт «Призначення ліків»
-        // =============================================================
         public static Pkg FactPrescription()
         {
             Pkg k = new Pkg("04_Load_FactPrescription.dtsx",
@@ -164,9 +154,6 @@ namespace PolyclinicEtl
             return k;
         }
 
-        // =============================================================
-        // 05. Факт «Випадок лікування» (закрита історія хвороби)
-        // =============================================================
         public static Pkg FactTreatment()
         {
             Pkg k = new Pkg("05_Load_FactTreatment.dtsx",

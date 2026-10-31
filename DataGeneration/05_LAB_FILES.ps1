@@ -1,23 +1,4 @@
-﻿# =====================================================================
-# Курсова робота NVBD, варіант 6 «Поліклініка»
-# Генерація даних. Скрипт 5. CSV-файли партнерської лабораторії (2024–2025).
-#
-# Друге джерело для ETL: щомісячні файли результатів аналізів пацієнтів.
-# Значення аналізів відповідають діагнозам (у діабетиків висока глюкоза тощо).
-# Файли НАВМИСНО містять типові проблеми якості даних, які очищує SSIS:
-#   - дублікати рядків (~2%)
-#   - порожні значення результату/дати (~1,5%), «н/д» замість числа
-#   - три формати дат: 2025-03-15, 15.03.2025, 03/15/2025
-#   - десяткова кома замість крапки (~50%)
-#   - різні назви одного аналізу (GLU, Glucose, глюкоза), зайві пробіли, регістр
-#   - ідентифікатор пацієнта у форматах «123» і «P-000123»
-#   - неіснуючі пацієнти (~0,4%) та невідомі аналізи (~0,3%)
-#   - неможливі значення (~0,3%): від'ємні або в 100 разів більші
-#   + один файл з неправильною структурою (перевіряє Script Task)
-#
-# Запуск: powershell -ExecutionPolicy Bypass -File DataGeneration\05_LAB_FILES.ps1 [-Server .]
-# =====================================================================
-param(
+﻿param(
     [string]$Server = ".",
     [string]$OutDir = (Join-Path $PSScriptRoot "..\SSIS_Projects\LabFiles\Inbox"),
     [int]$Seed = 2026
@@ -26,7 +7,6 @@ param(
 $ErrorActionPreference = "Stop"
 $rnd = New-Object System.Random($Seed)
 
-# Аналізи, які лікар призначає при певних хворобах; Abn — імовірність відхилення від норми
 $query = @"
 SET NOCOUNT ON;
 WITH Rules AS (
@@ -59,7 +39,6 @@ WHERE v.VisitDateTime >= '2024-01-01' AND v.Status = N'Відбувся'
 ORDER BY v.VisitID, ru.Test;
 "@
 
-# Норма (Lo..Hi) і відхилення (ALo..AHi) для генерації значень; Dec — знаків після коми
 $tests = @{
     GLU   = @{ Lo = 4.0;  Hi = 6.0;  ALo = 6.5; AHi = 14.0; Dec = 1; Unit = "ммоль/л";  Names = @("GLU","Glucose","глюкоза","Глюкоза крові","GLUCOSE") }
     HBA1C = @{ Lo = 4.2;  Hi = 5.8;  ALo = 6.2; AHi = 11.0; Dec = 1; Unit = "%";        Names = @("HbA1c","HBA1C","A1C","Глікований гемоглобін") }
@@ -96,7 +75,7 @@ Get-ChildItem $OutDir -Filter "*.csv" | Remove-Item
 $inv = [System.Globalization.CultureInfo]::InvariantCulture
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 
-function Pad([string]$s) {   # випадкові зайві пробіли
+function Pad([string]$s) {
     switch ($rnd.Next(10)) { 0 { " $s" } 1 { "$s  " } default { $s } }
 }
 
@@ -109,7 +88,6 @@ foreach ($month in $byMonth | Sort-Object Name) {
     foreach ($r in $month.Group) {
         $t = $tests[$r.Test]
         $order = "LAB-{0}-{1:D7}" -f $r.SampleDate.ToString("yyMM"), $r.VisitID
-        # значення: відхилення від норми з імовірністю Abn
         $abn = $rnd.NextDouble() -lt $r.Abn
         $lo = if ($abn) { $t.ALo } else { $t.Lo }; $hi = if ($abn) { $t.AHi } else { $t.Hi }
         $value = [math]::Round($lo + ($hi - $lo) * $rnd.NextDouble(), $t.Dec)
@@ -117,7 +95,6 @@ foreach ($month in $byMonth | Sort-Object Name) {
         $testName = $t.Names[$rnd.Next($t.Names.Count)]
         $patientRef = if ($rnd.Next(100) -lt 15) { "P-{0:D6}" -f $r.PatientID } else { "$($r.PatientID)" }
 
-        # --- проблеми якості даних ---
         $p = $rnd.Next(1000)
         if     ($p -lt 10) { $resultText = ""; $stats.Empty++ }
         elseif ($p -lt 15) { $resultText = "н/д"; $stats.Empty++ }
@@ -135,13 +112,12 @@ foreach ($month in $byMonth | Sort-Object Name) {
 
         $line = "{0};{1};{2};{3};{4};{5};{6};{7}" -f $order, (Pad $patientRef), "$($r.LastName) $($r.FI).", (Pad $testName), $resultText, $t.Unit, $dateText, $lab
         $lines.Add($line); $stats.Rows++
-        if ($rnd.Next(100) -lt 2) { $lines.Add($line); $stats.Duplicates++; $stats.Rows++ }   # дублікат
+        if ($rnd.Next(100) -lt 2) { $lines.Add($line); $stats.Duplicates++; $stats.Rows++ }
     }
     $file = Join-Path $OutDir ("lab_results_{0}.csv" -f $month.Name)
     [System.IO.File]::WriteAllLines($file, $lines, $utf8)
 }
 
-# Файл з неправильною структурою (інший роздільник і заголовок) — має бути відхилений Script Task
 $bad = @("Order,Patient,Test,Value,Date", "LAB-2512-0000001,123,GLU,5.4,2025-12-01")
 [System.IO.File]::WriteAllLines((Join-Path $OutDir "lab_results_2025_12_partner_export.csv"), $bad, $utf8)
 

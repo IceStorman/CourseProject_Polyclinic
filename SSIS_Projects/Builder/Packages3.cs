@@ -1,8 +1,3 @@
-// =====================================================================
-// Курсова робота NVBD, варіант 6 «Поліклініка» —
-// пакет файлів лабораторії (For Each Loop, Script Task, очищення даних),
-// головний пакет і файли проєкту Visual Studio.
-// =====================================================================
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,14 +34,11 @@ namespace PolyclinicEtl
             return th;
         }
 
-        static string Q(string var)   // рядкова змінна в SQL-рядку з екрануванням лапок
+        static string Q(string var)
         {
             return "REPLACE(@[User::" + var + "], \"'\", \"''\")";
         }
 
-        // =============================================================
-        // 06. Результати аналізів з CSV-файлів партнерської лабораторії
-        // =============================================================
         public static Pkg LabResults()
         {
             Pkg k = new Pkg("06_Load_LabResults.dtsx",
@@ -58,7 +50,6 @@ namespace PolyclinicEtl
             string rejected = Path.Combine(Cfg.LabRoot, "Rejected");
             string sampleDir = Path.Combine(Cfg.LabRoot, "Sample");
             foreach (string dir in new[] { inbox, archive, rejected, sampleDir }) Directory.CreateDirectory(dir);
-            // зразок файлу — для метаданих потоку даних під час розробки
             string sample = Path.Combine(sampleDir, "lab_results_sample.csv");
             File.WriteAllLines(sample, new[] { LabHeader,
                 "LAB-2501-0000001;P-000123;Шевченко О.;Glucose;5,4;ммоль/л;15.01.2025;Лабораторія «Діалаб»" }, new UTF8Encoding(false));
@@ -94,11 +85,10 @@ namespace PolyclinicEtl
                 c.DataType = RW.DataType.DT_STR;
                 c.MaximumWidth = 255;
                 c.TextQualified = false;
-                ((RW.IDTSName100)c).Name = "src" + cols[i];   // сирі колонки файлу
+                ((RW.IDTSName100)c).Name = "src" + cols[i];
             }
             ff.SetExpression("ConnectionString", "@[User::CurrentFile]");
 
-            // ---------- Цикл по файлах ----------
             ForEachLoop loop = (ForEachLoop)k.P.Executables.Add("STOCK:FOREACHLOOP");
             loop.Name = "FELC Файли лабораторії";
             loop.Description = "Для кожного *.csv у папці Inbox";
@@ -150,7 +140,6 @@ namespace PolyclinicEtl
             Dts.Events.FireInformation(0, ""Перевірка файлу"", Path.GetFileName(path) + "": "" + message, """", 0, ref fireAgain);
             Dts.TaskResult = (int)ScriptResults.Success;");
 
-            // повторне завантаження того самого файлу замінює його попередні дані
             TaskHost del = Pkg.Sql(loop, "SQL Видалення попередніх даних файлу", k.Dw, "SELECT 1",
                 "\"DELETE FROM fact.FactLabResult WHERE SourceFile = N'\" + " + Q("FileName") + " + \"'\"");
 
@@ -251,9 +240,6 @@ namespace PolyclinicEtl
             return k;
         }
 
-        // =============================================================
-        // 00. Головний пакет
-        // =============================================================
         public static Pkg Master()
         {
             Pkg k = new Pkg("00_Master.dtsx",
@@ -291,9 +277,6 @@ namespace PolyclinicEtl
         }
     }
 
-    // ------------------------------------------------------------------
-    // Файли проєкту Visual Studio (Project Deployment Model, SQL Server 2022)
-    // ------------------------------------------------------------------
     public static class ProjectWriter
     {
         static string X(string s) { return System.Security.SecurityElement.Escape(s ?? ""); }

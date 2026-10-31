@@ -1,18 +1,8 @@
-/* =====================================================================
-   Курсова робота NVBD, варіант 6 «Поліклініка»
-   Етап 3. Службові об'єкти сховища:
-     - статичні виміри та «невідомі» члени (-1)
-     - генерація календаря dim.DimDate
-     - процедури аудиту ETL (запуск, пакет, помилки, watermark)
-     - процедури SCD Type 2 (пацієнт, лікар) і SCD Type 1 (хвороба, ліки)
-     - представлення для звітів про якість ETL
-   ===================================================================== */
 USE PolyclinicDW;
 GO
 SET NOCOUNT ON;
 GO
 
-/* ===================== СТАТИЧНІ ВИМІРИ ===================== */
 INSERT dim.DimAgeGroup (AgeGroupKey, AgeGroup, AgeCategory, MinAge, MaxAge) VALUES
  (-1, N'Невідомо', N'Невідомо', 0, 0),
  ( 1, N'0-17',  N'Діти',    0,  17),
@@ -52,7 +42,6 @@ INSERT dim.DimLabTest (LabTestKey, TestCode, TestName, TestGroup, Unit, RefMin, 
  (11, N'URIC',    N'Сечова кислота',           N'Біохімія',          N'мкмоль/л',  150,   420,   1500),
  (12, N'FERR',    N'Феритин',                  N'Біохімія',          N'нг/мл',     15,    150,   3000);
 
--- Варіанти назв аналізів у файлах лабораторії (після нормалізації: UPPER, без пробілів і дефісів)
 INSERT dim.LabTestAlias (Alias, LabTestKey)
 SELECT a.Alias, t.LabTestKey
 FROM (VALUES
@@ -71,7 +60,6 @@ FROM (VALUES
 ) a(Alias, Code)
 JOIN dim.DimLabTest t ON t.TestCode = a.Code;
 
--- «Невідомі» члени для вимірів з IDENTITY
 SET IDENTITY_INSERT dim.DimPatient ON;
 INSERT dim.DimPatient (PatientKey, PatientID, LastName, FirstName, MiddleName, FullName, Gender, GenderName, BirthDate, BirthYear,
                        BloodType, City, Region, CityGroup, HasInsurance, ValidFrom, ValidTo, IsCurrent)
@@ -106,7 +94,6 @@ INSERT etl.Watermark (TableName, LastID, LastDate) VALUES
  (N'FactTreatment',    0, '1900-01-01');
 GO
 
-/* ===================== КАЛЕНДАР ===================== */
 CREATE OR ALTER PROCEDURE etl.usp_Load_DimDate
     @DateFrom DATE = '2015-01-01',
     @DateTo   DATE = '2026-12-31'
@@ -154,7 +141,7 @@ BEGIN
            IIF(Dow >= 6, 1, 0),
            IIF(HolidayName IS NULL, 0, 1),
            HolidayName,
-           IIF(Dow = 7 OR HolidayName IS NOT NULL, 0, 1)   -- поліклініка працює пн–сб
+           IIF(Dow = 7 OR HolidayName IS NOT NULL, 0, 1)
     FROM H
     WHERE NOT EXISTS (SELECT 1 FROM dim.DimDate x WHERE x.FullDate = H.Dt);
 
@@ -162,14 +149,10 @@ BEGIN
 END
 GO
 
-/* ===================== АУДИТ ETL ===================== */
-
--- Початок повного запуску ETL (викликає головний пакет)
 CREATE OR ALTER PROCEDURE etl.usp_RunStart
 AS
 BEGIN
     SET NOCOUNT ON;
-    -- незавершені попередні запуски вважаються аварійно зупиненими
     UPDATE etl.ETLRun SET Status = N'Failed', FinishedAt = SYSDATETIME() WHERE Status = N'Running';
     INSERT etl.ETLRun DEFAULT VALUES;
     SELECT CAST(SCOPE_IDENTITY() AS INT) AS RunID;
@@ -188,7 +171,6 @@ BEGIN
 END
 GO
 
--- Початок пакета: повертає RunID (поточного запуску або нового, якщо пакет запущено окремо) і LogID
 CREATE OR ALTER PROCEDURE etl.usp_PackageStart
     @PackageName NVARCHAR(100)
 AS
@@ -220,14 +202,12 @@ BEGIN
         RowsRead = @RowsRead, RowsInserted = @RowsInserted, RowsUpdated = @RowsUpdated, RowsRejected = @RowsRejected
     WHERE LogID = @LogID;
 
-    -- пакет, запущений окремо (не з головного), сам завершує свій запуск
     DECLARE @RunID INT = (SELECT RunID FROM etl.PackageLog WHERE LogID = @LogID);
     IF NOT EXISTS (SELECT 1 FROM etl.PackageLog WHERE RunID = @RunID AND PackageName LIKE N'00%')
         EXEC etl.usp_RunEnd @RunID;
 END
 GO
 
--- Викликається з обробника подій OnError кожного пакета
 CREATE OR ALTER PROCEDURE etl.usp_LogError
     @LogID        INT,
     @PackageName  NVARCHAR(100),
@@ -256,7 +236,6 @@ BEGIN
 END
 GO
 
-/* ===================== ФАЙЛИ ЛАБОРАТОРІЇ ===================== */
 CREATE OR ALTER PROCEDURE etl.usp_LogFile
     @LogID         INT,
     @FileName      NVARCHAR(260),
@@ -277,7 +256,6 @@ BEGIN
 END
 GO
 
--- Завершення пакета лабораторних файлів: підсумки по всіх файлах
 CREATE OR ALTER PROCEDURE etl.usp_LabPackageEnd
     @LogID INT
 AS
@@ -291,7 +269,6 @@ BEGIN
 END
 GO
 
-/* ===================== SCD TYPE 2: ПАЦІЄНТ ===================== */
 CREATE OR ALTER PROCEDURE etl.usp_Merge_DimPatient
     @RunID INT
 AS
@@ -302,7 +279,6 @@ BEGIN
 
     BEGIN TRANSACTION;
 
-    -- SCD Type 1: виправлення ПІБ, статі, дати народження, групи крові — у всіх версіях
     UPDATE d
     SET LastName = s.LastName, FirstName = s.FirstName, MiddleName = s.MiddleName, FullName = s.FullName,
         Gender = s.Gender, GenderName = s.GenderName, BirthDate = s.BirthDate, BirthYear = s.BirthYear,
@@ -314,7 +290,6 @@ BEGIN
                   SELECT s.LastName, s.FirstName, s.MiddleName, s.Gender, s.BirthDate, s.BloodType);
     SET @Updated = @@ROWCOUNT;
 
-    -- SCD Type 2: зміна міста/регіону або страховки — закриваємо поточну версію...
     DECLARE @Changed TABLE (PatientID INT PRIMARY KEY);
     UPDATE d
     SET ValidTo = GREATEST(d.ValidFrom, DATEADD(DAY, -1, CAST(s.ModifiedAt AS DATE))), IsCurrent = 0, ETLRunID = @RunID
@@ -324,7 +299,6 @@ BEGIN
     WHERE d.IsCurrent = 1
       AND EXISTS (SELECT d.City, d.Region, d.HasInsurance EXCEPT SELECT s.City, s.Region, s.HasInsurance);
 
-    -- ...і додаємо нову
     INSERT dim.DimPatient (PatientID, LastName, FirstName, MiddleName, FullName, Gender, GenderName, BirthDate, BirthYear,
                            BloodType, City, Region, CityGroup, HasInsurance, ValidFrom, ValidTo, IsCurrent, ETLRunID)
     SELECT s.PatientID, s.LastName, s.FirstName, s.MiddleName, s.FullName, s.Gender, s.GenderName, s.BirthDate, s.BirthYear,
@@ -333,7 +307,6 @@ BEGIN
     JOIN @Changed c ON c.PatientID = s.PatientID;
     SET @Versions = @@ROWCOUNT;
 
-    -- Нові пацієнти: перша версія діє з 1900-01-01 (покриває всю історію фактів)
     INSERT dim.DimPatient (PatientID, LastName, FirstName, MiddleName, FullName, Gender, GenderName, BirthDate, BirthYear,
                            BloodType, City, Region, CityGroup, HasInsurance, ValidFrom, ValidTo, IsCurrent, ETLRunID)
     SELECT s.PatientID, s.LastName, s.FirstName, s.MiddleName, s.FullName, s.Gender, s.GenderName, s.BirthDate, s.BirthYear,
@@ -351,7 +324,6 @@ BEGIN
 END
 GO
 
-/* ===================== SCD TYPE 2: ЛІКАР ===================== */
 CREATE OR ALTER PROCEDURE etl.usp_Merge_DimDoctor
     @RunID INT
 AS
@@ -362,7 +334,6 @@ BEGIN
 
     BEGIN TRANSACTION;
 
-    -- SCD Type 1: ПІБ, дати прийому/звільнення, статус
     UPDATE d
     SET FullName = s.FullName, ShortName = s.ShortName, Gender = s.Gender, HireDate = s.HireDate,
         DismissalDate = s.DismissalDate, EmploymentStatus = s.EmploymentStatus, ETLRunID = @RunID
@@ -373,7 +344,6 @@ BEGIN
                   SELECT s.FullName, s.Gender, s.HireDate, s.DismissalDate, s.EmploymentStatus);
     SET @Updated = @@ROWCOUNT;
 
-    -- SCD Type 2: спеціальність, відділення, кваліфікаційна категорія
     DECLARE @Changed TABLE (DoctorID INT PRIMARY KEY);
     UPDATE d
     SET ValidTo = GREATEST(d.ValidFrom, DATEADD(DAY, -1, CAST(s.ModifiedAt AS DATE))), IsCurrent = 0, ETLRunID = @RunID
@@ -407,7 +377,6 @@ BEGIN
 END
 GO
 
-/* ===================== SCD TYPE 1: оновлення, виявлені в SSIS ===================== */
 CREATE OR ALTER PROCEDURE etl.usp_Apply_DimDisease_Updates
     @RunID INT
 AS
@@ -437,7 +406,6 @@ BEGIN
 END
 GO
 
-/* ===================== ЗВІТИ ПРО ЯКІСТЬ ETL ===================== */
 CREATE OR ALTER VIEW etl.vw_PackageRuns
 AS
 SELECT r.RunID, r.StartedAt AS RunStarted, r.Status AS RunStatus,

@@ -1,4 +1,3 @@
-/* Обліковий запис служби SSAS читає сховище під час обробки куба (ImpersonateServiceAccount) */
 IF SUSER_ID(N'NT Service\MSSQLServerOLAPService') IS NULL
     CREATE LOGIN [NT Service\MSSQLServerOLAPService] FROM WINDOWS;
 GO

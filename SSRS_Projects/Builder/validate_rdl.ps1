@@ -1,7 +1,4 @@
-﻿# Validates every .rdl in a folder against the RDL schema shipped with the SSRS designer (2010 schema; the 2016
-# namespace is mapped to it in memory - the 2016 format only adds elements these reports do not use).
-# Usage:  powershell -ExecutionPolicy Bypass -File SSRS_Projects\Builder\validate_rdl.ps1 -Folder SSRS_Projects\PolyclinicReports
-param([string]$Folder)
+﻿param([string]$Folder)
 $xsdDir = "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\SSRS"
 $set = New-Object System.Xml.Schema.XmlSchemaSet
 Get-ChildItem $xsdDir -Filter "ReportDefinition2010.xsd" | ForEach-Object { $set.Add("http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition", $_.FullName) | Out-Null }

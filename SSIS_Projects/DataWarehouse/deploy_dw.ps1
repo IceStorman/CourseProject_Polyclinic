@@ -1,5 +1,3 @@
-# Creates PolyclinicDW from scratch (drops it if it exists).
-# Usage:  powershell -ExecutionPolicy Bypass -File SSIS_Projects\DataWarehouse\deploy_dw.ps1 [-Server .]
 param(
     [string]$Server = "."
 )

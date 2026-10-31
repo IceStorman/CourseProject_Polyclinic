@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Курсова робота NVBD, варіант 6 «Поліклініка» — звіти SSRS.
-Створює проєкт SSRS_Projects/PolyclinicReports: спільні джерела даних (.rds), 8 звітів (.rdl), .rptproj, .sln.
-Запуск:  python SSRS_Projects/Builder/reports.py
-"""
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from rdl import Report, DARK, MID, LIGHT, esc  # noqa: E402
+from rdl import Report, DARK, MID, LIGHT, esc
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 OUT = os.path.join(ROOT, "PolyclinicReports")
@@ -35,9 +29,6 @@ def L(name, level):
     return (name, "Level", level)
 
 
-# =============================================================================
-# 01. Список лікарів та їх пацієнтів (таблиця)
-# =============================================================================
 def report01():
     r = Report("01_Лікарі_та_пацієнти", "Список лікарів та їх пацієнтів",
                "Табличний звіт: пацієнти кожного лікаря за період з підсумками по лікарях і відділеннях. "
@@ -139,9 +130,6 @@ HAVING @OnlyChronic = 0 OR MAX(CASE WHEN dis.IsChronic = 1 THEN 1 ELSE 0 END) = 
     return r
 
 
-# =============================================================================
-# 02. Історія хвороби пацієнта (деталізація + вкладений звіт)
-# =============================================================================
 def report02():
     r = Report("02_Історія_хвороби_пацієнта", "Історія хвороби пацієнта",
                "Картка пацієнта та всі історії хвороб з діагнозами, візитами і призначеними ліками (вкладений звіт). "
@@ -265,9 +253,6 @@ def report02a():
     return r
 
 
-# =============================================================================
-# 03. Завантаженість лікарів по місяцях (матриця, OLAP)
-# =============================================================================
 def report03():
     r = Report("03_Завантаженість_лікарів", "Завантаженість лікарів по місяцях",
                "Матричний звіт з OLAP-куба: проведені візити лікар × місяць, теплова карта завантаженості, "
@@ -317,9 +302,6 @@ FROM ( SELECT STRTOSET(@Year, CONSTRAINED) ON COLUMNS FROM [Поліклінік
     return r
 
 
-# =============================================================================
-# 04. Аналіз ефективності лікування (діаграми, OLAP)
-# =============================================================================
 SUBCUBE = ("FROM ( SELECT ( STRTOSET(@Years, CONSTRAINED), FILTER(STRTOSET(@Classes, CONSTRAINED), @IncludeZ = \"True\" OR "
            "NOT ([Хвороба].[Клас МКХ-10].CURRENTMEMBER IS [Хвороба].[Клас МКХ-10].&[Z00-Z99])) ) ON COLUMNS FROM [Поліклініка] )")
 P04 = {"Years": "=Parameters!Years.Value", "Classes": "=Parameters!Classes.Value", "IncludeZ": "=CStr(Parameters!IncludePreventive.Value)"}
@@ -398,9 +380,6 @@ TOPCOUNT(FILTER([Лікар].[Лікар].[Лікар].ALLMEMBERS, [Measures].[�
     return r
 
 
-# =============================================================================
-# 05. Статистика захворювань (деталізація drill-down + drillthrough, OLAP)
-# =============================================================================
 def report05():
     r = Report("05_Статистика_захворювань", "Статистика захворювань",
                "Звіт з деталізацією (OLAP): клас МКХ-10 → хвороба → вікова група, з розгортанням груп, навігаційною "
@@ -472,9 +451,6 @@ FROM ( SELECT ( STRTOSET(@Years, CONSTRAINED), STRTOSET(@Genders, CONSTRAINED) )
     return r
 
 
-# =============================================================================
-# 06. Дашборд
-# =============================================================================
 def report06():
     r = Report("06_Дашборд", "Дашборд поліклініки",
                "Дашборд (OLAP): KPI з індикаторами стану, датчики, динаміка візитів, тренди відділень (спарклайни), "
@@ -512,7 +488,6 @@ FROM [Поліклініка] WHERE ( STRTOMEMBER(@YearCal, CONSTRAINED) )""",
     r.param("Year", "Рік", values_ds=("dsYears", "YearCalMdx", "YearNo"), default="[Дата].[Календар].[Рік].&[2025]")
     top = r.title_block('="Рік: " & Parameters!Year.Label & " · показники порівнюються з цілями KPI та попереднім роком"')
 
-    # --- плитки KPI ---
     k = lambda c: f'First(Fields!{c}.Value, "dsKpi")'
     tiles = [("Ефективність лікування", "Eff", "0.0%"), ("Дотримання нормативу", "Norm", "0.0%"),
              ("Частка неявок", "NoShow", "0.0%"), ("Ріст виручки (рік до року)", "Growth", "+0.0%;-0.0%")]
@@ -529,7 +504,6 @@ FROM [Поліклініка] WHERE ( STRTOMEMBER(@YearCal, CONSTRAINED) )""",
                  r.tb(f'="Ціль: " & Format({k(key + "Goal")}, "0%")', size=7, color="#7F7F7F", border=False,
                       pos=(1.65, 0.15, tw - 0.3, 0.45))]
         r.add(r.rectangle(f"rectKpi{key}", items, (top, left, tw, 2.2), bg="#F7F9FC"), top + 2.2)
-    # --- датчики ---
     gl = 4 * (tw + 0.25)
     gw = (r.body_w - gl - 0.25) / 2
     r.add(r.radial_gauge("gEff", "dsKpi", f"={k('EffValue')} * 100", (top, gl, gw, 3.4), 100,
@@ -549,7 +523,6 @@ FROM [Поліклініка] WHERE ( STRTOMEMBER(@YearCal, CONSTRAINED) )""",
                    ("Попередній рік", "=Sum(Fields!VisitsPY.Value)", None, "#A5A5A5")],
                   title="Візити по місяцях у порівнянні з попереднім роком", pos=(t2, 0, w, 5.6),
                   label_expr="=Left(Fields!Month.Value, 3)"), t2 + 5.6)
-    # --- топ-5 хвороб ---
     hdr = [H(r, "Топ-5 хвороб за кількістю випадків", align="Left"), H(r, "Випадки"), H(r, "Ефективність")]
     det = [r.tb("=Fields!Disease.Value", size=8), r.tb("=Fields!Cases.Value", fmt="#,##0", align="Right", size=8),
            r.tb("=Fields!Eff.Value", fmt="0.0%", align="Right", size=8, bold=True,
@@ -557,7 +530,6 @@ FROM [Поліклініка] WHERE ( STRTOMEMBER(@YearCal, CONSTRAINED) )""",
     x, b = r.table("tblTopDiseases", "dsTopDiseases", [w - 4.6, 2.2, 2.4], [hdr], [], [det], pos=(t2, w + 0.5),
                    detail_sort=[("=Fields!Cases.Value", True)])
     r.add(x, b)
-    # --- відділення зі спарклайнами ---
     t3 = t2 + 5.9
     spark = r.chart("spDept", "dsDepartments", "Line", "=Fields!Month.Value",
                     [("Візити", "=Sum(Fields!Visits.Value)", None, "#4472C4")], legend=False, sparkline=True)
@@ -578,9 +550,6 @@ FROM [Поліклініка] WHERE ( STRTOMEMBER(@YearCal, CONSTRAINED) )""",
     return r
 
 
-# =============================================================================
-# 07. Пацієнти з діагнозом (ціль переходу drillthrough)
-# =============================================================================
 def report07():
     r = Report("07_Пацієнти_з_діагнозом", "Пацієнти з діагнозом",
                "Список закритих випадків лікування з вибраним основним діагнозом (відкривається зі звіту «Статистика "
@@ -633,9 +602,6 @@ WHERE f.DiseaseKey = @DiseaseKey AND cd.YearNo IN (@Years)""",
     return r
 
 
-# =============================================================================
-# Спільні джерела даних і проєкт
-# =============================================================================
 def write_project():
     os.makedirs(OUT, exist_ok=True)
     sources = {

@@ -1,10 +1,3 @@
-// =====================================================================
-// Курсова робота NVBD, варіант 6 «Поліклініка» — генератор SSIS-пакетів.
-// Каркас: створення пакетів, підключень, журналювання та компонентів
-// потоку даних через офіційну об'єктну модель SSIS (SQL Server 2022, v16).
-// Пакети, створені тут, відкриваються і редагуються у Visual Studio як звичайні.
-// (C# 5 — компілюється PowerShell Add-Type)
-// =====================================================================
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +8,6 @@ using RW = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 
 namespace PolyclinicEtl
 {
-    // Опис колонки: для Derived Column, Data Conversion, Lookup (Expr = колонка довідника)
     public class Col
     {
         public string Name;
@@ -39,7 +31,6 @@ namespace PolyclinicEtl
         public static Col Num(string name, int prec, int scale, string expr) { return Make(name, RW.DataType.DT_NUMERIC, 0, prec, scale, 0, expr); }
     }
 
-    // Агрегат: 0 Group by, 1 Count, 2 Count all, 3 Count distinct, 4 Sum, 5 Avg, 6 Min, 7 Max
     public class Agg
     {
         public string Name, Source; public int Type;
@@ -55,11 +46,6 @@ namespace PolyclinicEtl
         public static bool Verbose = true;
     }
 
-    // ------------------------------------------------------------------
-    // Пакет зі стандартним журналюванням:
-    //   SQL «Початок пакета» → [тіло] → SQL «Завершення пакета»
-    //   OnError → etl.usp_LogError
-    // ------------------------------------------------------------------
     public class Pkg
     {
         public Application App = new Application();
@@ -70,7 +56,6 @@ namespace PolyclinicEtl
 
         public Pkg(string fileName, string description) : this(fileName, description, false) { }
 
-        // startsRun = true — головний пакет: спочатку відкриває новий запуск ETL (etl.ETLRun)
         public Pkg(string fileName, string description, bool startsRun)
         {
             FileName = fileName;
@@ -78,7 +63,7 @@ namespace PolyclinicEtl
             P.Name = fileName.Replace(".dtsx", "");
             P.Description = description;
             P.ProtectionLevel = DTSProtectionLevel.DontSaveSensitive;
-            P.LocaleID = 1033;            // числа/дати в джерелах — у форматі en-US (крапка як роздільник)
+            P.LocaleID = 1033;
             P.CreatorName = "PolyclinicETL builder";
 
             Var("ServerName", Cfg.Server);
@@ -133,7 +118,6 @@ namespace PolyclinicEtl
             return v;
         }
 
-        // Execute SQL Task. bindings: "ResultName=User::Var" (однорядковий результат)
         public static TaskHost Sql(IDTSSequence container, string name, ConnectionManager cm, string sql, string sqlExpression, params string[] bindings)
         {
             TaskHost th = (TaskHost)container.Executables.Add("STOCK:SQLTask");
@@ -171,7 +155,6 @@ namespace PolyclinicEtl
             return pc;
         }
 
-        // Додає крок у головний ланцюжок пакета (після попереднього)
         public T Then<T>(T exec) where T : Executable
         {
             Link(P, last, exec);
@@ -186,7 +169,6 @@ namespace PolyclinicEtl
             return s;
         }
 
-        // Завершення пакета: кількості рядків з усіх змінних Rows*
         public void Finish(string rowsReadExpr, string rowsInsertedExpr, string rowsUpdatedExpr, string rowsRejectedExpr)
         {
             Then(Sql(P, "SQL Завершення пакета", Dw, "SELECT 1",
@@ -210,9 +192,6 @@ namespace PolyclinicEtl
         }
     }
 
-    // ------------------------------------------------------------------
-    // Потік даних (Data Flow Task)
-    // ------------------------------------------------------------------
     public class Flow
     {
         public TaskHost Task;
@@ -300,7 +279,6 @@ namespace PolyclinicEtl
             return I(c).SetUsageType(input.ID, vi, vc.LineageID, DTSUsageType.UT_READONLY);
         }
 
-        // Вибирає лише колонки, на які посилаються вирази ([Назва]) — без попереджень про невикористані колонки
         void SelectReferenced(IDTSComponentMetaData100 c, IDTSInput100 input, IEnumerable<string> expressions)
         {
             string all = string.Join(" ", expressions);
@@ -317,7 +295,6 @@ namespace PolyclinicEtl
                 I(c).SetUsageType(input.ID, vi, vc.LineageID, DTSUsageType.UT_READONLY);
         }
 
-        // ---------- Джерела ----------
         public IDTSComponentMetaData100 Source(string name, ConnectionManager cm, string sql, string description)
         {
             IDTSComponentMetaData100 c = New("Microsoft.OLEDBSource", name, description);
@@ -328,7 +305,6 @@ namespace PolyclinicEtl
             return c;
         }
 
-        // SQL-запит з рядкової змінної (для інкрементального завантаження)
         public IDTSComponentMetaData100 SourceFromVar(string name, ConnectionManager cm, string variable, string description)
         {
             IDTSComponentMetaData100 c = New("Microsoft.OLEDBSource", name, description);
@@ -348,7 +324,6 @@ namespace PolyclinicEtl
             return c;
         }
 
-        // ---------- Перетворення ----------
         public IDTSComponentMetaData100 Derived(string name, IDTSOutput100 up, string description, params Col[] cols)
         {
             IDTSComponentMetaData100 c = New("Microsoft.DerivedColumn", name, description);
@@ -370,7 +345,6 @@ namespace PolyclinicEtl
             return c;
         }
 
-        // Data Conversion: Col.Expr = назва вхідної колонки
         public IDTSComponentMetaData100 Convert(string name, IDTSOutput100 up, bool redirectErrors, string description, params Col[] cols)
         {
             IDTSComponentMetaData100 c = New("Microsoft.DataConvert", name, description);
@@ -390,15 +364,13 @@ namespace PolyclinicEtl
             return c;
         }
 
-        // Lookup: joins = "ВхіднаКолонка=КолонкаДовідника"; outs: Col.Name = вихідна колонка, Col.Expr = колонка довідника
-        // noMatch: 0 — ігнорувати (NULL), 1 — у вихід «Lookup No Match Output»
         public IDTSComponentMetaData100 Lookup(string name, IDTSOutput100 up, ConnectionManager cm, string sql, string[] joins,
                                                int noMatch, string description, params Col[] outs)
         {
             IDTSComponentMetaData100 c = New("Microsoft.Lookup", name, description);
             SetConn(c, cm);
             I(c).SetComponentProperty("SqlCommand", sql);
-            I(c).SetComponentProperty("CacheType", 0);           // Full cache
+            I(c).SetComponentProperty("CacheType", 0);
             I(c).SetComponentProperty("NoMatchBehavior", noMatch);
             Attach(up, c.InputCollection[0]);
             Refresh(c);
@@ -420,7 +392,6 @@ namespace PolyclinicEtl
             return c;
         }
 
-        // Conditional Split: pairs = "Вихід", "Вираз", ...
         public IDTSComponentMetaData100 Split(string name, IDTSOutput100 up, string defaultName, string description, params string[] pairs)
         {
             IDTSComponentMetaData100 c = New("Microsoft.ConditionalSplit", name, description);
@@ -468,7 +439,6 @@ namespace PolyclinicEtl
             throw new Exception("Output #" + index + " not found in " + c.Name);
         }
 
-        // Sort: keys — колонки сортування; dedupe — видалення рядків з однаковими ключами
         public IDTSComponentMetaData100 Sort(string name, IDTSOutput100 up, bool dedupe, string description, params string[] keys)
         {
             IDTSComponentMetaData100 c = New("Microsoft.Sort", name, description);
@@ -511,8 +481,6 @@ namespace PolyclinicEtl
             return c;
         }
 
-        // Union All: колонки виходу беруться з першого входу (компонент створює їх сам);
-        // наступні входи зіставляються з ними за назвою
         public IDTSComponentMetaData100 Union(string name, string[] columns, string description, params IDTSOutput100[] ups)
         {
             IDTSComponentMetaData100 c = New("Microsoft.UnionAll", name, description);
@@ -547,7 +515,6 @@ namespace PolyclinicEtl
                     else if (current != outLineage[vc.Name])
                     {
                         prop.Value = outLineage[vc.Name];
-                        // прибрати колонку виходу, яку компонент міг створити автоматично
                         foreach (IDTSOutputColumn100 oc in output.OutputColumnCollection)
                             if (oc.LineageID == current && !outLineage.ContainsValue(current))
                             {
@@ -557,7 +524,6 @@ namespace PolyclinicEtl
                     }
                 }
             }
-            // колонки виходу, яких немає в списку (компонент додає всі колонки першого входу), — прибрати
             if (columns != null)
             {
                 List<IDTSOutputColumn100> extra = new List<IDTSOutputColumn100>();
@@ -589,12 +555,11 @@ namespace PolyclinicEtl
             return c;
         }
 
-        // ---------- Призначення ----------
         public IDTSComponentMetaData100 Dest(string name, IDTSOutput100 up, ConnectionManager cm, string table, string description)
         {
             IDTSComponentMetaData100 c = New("Microsoft.OLEDBDestination", name, description);
             SetConn(c, cm);
-            I(c).SetComponentProperty("AccessMode", 3);                         // OpenRowset Using FastLoad
+            I(c).SetComponentProperty("AccessMode", 3);
             I(c).SetComponentProperty("OpenRowset", table);
             I(c).SetComponentProperty("FastLoadOptions", "TABLOCK,CHECK_CONSTRAINTS");
             I(c).SetComponentProperty("FastLoadMaxInsertCommitSize", 100000);

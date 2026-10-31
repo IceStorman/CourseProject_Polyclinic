@@ -1,6 +1,3 @@
-// =====================================================================
-// Курсова робота NVBD, варіант 6 «Поліклініка» — визначення SSIS-пакетів.
-// =====================================================================
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,23 +8,18 @@ namespace PolyclinicEtl
 {
     public static partial class Packages
     {
-        // Спільні вирази
         const string AgeGroupExpr =
             "[AgeAtEvent] < 18 ? 1 : [AgeAtEvent] < 35 ? 2 : [AgeAtEvent] < 50 ? 3 : [AgeAtEvent] < 65 ? 4 : 5";
         static string DateKeyExpr(string col)
         {
             return "YEAR([" + col + "]) * 10000 + MONTH([" + col + "]) * 100 + DAY([" + col + "])";
         }
-        // Вік на дату події (повні роки) — SQL-фрагмент для джерел
         static string AgeSql(string birth, string at)
         {
             return "DATEDIFF(YEAR, " + birth + ", " + at + ") - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, " + birth + ", " + at + "), "
                  + birth + ") > " + at + " THEN 1 ELSE 0 END";
         }
 
-        // =============================================================
-        // 01. Календарний вимір
-        // =============================================================
         public static Pkg DimDate()
         {
             Pkg k = new Pkg("01_Load_DimDate.dtsx", "Генерація календарного виміру dim.DimDate (2015–2026)");
@@ -38,9 +30,6 @@ namespace PolyclinicEtl
             return k;
         }
 
-        // =============================================================
-        // 02. Виміри: хвороби та ліки (SCD1), пацієнти та лікарі (SCD2)
-        // =============================================================
         public static Pkg Dimensions()
         {
             Pkg k = new Pkg("02_Load_Dimensions.dtsx",
@@ -61,7 +50,6 @@ namespace PolyclinicEtl
                 + "FROM dbo.Doctors d JOIN dbo.Specialties s ON s.SpecialtyID = d.SpecialtyID JOIN dbo.Departments dep ON dep.DepartmentID = d.DepartmentID "
                 + "WHERE d.ModifiedAt > '\" + @[User::DoctorWatermark] + \"'\"");
 
-            // ---------- SCD Type 1 ----------
             Sequence s1 = k.Then(k.Seq("SEQ Довідникові виміри (SCD Type 1)"));
             Executable trunc = Pkg.Sql(s1, "SQL Очищення staging SCD1", k.Dw,
                 "TRUNCATE TABLE stg.DiseaseUpdate; TRUNCATE TABLE stg.MedicationUpdate;", null);
@@ -124,7 +112,6 @@ namespace PolyclinicEtl
             Pkg.Link(s1, trunc, fd.Task); Pkg.Link(s1, fd.Task, applyDis);
             Pkg.Link(s1, trunc, fm.Task); Pkg.Link(s1, fm.Task, applyMed);
 
-            // ---------- SCD Type 2 ----------
             Sequence s2 = k.Then(k.Seq("SEQ Пацієнти та лікарі (SCD Type 2)"));
             Executable wm = Pkg.Sql(s2, "SQL Watermark та очищення staging", k.Dw,
                 "TRUNCATE TABLE stg.Patient; TRUNCATE TABLE stg.Doctor; "

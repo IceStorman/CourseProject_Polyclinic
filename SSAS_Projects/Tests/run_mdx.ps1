@@ -1,5 +1,3 @@
-# Runs an MDX query against PolyclinicOLAP and prints the result as a table.
-# Usage:  run_mdx.ps1 -Query "SELECT ... FROM [Поліклініка]"   or   run_mdx.ps1 -File query.mdx
 param(
     [string]$Query,
     [string]$File,

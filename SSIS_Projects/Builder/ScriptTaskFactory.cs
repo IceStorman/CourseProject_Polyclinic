@@ -1,9 +1,3 @@
-// =====================================================================
-// Створення Script Task (C#) без запуску редактора VSTA:
-// файли проєкту беруться зі стандартного шаблону SSIS (VSTA_SQL16_IS_ST_CS_Template.vstax),
-// код ScriptMain компілюється тут і зберігається в задачі разом з вихідними текстами.
-// У Visual Studio задача відкривається через «Edit Script» як звичайна.
-// =====================================================================
 using System;
 using System.CodeDom.Compiler;
 using System.IO;
@@ -19,7 +13,6 @@ namespace PolyclinicEtl
     {
         const string TemplatePath = @"C:\Program Files (x86)\Microsoft SQL Server\160\DTS\Binn\VSTA_SQL16_IS_ST_CS_Template.vstax";
 
-        // body — тіло методу Main() (C# 5); usings — додаткові простори імен
         public static TaskHost Create(IDTSSequence container, string name, string description,
                                       string readOnlyVars, string readWriteVars, string body)
         {

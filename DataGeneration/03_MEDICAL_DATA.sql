@@ -1,40 +1,15 @@
-/* =====================================================================
-   Курсова робота NVBD, варіант 6 «Поліклініка»
-   Генерація даних. Скрипт 3. Медичні дані за 2016–2025 рр.
-     MedicalRecords ~560 000, Diagnoses ~650 000, Visits ~1 200 000,
-     Prescriptions ~1 100 000
-
-   Моделі реалістичності:
-     - сезонність звернень (пік узимку, спад улітку), ріст бази по роках,
-       локдаун 2020 р. та початок повномасштабної війни 2022 р.;
-       неробочі неділі та державні свята
-     - хвороба залежить від віку, статі пацієнта та сезону;
-       COVID-19 — лише у березні 2020 – травні 2023
-     - хронічні хвороби мають повторні звернення; хронічні хвороби з
-       попередніх історій додаються як супутні діагнози
-     - тривалість і результат лікування залежать від тяжкості, віку
-       пацієнта та кваліфікаційної категорії лікаря
-     - ціни на візити та ліки індексуються за роками (інфляція)
-     - ліки підбираються за групою хвороби без абсолютних протипоказань
-   Генерація набору даних — set-based (без курсорів), ~3–6 хв.
-   ===================================================================== */
 USE PolyclinicDB;
 GO
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
 
--- Тригери перевіряють поодинокі операції; при масовому завантаженні
--- правила гарантує генератор, а скрипт 04 перевіряє їх повторно
 DISABLE TRIGGER ALL ON dbo.MedicalRecords;
 DISABLE TRIGGER ALL ON dbo.Diagnoses;
 DISABLE TRIGGER ALL ON dbo.Visits;
 DISABLE TRIGGER ALL ON dbo.Prescriptions;
 GO
 
-/* =====================================================================
-   1. Календар робочих днів з вагами інтенсивності звернень
-   ===================================================================== */
 RAISERROR(N'1. Календар...', 0, 1) WITH NOWAIT;
 
 DROP TABLE IF EXISTS gen.Inflation;
@@ -48,14 +23,14 @@ WITH Days AS (
     FROM gen.Numbers WHERE N <= DATEDIFF(DAY, '2016-01-01', '2025-12-31') + 1
 ), Weighted AS (
     SELECT D,
-           CHOOSE(MONTH(D), 1.30, 1.30, 1.10, 0.95, 0.85, 0.75, 0.65, 0.70, 1.00, 1.10, 1.20, 1.20)     -- сезонність
-         * CHOOSE(YEAR(D) - 2015, 0.80, 0.84, 0.88, 0.92, 0.90, 1.00, 1.05, 1.08, 1.10, 1.12)          -- ріст бази
-         * CASE WHEN DATEDIFF(DAY, '19000101', D) % 7 = 5 THEN 0.35 ELSE 1.0 END                        -- субота
-         * CASE WHEN D BETWEEN '2020-03-17' AND '2020-05-31' THEN 0.45                                   -- локдаун
-                WHEN D BETWEEN '2022-02-24' AND '2022-04-15' THEN 0.60                                   -- початок війни
+           CHOOSE(MONTH(D), 1.30, 1.30, 1.10, 0.95, 0.85, 0.75, 0.65, 0.70, 1.00, 1.10, 1.20, 1.20)
+         * CHOOSE(YEAR(D) - 2015, 0.80, 0.84, 0.88, 0.92, 0.90, 1.00, 1.05, 1.08, 1.10, 1.12)
+         * CASE WHEN DATEDIFF(DAY, '19000101', D) % 7 = 5 THEN 0.35 ELSE 1.0 END
+         * CASE WHEN D BETWEEN '2020-03-17' AND '2020-05-31' THEN 0.45
+                WHEN D BETWEEN '2022-02-24' AND '2022-04-15' THEN 0.60
                 ELSE 1.0 END AS W
     FROM Days
-    WHERE DATEDIFF(DAY, '19000101', D) % 7 <> 6                                                         -- неділя — вихідний
+    WHERE DATEDIFF(DAY, '19000101', D) % 7 <> 6
       AND NOT (MONTH(D) = 1 AND DAY(D) IN (1, 7))
       AND NOT (MONTH(D) = 3 AND DAY(D) = 8)
       AND NOT (MONTH(D) = 5 AND DAY(D) = 1)
@@ -71,7 +46,6 @@ ALTER TABLE gen.Calendar ADD CONSTRAINT PK_gen_Calendar PRIMARY KEY (D);
 UPDATE gen.Calendar SET CumTo = 1.01 WHERE D = (SELECT MAX(D) FROM gen.Calendar);
 CREATE INDEX IX_gen_Calendar_CumTo ON gen.Calendar (CumTo) INCLUDE (EligibleCnt);
 
--- Пацієнти в порядку прикріплення; EligibleCnt — скільки пацієнтів прикріплено на дату
 DROP TABLE IF EXISTS gen.PatReg;
 SELECT ISNULL(CAST(ROW_NUMBER() OVER (ORDER BY RegistrationDate, PatientID) AS INT), 0) AS Rn,
        PatientID, RegistrationDate, BirthDate, Gender
@@ -85,10 +59,6 @@ FROM gen.Calendar c
 CROSS APPLY (SELECT MAX(Rn) AS Cnt FROM gen.PatReg p WHERE p.RegistrationDate <= c.D) x;
 GO
 
-/* =====================================================================
-   2. Кумулятивні ймовірності хвороб для кожної комбінації
-      (вікова група × стать × сезон × період COVID)
-   ===================================================================== */
 RAISERROR(N'2. Ймовірності хвороб...', 0, 1) WITH NOWAIT;
 
 DROP TABLE IF EXISTS #AgeFactor;
@@ -113,8 +83,8 @@ WITH Combos AS (
          * af.F
          * CASE WHEN dp.Seasonality = cb.Season THEN 2.5 WHEN dp.Seasonality = N'Всесезонна' THEN 1.0 ELSE 0.6 END
          * CASE WHEN dp.Gender IS NULL OR dp.Gender = cb.Gender THEN 1.0
-                WHEN dp.ICDCode IN ('N95.1', 'N94.6', 'N76.0', 'M81.0', 'N40') THEN 0.0   -- лише одна стать
-                ELSE 0.4 END AS W                                                         -- переважно одна стать
+                WHEN dp.ICDCode IN ('N95.1', 'N94.6', 'N76.0', 'M81.0', 'N40') THEN 0.0
+                ELSE 0.4 END AS W
     FROM Combos cb
     CROSS JOIN gen.DiseaseProfile dp
     JOIN #AgeFactor af ON af.Profile = dp.AgeProfile AND af.Band = cb.Band
@@ -130,16 +100,12 @@ UPDATE gen.DiseaseCum SET CumTo = 1.01 WHERE RevRn = 1;
 CREATE CLUSTERED INDEX CIX_gen_DiseaseCum ON gen.DiseaseCum (Band, Gender, Season, Covid, CumTo);
 GO
 
-/* =====================================================================
-   3. Слоти звернень: дата → пацієнт (прикріплений на дату) → хвороба
-   ===================================================================== */
 RAISERROR(N'3. Звернення...', 0, 1) WITH NOWAIT;
 
 DECLARE @BaseRecords INT = 470000;
 
 DROP TABLE IF EXISTS #S;
 SELECT N AS SlotID,
-       -- рівномірне [0; 1): 31 випадковий біт / 2^31
        (CHECKSUM(NEWID()) & 0x7FFFFFFF) / 2147483648.0 AS RDate,
        (CHECKSUM(NEWID()) & 0x7FFFFFFF) / 2147483648.0 AS RPat,
        (CHECKSUM(NEWID()) & 0x7FFFFFFF) / 2147483648.0 AS RDis,
@@ -165,7 +131,6 @@ CROSS APPLY (SELECT TOP (1) dc.DiseaseID FROM gen.DiseaseCum dc
                AND dc.CumTo >= s.RDis
              ORDER BY dc.CumTo) dz;
 
--- Повторні звернення з хронічними хворобами: 25% випадків, 1–3 повтори через 4–12 місяців
 DROP TABLE IF EXISTS #Slots;
 SELECT OpenDate, PatientID, DiseaseID INTO #Slots FROM #Base;
 
@@ -183,9 +148,6 @@ DECLARE @SlotCount INT = (SELECT COUNT(*) FROM #Slots);
 RAISERROR(N'   звернень: %d', 0, 1, @SlotCount) WITH NOWAIT;
 GO
 
-/* =====================================================================
-   4. Історії хвороб: лікар, тяжкість, тривалість, кількість візитів, результат
-   ===================================================================== */
 RAISERROR(N'4. Історії хвороб...', 0, 1) WITH NOWAIT;
 
 DECLARE @Therapist INT = (SELECT SpecialtyID FROM dbo.Specialties WHERE Name = N'Терапевт'),
@@ -197,7 +159,6 @@ SELECT ROW_NUMBER() OVER (ORDER BY s.OpenDate, NEWID()) AS RecordID,
        s.PatientID, s.DiseaseID, s.OpenDate,
        a.Age,
        dp.IsChronic, dp.Severity AS DisSev, dp.AvgTreatmentDays, dp.Tag,
-       -- дітей лікує педіатр; дорослих з «дитячими» хворобами — терапевт
        CASE WHEN a.Age < 18 AND dp.SpecialtyID IN (@Therapist, @Family) THEN @Pediatr
             WHEN a.Age >= 18 AND dp.SpecialtyID = @Pediatr THEN @Therapist
             ELSE dp.SpecialtyID END AS SpecialtyID,
@@ -213,7 +174,6 @@ JOIN gen.DiseaseProfile dp ON dp.DiseaseID = s.DiseaseID
 CROSS APPLY (SELECT DATEDIFF(YEAR, p.BirthDate, s.OpenDate)
                   - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, p.BirthDate, s.OpenDate), p.BirthDate) > s.OpenDate THEN 1 ELSE 0 END AS Age) a;
 
--- Лікуючий лікар: випадковий лікар потрібної спеціальності, що працював на дату звернення
 DROP TABLE IF EXISTS #Rec;
 SELECT r.*,
        doc.DoctorID AS AttDoctorID, doc.Category AS DocCategory,
@@ -233,30 +193,25 @@ CROSS APPLY (SELECT TOP (1) d.DoctorID, d.Category
 
 CREATE UNIQUE CLUSTERED INDEX CIX_Rec ON #Rec (RecordID);
 
--- Тяжкість у конкретного пацієнта: тяжкість хвороби ±1
 UPDATE #Rec SET Severity = CASE WHEN RSev <= 1 THEN IIF(DisSev > 1, DisSev - 1, 1)
                                 WHEN RSev >= 8 THEN IIF(DisSev < 5, DisSev + 1, 5)
                                 ELSE DisSev END;
 
--- Тривалість лікування: норматив × випадковий коефіцієнт × тяжкість × категорія лікаря
 UPDATE #Rec SET ActualDays =
     CASE WHEN Tag IN ('CHECKUP', 'VACCINE') THEN 0
          ELSE GREATEST(1, CEILING(AvgTreatmentDays * (0.5 + RDays) * (1 + (CAST(Severity AS INT) - DisSev) * 0.25) * CatDays)) END;
 
--- Кількість візитів: 1–5, залежно від тривалості та тяжкості; не більше ніж днів лікування
 UPDATE #Rec SET NVisits =
     CASE WHEN Tag IN ('CHECKUP', 'VACCINE') THEN 1
          ELSE LEAST(ActualDays + 1,
                     1 + FLOOR(RVis * LEAST(4.0, 1 + ActualDays / 8.0)) + IIF(Severity >= 4, 1, 0)) END;
 
--- Дата закриття (неділя → понеділок); історії, що не завершились до кінця 2025 р., залишаються відкритими
 UPDATE #Rec SET CloseDate = x.D,
                 Status = IIF(x.D > '2025-12-31', N'Відкрита', N'Закрита')
 FROM #Rec
 CROSS APPLY (SELECT DATEADD(DAY, ActualDays, OpenDate) AS D0) d0
 CROSS APPLY (SELECT IIF(DATEDIFF(DAY, '19000101', d0.D0) % 7 = 6, DATEADD(DAY, 1, d0.D0), d0.D0) AS D) x;
 
--- Результат лікування
 UPDATE r SET Outcome =
     CASE WHEN r.Status = N'Відкрита' THEN NULL
          WHEN r.Tag IN ('CHECKUP', 'VACCINE') THEN N'Без змін'
@@ -285,9 +240,6 @@ UPDATE #Rec SET CloseDate = NULL WHERE Status = N'Відкрита';
 CREATE INDEX IX_Rec_Patient ON #Rec (PatientID, OpenDate) INCLUDE (DiseaseID, IsChronic);
 GO
 
-/* =====================================================================
-   5. Візити
-   ===================================================================== */
 RAISERROR(N'5. Візити...', 0, 1) WITH NOWAIT;
 
 DROP TABLE IF EXISTS #V0;
@@ -301,7 +253,6 @@ INTO #V0
 FROM #Rec r
 JOIN gen.Numbers k ON k.N <= r.NVisits
 CROSS APPLY (SELECT DATEADD(DAY, IIF(r.NVisits = 1, 0, ROUND(r.ActualDays * (k.N - 1) / (r.NVisits - 1.0), 0)), r.OpenDate) AS D0) d0
--- візит на неділю переноситься на суботу (дата не виходить за межі історії)
 CROSS APPLY (SELECT IIF(DATEDIFF(DAY, '19000101', d0.D0) % 7 = 6, DATEADD(DAY, -1, d0.D0), d0.D0) AS D) vd
 WHERE vd.D <= '2025-12-31';
 
@@ -318,7 +269,6 @@ UPDATE #V0 SET
                      ELSE N'Відбувся' END,
     DoctorID  = AttDoctorID;
 
--- Консультація — у лікаря іншої спеціальності
 UPDATE v SET DoctorID = c.DoctorID
 FROM #V0 v
 CROSS APPLY (SELECT TOP (1) d.DoctorID FROM dbo.Doctors d
@@ -328,7 +278,6 @@ CROSS APPLY (SELECT TOP (1) d.DoctorID FROM dbo.Doctors d
              ORDER BY CHECKSUM(NEWID(), v.RecordID, v.K)) c
 WHERE v.VisitType = N'Консультація';
 
--- Якщо лікуючий лікар звільнився під час лікування — візит до колеги тієї ж спеціальності
 UPDATE v SET DoctorID = c.DoctorID
 FROM #V0 v
 JOIN dbo.Doctors cur ON cur.DoctorID = v.DoctorID
@@ -339,7 +288,6 @@ CROSS APPLY (SELECT TOP (1) d.DoctorID FROM dbo.Doctors d
              ORDER BY CHECKSUM(NEWID(), v.RecordID, v.K)) c
 WHERE CAST(v.VisitDateTime AS DATE) > cur.DismissalDate;
 
--- Скарги при первинному зверненні
 DROP TABLE IF EXISTS #Complaints;
 SELECT ROW_NUMBER() OVER (PARTITION BY Chapter ORDER BY Txt) AS Idx, COUNT(*) OVER (PARTITION BY Chapter) AS Cnt, *
 INTO #Complaints
@@ -389,10 +337,6 @@ CREATE UNIQUE CLUSTERED INDEX CIX_V ON #V (VisitID);
 CREATE INDEX IX_V_Record ON #V (RecordID, K);
 GO
 
-/* =====================================================================
-   6. Діагнози: основний + супутні (хронічні хвороби з попередніх історій)
-      + ускладнення
-   ===================================================================== */
 RAISERROR(N'6. Діагнози...', 0, 1) WITH NOWAIT;
 
 DROP TABLE IF EXISTS #Dg;
@@ -401,7 +345,6 @@ CREATE TABLE #Dg (RecordID INT, DiseaseID INT, DoctorID INT, DiagnosisDate DATE,
 INSERT #Dg
 SELECT RecordID, DiseaseID, AttDoctorID, OpenDate, N'Основний', Severity FROM #Rec;
 
--- Супутні: раніше діагностовані хронічні хвороби пацієнта (до 2 на історію, з імовірністю 50%)
 INSERT #Dg
 SELECT x.RecordID, x.DiseaseID, x.AttDoctorID, x.OpenDate, N'Супутній', x.DisSev
 FROM (
@@ -420,20 +363,17 @@ FROM (
 ) x
 WHERE x.Rn <= 2;
 
--- Ускладнення: встановлюються на другому візиті
 INSERT #Dg
 SELECT r.RecordID, c.ToDiseaseID, v.DoctorID, CAST(v.VisitDateTime AS DATE), N'Ускладнення',
        IIF(r.Severity < 5, r.Severity + 1, 5)
 FROM #Rec r
 JOIN gen.Complications c ON c.FromDiseaseID = r.DiseaseID
 JOIN #V v ON v.RecordID = r.RecordID AND v.K = 2
--- RecordID у CHECKSUM не дає оптимізатору обчислити NEWID() один раз на правило (до з'єднання)
 WHERE (CHECKSUM(NEWID(), r.RecordID) & 0x7FFFFFFF) % 10000 < c.Prob * 10000
   AND NOT EXISTS (SELECT 1 FROM #Dg d WHERE d.RecordID = r.RecordID AND d.DiseaseID = c.ToDiseaseID);
 DECLARE @Compl INT = @@ROWCOUNT, @ComplRules INT = (SELECT COUNT(*) FROM gen.Complications);
 RAISERROR(N'   ускладнень: %d (правил: %d)', 0, 1, @Compl, @ComplRules) WITH NOWAIT;
 
--- Унікальність (історія, хвороба)
 WITH Dup AS (SELECT ROW_NUMBER() OVER (PARTITION BY RecordID, DiseaseID
                                        ORDER BY CASE DiagnosisType WHEN N'Основний' THEN 0 ELSE 1 END) AS Rn FROM #Dg)
 DELETE FROM Dup WHERE Rn > 1;
@@ -441,12 +381,8 @@ DELETE FROM Dup WHERE Rn > 1;
 CREATE CLUSTERED INDEX CIX_Dg ON #Dg (RecordID, DiseaseID);
 GO
 
-/* =====================================================================
-   7. Призначення ліків
-   ===================================================================== */
 RAISERROR(N'7. Призначення...', 0, 1) WITH NOWAIT;
 
--- Кількість препаратів на візиті
 DROP TABLE IF EXISTS #PV;
 SELECT v.VisitID, v.RecordID, v.VisitDateTime, r.Tag, r.IsChronic, r.AvgTreatmentDays,
        CASE WHEN r.Tag = 'VACCINE' THEN 1
@@ -463,7 +399,6 @@ WHERE v.Status = N'Відбувся';
 
 DELETE FROM #PV WHERE MedCount = 0;
 
--- Вибір препаратів за групою хвороби, без абсолютних протипоказань до діагнозів цієї історії
 DROP TABLE IF EXISTS #Pr;
 SELECT c.VisitID, c.MedicationID, c.VisitDateTime, c.IsChronic, c.AvgTreatmentDays, c.Tag
 INTO #Pr
@@ -496,9 +431,6 @@ CROSS APPLY (SELECT CAST(CASE WHEN p.Tag = 'VACCINE' THEN 1
                               ELSE LEAST(14, GREATEST(3, p.AvgTreatmentDays - 2 + x.R % 5)) END AS SMALLINT) AS Days) dur;
 GO
 
-/* =====================================================================
-   8. Завантаження в таблиці БД
-   ===================================================================== */
 RAISERROR(N'8. Завантаження в БД...', 0, 1) WITH NOWAIT;
 
 SET IDENTITY_INSERT dbo.MedicalRecords ON;

@@ -1,7 +1,3 @@
-# Full data generation: recreates PolyclinicDB (Database\deploy.ps1), then runs
-# the generation scripts in order. Output is saved to generation_log.txt.
-# WARNING: existing PolyclinicDB is dropped.
-# Usage:  powershell -ExecutionPolicy Bypass -File DataGeneration\generate.ps1 [-Server .]
 param(
     [string]$Server = "."
 )
@@ -27,7 +23,6 @@ foreach ($script in $scripts) {
     & sqlcmd -S $Server -E -b -I -f 65001 -W -s "|" -i (Join-Path $PSScriptRoot $script) -o $out
     $code = $LASTEXITCODE
     "`n===== $script =====" | Out-File $log -Append -Encoding utf8
-    # skip sp_updatestats noise
     Get-Content $out -Encoding UTF8 |
         Where-Object { $_ -notmatch '^Updating \[|has been updated|update is not necessary|index\(es\)/statistic|^Statistics for all|^\s*$' } |
         Out-File $log -Append -Encoding utf8

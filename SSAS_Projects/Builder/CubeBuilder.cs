@@ -1,10 +1,3 @@
-// =====================================================================
-// Курсова робота NVBD, варіант 6 «Поліклініка» — OLAP-куб (SSAS Multidimensional).
-// Створює базу PolyclinicOLAP через AMO: джерело даних, DSV (іменовані обчислення
-// та запити), 9 вимірів, куб з 5 групами мір, MDX-скрипт, KPI, партиції,
-// режими зберігання, перспективи, дизайн агрегацій; обробляє куб.
-// (C# 5 — компілюється PowerShell Add-Type)
-// =====================================================================
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -30,7 +23,6 @@ namespace PolyclinicOlap
 
         string SqlConn { get { return "Provider=MSOLEDBSQL;Data Source=" + SqlServer + ";Initial Catalog=PolyclinicDW;Integrated Security=SSPI;"; } }
 
-        // ------------------------------------------------------------------
         public Database Build(bool process)
         {
             srv = new Server();
@@ -44,7 +36,7 @@ namespace PolyclinicOlap
 
                 db = srv.Databases.Add(DbName, DbName);
                 db.Description = "OLAP-куб «Поліклініка»: візити, призначення ліків, ефективність лікування, лабораторні аналізи (джерело — PolyclinicDW)";
-                db.Language = 1058;                 // українська
+                db.Language = 1058;
                 db.Collation = "Ukrainian_CI_AS";
                 db.Update();
 
@@ -77,7 +69,6 @@ namespace PolyclinicOlap
             if (srv != null && srv.Connected) srv.Disconnect();
         }
 
-        // ------------------------------------------------------------------
         void CreateDataSource()
         {
             RelationalDataSource r = new RelationalDataSource("PolyclinicDW", "PolyclinicDW");
@@ -89,7 +80,6 @@ namespace PolyclinicOlap
             ds = r;
         }
 
-        // ---------- Data Source View ----------
         void CreateDsv()
         {
             dsv = db.DataSourceViews.Add("PolyclinicDW", "PolyclinicDW");
@@ -110,7 +100,6 @@ namespace PolyclinicOlap
             AddTable("fact", "FactTreatment");
             AddTable("fact", "FactLabResult");
 
-            // Іменований запит: пацієнт з поточним віком і поточною віковою групою
             AddNamedQuery("DimPatient", "PatientKey",
                 "SELECT p.PatientKey, p.PatientID, p.FullName, p.GenderName, p.BirthYear, p.BloodType, p.City, p.Region, p.CityGroup, p.HasInsurance, p.IsCurrent, "
                 + "CASE WHEN p.PatientKey < 0 THEN N'Невідомо' "
@@ -118,12 +107,10 @@ namespace PolyclinicOlap
                 + "WHEN DATEDIFF(YEAR, p.BirthDate, '2025-12-31') < 50 THEN N'35-49' WHEN DATEDIFF(YEAR, p.BirthDate, '2025-12-31') < 65 THEN N'50-64' ELSE N'65+' END AS CurrentAgeGroup "
                 + "FROM dim.DimPatient AS p",
                 "Пацієнт з поточною (на 31.12.2025) віковою групою");
-            // Іменований запит: класи хвороб (окрема таблиця рівня ієрархії)
             AddNamedQuery("DiseaseChapter", "ICDChapter",
                 "SELECT DISTINCT ICDChapter, ICDChapter + N' ' + CategoryName AS ChapterLabel FROM dim.DimDisease",
                 "Класи МКХ-10 (для вибору класу у звітах)");
 
-            // Іменовані обчислення
             Calc("DimDate", "DateName", "CONVERT(nvarchar(10), FullDate, 104)", "Дата у форматі дд.мм.рррр");
             Calc("DimDate", "QuarterYearName", "QuarterName + N' ' + CAST(YearNo AS nvarchar(4))", "Квартал з роком");
             Calc("DimDate", "HalfYearName", "CASE WHEN MonthNo <= 6 THEN N'I півріччя ' ELSE N'II півріччя ' END + CAST(YearNo AS nvarchar(4))", "Півріччя з роком");
@@ -133,7 +120,6 @@ namespace PolyclinicOlap
             Calc("DimDisease", "InfectiousName", "CASE WHEN IsInfectious = 1 THEN N'Інфекційна' ELSE N'Неінфекційна' END", "Інфекційність");
             Calc("DimVisitType", "VisitTypeLabel", "VisitType + N' — ' + VisitStatus", "Тип і статус візиту");
 
-            // Зв'язки (зовнішні ключі фактів → первинні ключі вимірів)
             Rel("FactVisit", "DateKey", "DimDate", "DateKey");
             Rel("FactVisit", "PatientKey", "DimPatient", "PatientKey");
             Rel("FactVisit", "DoctorKey", "DimDoctor", "DoctorKey");
@@ -210,7 +196,6 @@ namespace PolyclinicOlap
             dsv.Schema.Relations.Add(new DataRelation(fact + "_" + fk + "_" + dim, parent, child, false));
         }
 
-        // ---------- Виміри ----------
         static DataItem DI(string table, string column, System.Data.OleDb.OleDbType type, int size)
         {
             DataItem d = new DataItem(table, column, type);
@@ -229,13 +214,11 @@ namespace PolyclinicOlap
                 D.Description = description;
                 D.Source = new DataSourceViewBinding(dsv.ID);
                 D.StorageMode = DimensionStorageMode.Molap;
-                D.UnknownMember = UnknownMemberBehavior.None;        // у таблицях є власний член «Невідомо» (ключ -1)
-                // суперечливі дані атрибутів (напр. місто у двох регіонах) зупиняють обробку
+                D.UnknownMember = UnknownMemberBehavior.None;
                 D.ErrorConfiguration = new ErrorConfiguration();
                 D.ErrorConfiguration.KeyDuplicate = ErrorOption.ReportAndStop;
             }
 
-            // keyCols: «Колонка:тип» (тип: int / str / smallint / tinyint); name — колонка назви
             public DimensionAttribute Attr(string id, string name, string keyCols, string nameCol, bool visible)
             {
                 DimensionAttribute a = D.Attributes.Add(name, id);
@@ -281,7 +264,6 @@ namespace PolyclinicOlap
         {
             Dictionary<string, Dimension> r = new Dictionary<string, Dimension>();
 
-            // Дата
             DimDef d = new DimDef(db, "Date", "Дата", "DimDate", "Календар 2015–2026", dsv);
             d.D.Type = DimensionType.Time;
             DimensionAttribute date = d.Attr("Date", "Дата", "DateKey", "DateName", false); date.Usage = AttributeUsage.Key; date.Type = AttributeType.Date;
@@ -299,7 +281,6 @@ namespace PolyclinicOlap
             d.Hier("Calendar", "Календар", year, half, quarter, month, date);
             r["Date"] = d.D;
 
-            // Пацієнт
             d = new DimDef(db, "Patient", "Пацієнт", "DimPatient", "Пацієнти (SCD Type 2: місто, страховка)", dsv);
             DimensionAttribute pat = d.Attr("Patient", "Пацієнт", "PatientKey", "FullName", false); pat.Usage = AttributeUsage.Key;
             DimensionAttribute city = d.Attr("City", "Місто", "City:str", null, true);
@@ -317,7 +298,6 @@ namespace PolyclinicOlap
             d.Hier("Geography", "Географія", region, city, pat);
             r["Patient"] = d.D;
 
-            // Лікар
             d = new DimDef(db, "Doctor", "Лікар", "DimDoctor", "Лікарі (SCD Type 2: спеціальність, відділення, категорія)", dsv);
             DimensionAttribute doc = d.Attr("Doctor", "Лікар", "DoctorKey", "DoctorLabel", true); doc.Usage = AttributeUsage.Key;
             DimensionAttribute spec = d.Attr("Specialty", "Спеціальність", "Specialty:str", null, true);
@@ -328,7 +308,6 @@ namespace PolyclinicOlap
             d.Hier("Structure", "Структура поліклініки", dept, spec, doc);
             r["Doctor"] = d.D;
 
-            // Хвороба
             d = new DimDef(db, "Disease", "Хвороба", "DimDisease", "Хвороби МКХ-10", dsv);
             DimensionAttribute dis = d.Attr("Disease", "Хвороба", "DiseaseKey", "DiseaseFullName", true); dis.Usage = AttributeUsage.Key;
             DimensionAttribute chapter = d.Attr("Chapter", "Клас МКХ-10", "ICDChapter:str", "CategoryName", true);
@@ -340,7 +319,6 @@ namespace PolyclinicOlap
             d.Hier("ICD", "Класифікація МКХ-10", chapter, dis);
             r["Disease"] = d.D;
 
-            // Препарат
             d = new DimDef(db, "Medication", "Препарат", "DimMedication", "Лікарські засоби", dsv);
             DimensionAttribute med = d.Attr("Medication", "Препарат", "MedicationKey", "MedicationName", true); med.Usage = AttributeUsage.Key;
             DimensionAttribute grp = d.Attr("Group", "Фармгрупа", "GroupName:str", null, true);
@@ -351,7 +329,6 @@ namespace PolyclinicOlap
             d.Hier("Groups", "Фармгрупи", grp, med);
             r["Medication"] = d.D;
 
-            // Вікова група
             d = new DimDef(db, "AgeGroup", "Вікова група", "DimAgeGroup", "Вікова група пацієнта на дату події", dsv);
             DimensionAttribute ag = d.Attr("AgeGroup", "Вікова група", "AgeGroupKey", "AgeGroup", true); ag.Usage = AttributeUsage.Key;
             DimensionAttribute agc = d.Attr("AgeCategory", "Вікова категорія", "AgeCategory:str", null, true);
@@ -359,7 +336,6 @@ namespace PolyclinicOlap
             d.Hier("Age", "Вік", agc, ag);
             r["AgeGroup"] = d.D;
 
-            // Тип візиту
             d = new DimDef(db, "VisitType", "Тип візиту", "DimVisitType", "Тип і статус візиту", dsv);
             DimensionAttribute vt = d.Attr("VisitTypeStatus", "Тип і статус", "VisitTypeKey", "VisitTypeLabel", true); vt.Usage = AttributeUsage.Key;
             DimensionAttribute vtype = d.Attr("VisitType", "Тип візиту", "VisitType:str", null, true);
@@ -368,7 +344,6 @@ namespace PolyclinicOlap
             d.Hier("TypeStatus", "Тип → статус", vtype, vt);
             r["VisitType"] = d.D;
 
-            // Результат лікування
             d = new DimDef(db, "Outcome", "Результат лікування", "DimOutcome", "Результат закритої історії хвороби", dsv);
             DimensionAttribute oc = d.Attr("Outcome", "Результат", "OutcomeKey", "Outcome", true); oc.Usage = AttributeUsage.Key;
             DimensionAttribute ocg = d.Attr("OutcomeGroup", "Група результату", "OutcomeGroup:str", null, true);
@@ -376,7 +351,6 @@ namespace PolyclinicOlap
             d.Hier("Outcomes", "Результати", ocg, oc);
             r["Outcome"] = d.D;
 
-            // Аналіз
             d = new DimDef(db, "LabTest", "Аналіз", "DimLabTest", "Лабораторні аналізи", dsv);
             DimensionAttribute lt = d.Attr("LabTest", "Аналіз", "LabTestKey", "TestName", true); lt.Usage = AttributeUsage.Key;
             DimensionAttribute ltg = d.Attr("TestGroup", "Група аналізів", "TestGroup:str", null, true);
@@ -388,7 +362,6 @@ namespace PolyclinicOlap
             return r;
         }
 
-        // ---------- Куб ----------
         Measure M(MeasureGroup mg, string id, string name, AggregationFunction f, string table, string column,
                   System.Data.OleDb.OleDbType type, string format, bool visible)
         {
@@ -420,7 +393,6 @@ namespace PolyclinicOlap
             using (OleDbCommand c = new OleDbCommand(query, sql)) return Convert.ToInt64(c.ExecuteScalar());
         }
 
-        // Партиції по роках (query binding)
         void YearPartitions(MeasureGroup mg, string table, string prefix)
         {
             for (int y = 2016; y <= 2026; y++)
@@ -459,7 +431,6 @@ namespace PolyclinicOlap
             var DBL = System.Data.OleDb.OleDbType.Double;
             const string N0 = "#,##0", N2 = "#,##0.00";
 
-            // --- Візити ---
             MeasureGroup v = cube.MeasureGroups.Add("Візити", "Visits");
             v.StorageMode = StorageMode.Molap;
             M(v, "VisitCount", "Кількість візитів", AggregationFunction.Count, "FactVisit", null, I4, N0, true);
@@ -476,7 +447,6 @@ namespace PolyclinicOlap
                 Use(v, u.Item1, "FactVisit", u.Item2);
             YearPartitions(v, "FactVisit", "Візити");
 
-            // --- Унікальні пацієнти (Distinct Count — окрема група мір) ---
             MeasureGroup up = cube.MeasureGroups.Add("Унікальні пацієнти", "UniquePatients");
             up.StorageMode = StorageMode.Molap;
             M(up, "UniquePatients", "Унікальні пацієнти", AggregationFunction.DistinctCount, "FactVisit", "PatientKey", I4, N0, true);
@@ -487,7 +457,6 @@ namespace PolyclinicOlap
             upp.Source = new DsvTableBinding(dsv.ID, "FactVisit");
             upp.EstimatedRows = Scalar("SELECT COUNT_BIG(*) FROM fact.FactVisit");
 
-            // --- Призначення ---
             MeasureGroup pr = cube.MeasureGroups.Add("Призначення", "Prescriptions");
             pr.StorageMode = StorageMode.Molap;
             M(pr, "PrescriptionCount", "Кількість призначень", AggregationFunction.Count, "FactPrescription", null, I4, N0, true);
@@ -500,7 +469,6 @@ namespace PolyclinicOlap
                 Use(pr, u.Item1, "FactPrescription", u.Item2);
             YearPartitions(pr, "FactPrescription", "Призначення");
 
-            // --- Лікування ---
             MeasureGroup tr = cube.MeasureGroups.Add("Лікування", "Treatment");
             tr.StorageMode = StorageMode.Molap;
             M(tr, "Cases", "Випадки лікування", AggregationFunction.Count, "FactTreatment", null, I4, N0, true);
@@ -522,7 +490,6 @@ namespace PolyclinicOlap
             trp.Source = new DsvTableBinding(dsv.ID, "FactTreatment");
             trp.EstimatedRows = Scalar("SELECT COUNT_BIG(*) FROM fact.FactTreatment");
 
-            // --- Аналізи (HOLAP: агрегати в кубі, деталі — у сховищі) ---
             MeasureGroup lab = cube.MeasureGroups.Add("Аналізи", "LabResults");
             lab.StorageMode = StorageMode.Holap;
             M(lab, "LabCount", "Кількість аналізів", AggregationFunction.Count, "FactLabResult", null, I4, N0, true);
@@ -582,11 +549,9 @@ namespace PolyclinicOlap
             foreach (string k in kpis) p.Kpis.Add(k);
         }
 
-        // ---------- Агрегації ----------
         public void DesignAggregations(double targetPercent)
         {
             Cube cube = db.Cubes["Polyclinic"];
-            // кількість членів атрибутів — для оцінки розміру агрегацій
             foreach (Dimension dim in db.Dimensions)
                 foreach (DimensionAttribute a in dim.Attributes)
                 {
@@ -599,14 +564,11 @@ namespace PolyclinicOlap
                 }
             foreach (Dimension dim in db.Dimensions) dim.Update();
 
-            // атрибути, які дизайнер може використовувати в агрегаціях
             foreach (CubeDimension cd in cube.Dimensions)
                 foreach (CubeAttribute ca in cd.Attributes)
                     if (ca.Attribute.Usage != AttributeUsage.Key && ca.Attribute.AttributeHierarchyEnabled)
                         ca.AggregationUsage = AggregationUsage.Unrestricted;
-            // звіти майже завжди групують дані за місяцем — місяць у кожній агрегації
             cube.Dimensions["Date"].Attributes["Month"].AggregationUsage = AggregationUsage.Full;
-            // персональні атрибути пацієнта (55 тис. членів) не агрегуються — запити йдуть за групами
             foreach (CubeAttribute ca in cube.Dimensions["Patient"].Attributes)
                 if (ca.AttributeID != "Region" && ca.AttributeID != "CityGroup" && ca.AttributeID != "Gender")
                     ca.AggregationUsage = AggregationUsage.None;
@@ -637,7 +599,6 @@ namespace PolyclinicOlap
                 ad.FinalizeDesign();
                 if (mg.ID == "Prescriptions")
                 {
-                    // ручні агрегації під типові звіти (доповнюють автоматичний дизайн)
                     ManualAggregation(ad, "Фармгрупа × Місяць", "Date:Month", "Medication:Group");
                     ManualAggregation(ad, "Препарат × Місяць", "Date:Month", "Medication:Medication");
                     ManualAggregation(ad, "Спеціальність × Місяць", "Date:Month", "Doctor:Specialty");

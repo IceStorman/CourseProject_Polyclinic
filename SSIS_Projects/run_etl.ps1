@@ -1,7 +1,3 @@
-# Runs the full ETL (00_Master.dtsx) with DTExec and prints the run summary.
-# Usage:
-#   powershell -ExecutionPolicy Bypass -File SSIS_Projects\run_etl.ps1
-#   powershell -ExecutionPolicy Bypass -File SSIS_Projects\run_etl.ps1 -RestoreLabFiles   # move processed lab files back to Inbox
 param(
     [string]$Server = ".",
     [switch]$RestoreLabFiles

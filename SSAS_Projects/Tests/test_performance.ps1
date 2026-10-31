@@ -1,8 +1,4 @@
-﻿# Порівняння продуктивності: OLTP (PolyclinicDB) vs сховище (PolyclinicDW) vs OLAP-куб (PolyclinicOLAP)
-# та вплив агрегацій куба. Результати: performance_results.txt
-# Холодний запуск — після очищення кешів (DBCC DROPCLEANBUFFERS / XMLA ClearCache), теплий — середнє 3 повторів.
-# Usage:  powershell -ExecutionPolicy Bypass -File SSAS_Projects\Tests\test_performance.ps1
-param(
+﻿param(
     [string]$SqlServer = "localhost",
     [string]$OlapServer = "localhost"
 )
@@ -49,7 +45,6 @@ function Measure-Query($name, [scriptblock]$run) {
     [pscustomobject]@{ Query = $name; ColdMs = $cold.Ms; WarmMs = [math]::Round($warm / 3); Rows = $cold.Rows }
 }
 
-# ---- Q1: візити, виручка, унікальні пацієнти за роками і спеціальностями ----
 $q1Oltp = @"
 SELECT YEAR(v.VisitDateTime) AS Yr, s.Name AS Specialty, COUNT(*) AS Visits, SUM(v.Cost) AS Revenue, COUNT(DISTINCT r.PatientID) AS Patients
 FROM dbo.Visits v JOIN dbo.Doctors d ON d.DoctorID = v.DoctorID JOIN dbo.Specialties s ON s.SpecialtyID = d.SpecialtyID
@@ -66,7 +61,6 @@ SELECT { [Measures].[Кількість візитів], [Measures].[Вируч�
 NON EMPTY [Дата].[Рік].[Рік].MEMBERS * [Лікар].[Спеціальність].[Спеціальність].MEMBERS ON 1 FROM [Поліклініка]
 "@
 
-# ---- Q2: статистика захворювань — випадки й одужання за класом МКХ-10, роком і віковою групою ----
 $q2Oltp = @"
 SELECT dc.Name AS Chapter, YEAR(r.CloseDate) AS Yr, dbo.fn_AgeGroup(p.BirthDate, r.OpenDate) AS AgeGroup,
        COUNT(*) AS Cases, AVG(1.0 * DATEDIFF(DAY, r.OpenDate, r.CloseDate)) AS AvgDays,
@@ -98,7 +92,6 @@ $results += Measure-Query "Q2 OLTP (PolyclinicDB)"     { param($c) Sql-Time "Pol
 $results += Measure-Query "Q2 DW (PolyclinicDW)"       { param($c) Sql-Time "PolyclinicDW" $q2Dw $c }
 $results += Measure-Query "Q2 OLAP (з агрегаціями)"     { param($c) Mdx-Time $q2Mdx $c }
 
-# ---- Вплив агрегацій: ProcessClearIndexes прибирає агрегації та індекси, ProcessIndexes — відновлює ----
 function Xmla-Process([string]$type) {
     $c = New-Object Microsoft.AnalysisServices.AdomdClient.AdomdConnection("Data Source=$OlapServer")
     $c.Open()

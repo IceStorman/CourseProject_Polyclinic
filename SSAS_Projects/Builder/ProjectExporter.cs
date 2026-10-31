@@ -1,7 +1,3 @@
-// =====================================================================
-// Експорт розгорнутої бази SSAS у проєкт Visual Studio
-// (Analysis Services Multidimensional Project: .dwproj, .ds, .dsv, .dim, .cube, .partitions).
-// =====================================================================
 using System;
 using System.IO;
 using System.Linq;
@@ -22,7 +18,6 @@ namespace PolyclinicOlap
             using (XmlWriter w = XmlWriter.Create(sb, new XmlWriterSettings { Indent = true, OmitXmlDeclaration = true }))
                 Utils.Serialize(w, obj, false);
             XDocument doc = XDocument.Parse(sb.ToString());
-            // службові позначки стану сервера не потрібні у вихідних файлах проєкту
             foreach (string n in new[] { "CreatedTimestamp", "LastSchemaUpdate", "LastProcessed", "State", "LastUpdate", "CurrentStorageMode" })
                 doc.Root.Elements(Eng + n).Remove();
             return doc;
@@ -44,7 +39,6 @@ namespace PolyclinicOlap
                 Directory.CreateDirectory(projectDir);
                 string proj = "PolyclinicOLAP";
 
-                // .database
                 XDocument dbDoc = Serialize(db);
                 foreach (string n in new[] { "Dimensions", "Cubes", "DataSources", "DataSourceViews", "Roles", "Assemblies", "MiningStructures", "Accounts", "DatabasePermissions" })
                     dbDoc.Root.Elements(Eng + n).Remove();
@@ -75,7 +69,6 @@ namespace PolyclinicOlap
                 foreach (Cube c in db.Cubes)
                 {
                     XDocument cubeDoc = Serialize(c);
-                    // .partitions — лише партиції та дизайни агрегацій груп мір
                     XElement partsRoot = new XElement(cubeDoc.Root.Name, cubeDoc.Root.Attributes(),
                         cubeDoc.Root.Element(Eng + "ID"), cubeDoc.Root.Element(Eng + "Name"),
                         new XElement(Eng + "MeasureGroups",

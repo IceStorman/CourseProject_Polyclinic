@@ -1,19 +1,8 @@
-/* =====================================================================
-   Курсова робота NVBD, варіант 6 «Поліклініка»
-   Генерація даних. Скрипт 4. Валідація даних, статистика, прибирання.
-     1. Перевірка бізнес-правил на згенерованих даних (очікується 0 порушень)
-     2. Увімкнення тригерів, оновлення статистик
-     3. Статистика та аналіз розподілів (для пояснювальної записки)
-     4. Видалення допоміжної схеми gen
-   ===================================================================== */
 USE PolyclinicDB;
 GO
 SET NOCOUNT ON;
 GO
 
-/* ===================== 1. ВАЛІДАЦІЯ ===================== */
--- Ліки з абсолютним протипоказанням до хронічної хвороби з ІНШОЇ історії пацієнта
--- (генератор перевіряє лише діагнози поточної історії) — видаляються за правилом тригера
 DELETE pr
 FROM dbo.Prescriptions pr
 WHERE EXISTS (
@@ -73,19 +62,16 @@ JOIN dbo.Specialties s ON s.SpecialtyID = d.SpecialtyID
 WHERE s.Name = N'Педіатр' AND dbo.fn_Age(p.BirthDate, r.OpenDate) >= 18;
 GO
 
-/* ===================== 2. ТРИГЕРИ, СТАТИСТИКИ ===================== */
 ENABLE TRIGGER ALL ON dbo.MedicalRecords;
 ENABLE TRIGGER ALL ON dbo.Diagnoses;
 ENABLE TRIGGER ALL ON dbo.Visits;
 ENABLE TRIGGER ALL ON dbo.Prescriptions;
--- Перевірка, що обмеження FOREIGN KEY / CHECK довірені (не були вимкнені)
 SELECT COUNT(*) AS UntrustedConstraints
 FROM (SELECT is_not_trusted FROM sys.foreign_keys UNION ALL SELECT is_not_trusted FROM sys.check_constraints) c
 WHERE c.is_not_trusted = 1;
 EXEC sp_updatestats;
 GO
 
-/* ===================== 3. СТАТИСТИКА ===================== */
 PRINT N'--- 3.1 Кількість записів ---';
 SELECT t.name AS TableName, SUM(p.rows) AS Rows_
 FROM sys.tables t JOIN sys.partitions p ON p.object_id = t.object_id AND p.index_id IN (0, 1)
@@ -146,7 +132,6 @@ PRINT N'--- 3.7 Результати лікування ---';
 SELECT r.Outcome, COUNT(*) AS Records, CAST(100.0 * COUNT(*) / SUM(COUNT(*)) OVER () AS DECIMAL(5,2)) AS Pct
 FROM dbo.MedicalRecords r WHERE r.Status = N'Закрита' GROUP BY r.Outcome ORDER BY Records DESC;
 
--- Ефективність за категорією лікаря (без профілактичних звернень)
 SELECT d.Category,
        COUNT(*) AS ClosedRecords,
        CAST(100.0 * SUM(CASE WHEN r.Outcome IN (N'Одужання', N'Покращення') THEN 1 ELSE 0 END) / COUNT(*) AS DECIMAL(5,2)) AS EffectivenessPct,
@@ -163,7 +148,6 @@ SELECT VisitType, Status, COUNT(*) AS Visits FROM dbo.Visits GROUP BY VisitType,
 SELECT CAST(1.0 * (SELECT COUNT(*) FROM dbo.Visits) / (SELECT COUNT(*) FROM dbo.MedicalRecords) AS DECIMAL(6,2)) AS AvgVisitsPerRecord,
        CAST(1.0 * (SELECT COUNT(*) FROM dbo.Prescriptions) / (SELECT COUNT(*) FROM dbo.Visits WHERE Status = N'Відбувся') AS DECIMAL(6,2)) AS AvgPrescriptionsPerVisit;
 
--- Навантаження лікарів: візитів на робочий день
 SELECT s.Name AS Specialty, COUNT(DISTINCT v.DoctorID) AS Doctors, COUNT(*) AS Visits,
        CAST(1.0 * COUNT(*) / COUNT(DISTINCT CONCAT(v.DoctorID, '|', CAST(v.VisitDateTime AS DATE))) AS DECIMAL(6,2)) AS VisitsPerDoctorDay
 FROM dbo.Visits v JOIN dbo.Doctors d ON d.DoctorID = v.DoctorID JOIN dbo.Specialties s ON s.SpecialtyID = d.SpecialtyID
@@ -175,7 +159,6 @@ FROM dbo.Prescriptions pr JOIN dbo.Medications m ON m.MedicationID = pr.Medicati
 GROUP BY m.Name ORDER BY Prescriptions DESC;
 GO
 
-/* ===================== 4. ПРИБИРАННЯ ===================== */
 DECLARE @sql NVARCHAR(MAX) = N'';
 SELECT @sql += N'DROP TABLE gen.' + QUOTENAME(name) + N';' FROM sys.tables WHERE schema_id = SCHEMA_ID('gen');
 SELECT @sql += N'DROP FUNCTION gen.' + QUOTENAME(name) + N';' FROM sys.objects WHERE schema_id = SCHEMA_ID('gen') AND type IN ('FN', 'IF', 'TF');

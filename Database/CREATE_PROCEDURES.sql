@@ -1,17 +1,6 @@
-/* =====================================================================
-   Курсова робота NVBD, варіант 6 «Поліклініка»
-   Скрипт 6. Функції та збережені процедури
-     - операційні процедури (реєстрація, відкриття/закриття історії хвороби,
-       візити, призначення ліків)
-     - процедури для 5 обов'язкових звітів (OLTP-версія; використовуються
-       також для порівняння продуктивності OLTP vs OLAP)
-   ===================================================================== */
 USE PolyclinicDB;
 GO
 
-/* ===================== ФУНКЦІЇ ===================== */
-
--- Вартість візиту = базова ціна спеціальності × коефіцієнт категорії лікаря
 CREATE OR ALTER FUNCTION dbo.fn_VisitPrice (@DoctorID INT)
 RETURNS DECIMAL(10,2)
 AS
@@ -28,7 +17,6 @@ BEGIN
 END
 GO
 
--- Повний вік на дату
 CREATE OR ALTER FUNCTION dbo.fn_Age (@BirthDate DATE, @AtDate DATE)
 RETURNS INT
 AS
@@ -38,7 +26,6 @@ BEGIN
 END
 GO
 
--- Вікова група (використовується у статистиці захворювань і вимірі пацієнта)
 CREATE OR ALTER FUNCTION dbo.fn_AgeGroup (@BirthDate DATE, @AtDate DATE)
 RETURNS NVARCHAR(10)
 AS
@@ -51,8 +38,6 @@ BEGIN
                 ELSE N'65+' END;
 END
 GO
-
-/* ===================== ОПЕРАЦІЙНІ ПРОЦЕДУРИ ===================== */
 
 CREATE OR ALTER PROCEDURE dbo.usp_RegisterPatient
     @LastName        NVARCHAR(50),
@@ -83,8 +68,6 @@ BEGIN
 END
 GO
 
--- Відкриття історії хвороби: в одній транзакції створюються історія,
--- основний діагноз і первинний візит
 CREATE OR ALTER PROCEDURE dbo.usp_OpenMedicalRecord
     @PatientID     INT,
     @DoctorID      INT,
@@ -163,8 +146,6 @@ BEGIN
 END
 GO
 
--- Призначення ліків. Абсолютні протипоказання блокує тригер,
--- про відносні процедура повертає попередження в @Warning
 CREATE OR ALTER PROCEDURE dbo.usp_PrescribeMedication
     @VisitID        BIGINT,
     @MedicationID   INT,
@@ -224,9 +205,6 @@ BEGIN
 END
 GO
 
-/* ===================== ПРОЦЕДУРИ ДЛЯ ЗВІТІВ ===================== */
-
--- Звіт 1. Список лікарів та їх пацієнтів
 CREATE OR ALTER PROCEDURE dbo.usp_Report_DoctorPatients
     @DoctorID INT  = NULL,
     @DateFrom DATE = '2016-01-01',
@@ -260,7 +238,6 @@ BEGIN
 END
 GO
 
--- Звіт 2. Історія хвороби пацієнта (історії → діагнози → візити → призначення)
 CREATE OR ALTER PROCEDURE dbo.usp_Report_PatientHistory
     @PatientID INT
 AS
@@ -302,7 +279,6 @@ BEGIN
 END
 GO
 
--- Звіт 3. Завантаженість лікарів по місяцях
 CREATE OR ALTER PROCEDURE dbo.usp_Report_DoctorWorkloadByMonth
     @Year         INT,
     @DepartmentID INT = NULL
@@ -334,7 +310,6 @@ BEGIN
 END
 GO
 
--- Звіт 4. Аналіз ефективності лікування (за закритими історіями хвороб)
 CREATE OR ALTER PROCEDURE dbo.usp_Report_TreatmentEffectiveness
     @DateFrom   DATE = '2016-01-01',
     @DateTo     DATE = '2025-12-31',
@@ -366,7 +341,6 @@ BEGIN
 END
 GO
 
--- Звіт 5. Статистика захворювань (за датою діагнозу, віком і статтю)
 CREATE OR ALTER PROCEDURE dbo.usp_Report_DiseaseStatistics
     @DateFrom   DATE = '2016-01-01',
     @DateTo     DATE = '2025-12-31',
